@@ -33,9 +33,9 @@ class PCPAgents:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PCPAgents tester')
-    parser.add_argument('-sensing', type=int, default=2)
+    parser.add_argument('-sensing', type=int, default=3)
     parser.add_argument('-sensing_radius', type=float, default = .5)
-    parser.add_argument('-capture', type=int, default=2)
+    parser.add_argument('-capture', type=int, default=4)
     parser.add_argument('-capture_radius', type=float, default = .15)
     parser.add_argument('-show_figure', type=bool, default=True)
     parser.add_argument('-real_time', type=bool, default= False)
