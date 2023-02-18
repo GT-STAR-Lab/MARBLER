@@ -17,7 +17,8 @@ class PCPEnv:
         self.uni_barrier_cert = create_unicycle_barrier_certificate()
 
         if self.args.show_figure:
-            self.robot_marker_size_m = 0.2
+            self.sensing_marker_size_m = self.args.sensing_radius
+            self.capture_marker_size_m = self.args.capture_radius
             self.goal_marker_size_m = 0.3
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
@@ -38,7 +39,8 @@ class PCPEnv:
 
                     # Next two lines updates the marker sizes if the figure window size is changed. 
                     # They should be removed when submitting to the Robotarium.
-                    self.robot_markers[i].set_sizes([determine_marker_size(self.robotarium, self.robot_marker_size_m)])
+                    self.robot_markers[i].set_sizes([determine_marker_size(self.robotarium, \
+                                                        (self.sensing_marker_size_m if i < self.args.sensing else self.capture_marker_size_m))])
                 self.goal_marker.set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
 
             self.robotarium.step()
@@ -70,13 +72,11 @@ class PCPEnv:
         if self.args.show_figure:
             x = self.robotarium.get_poses()
 
-            marker_size_robot = determine_marker_size(self.robotarium, self.robot_marker_size_m)
+            marker_size_sensing = determine_marker_size(self.robotarium, self.sensing_marker_size_m)
+            marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)
             self.robot_markers = [self.robotarium.axes.scatter( \
-                x[0,ii], x[1,ii], s=marker_size_robot, marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.sensing else 1),linewidth=self.line_width) 
-                for ii in range(self.num_robots)]
-            self.robot_radius = [self.robotarium.axes.scatter( \
-                x[0,ii], x[1,ii], s=self.args.sensing, marker='.o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.sensing else 1),linewidth=self.line_width) 
+                x[0,ii], x[1,ii], s=(marker_size_sensing if ii < self.args.sensing else marker_size_capture), marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.sensing else 1),linewidth=self.line_width) 
                 for ii in range(self.num_robots)]
             
             self.goal_marker = self.robotarium.axes.scatter( \

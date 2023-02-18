@@ -27,13 +27,14 @@ class PCPAgents:
 
     def get_rewards(self, state_space):
         rewards = np.zeros(self.args.sensing + self.args.capture)
-        for i in len(rewards):
-            pass
+        #for i in range(len(rewards)):
+        #    np.linalg.norm(state_space['prey'], state_space[poses[]])
+        return rewards
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PCPAgents tester')
     parser.add_argument('-sensing', type=int, default=2)
-    parser.add_argument('-sensing_radius', type=float, deafult = .5)
+    parser.add_argument('-sensing_radius', type=float, default = .5)
     parser.add_argument('-capture', type=int, default=2)
     parser.add_argument('-capture_radius', type=float, default = .15)
     parser.add_argument('-show_figure', type=bool, default=True)
