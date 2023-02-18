@@ -14,18 +14,23 @@ class PCPEnv:
         self.agents = pcpAgents
         self.num_robots = self.args.sensing + self.args.capture
         self.first_run = True
-
         self.uni_barrier_cert = create_unicycle_barrier_certificate()
+
+        if self.args.show_figure:
+            self.robot_marker_size_m = 0.2
+            self.goal_marker_size_m = 0.3
+            self.line_width = 5
+            self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
     def run_episode(self):
         self._create_robotarium()
 
-        actions = self.agents.get_actions(self._generate_state_space())
+        state_space, x = self._generate_state_space() #x is the poses
+        actions = self.agents.get_actions(state_space)
         while actions != []:
             #Set the velocities to each agent based on the assigned action
-            x = self.robotarium.get_poses()
-            velocities = uni_barrier_cert(actions, x) #makes sure no collisions
-            self.robotarium.set_velocities(np.arrange(self.num_robots), velocities)
+            velocities = self.uni_barrier_cert(actions, x) #makes sure no collisions
+            self.robotarium.set_velocities(np.arange(self.num_robots), velocities)
             
             if self.args.show_figure:
                 for i in range(x.shape[1]):
@@ -37,7 +42,8 @@ class PCPEnv:
                 self.goal_marker.set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
 
             self.robotarium.step()
-            actions = self.agents.get_actions(self._generate_state_space())
+            state_space, x = self._generate_state_space()
+            actions = self.agents.get_actions(state_space)
 
     def _create_robotarium(self):
         if self.first_run:
@@ -45,7 +51,7 @@ class PCPEnv:
         else:
             self.robotarium.call_at_scripts_end() #TODO: check if this is needed and how it affects runtime
         
-        #generate initial locations
+        #generate initial robot locations
         #Assumes y and theta can be anything but the x locations are within the left third of the robotarium
         initial_conditions = generate_initial_conditions(self.num_robots, width=1)
         for i in range(len(initial_conditions[0])):
@@ -55,32 +61,37 @@ class PCPEnv:
                                                 initial_conditions=initial_conditions, sim_in_real_time=self.args.real_time)
         
         #setting the prey location to a random location where:
-        #   x is [0,1.5]
+        #   x is [0,1.4]
         #   y is [-.9, .9]
-        prey_x = random.random() * 1.5
+        prey_x = random.random() * 1.4
         prey_y = random.random() * 1.8 - .9
         self.prey_loc = [prey_x, prey_y]
 
         if self.args.show_figure:
             x = self.robotarium.get_poses()
-            self.robot_marker_size_m = 0.2
-            self.goal_marker_size_m = 0.3
-            line_width = 5
-            CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
             marker_size_robot = determine_marker_size(self.robotarium, self.robot_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)
             self.robot_markers = [self.robotarium.axes.scatter( \
-                x[0,ii], x[1,ii], s=marker_size_robot, marker='o', facecolors='none',edgecolors=CM(0 if ii < self.args.sensing else 1),linewidth=line_width) 
+                x[0,ii], x[1,ii], s=marker_size_robot, marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.sensing else 1),linewidth=self.line_width) 
+                for ii in range(self.num_robots)]
+            self.robot_radius = [self.robotarium.axes.scatter( \
+                x[0,ii], x[1,ii], s=self.args.sensing, marker='.o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.sensing else 1),linewidth=self.line_width) 
                 for ii in range(self.num_robots)]
             
             self.goal_marker = self.robotarium.axes.scatter( \
-                prey_x, prey_y, s=marker_size_goal, marker='o', facecolors='none',edgecolors=CM(2),linewidth=line_width,zorder=-2)
+                prey_x, prey_y, s=marker_size_goal, marker='o', facecolors='none',edgecolors=self.CM(2),linewidth=self.line_width,zorder=-2)
 
         self.robotarium.step()
 
     def _generate_state_space(self):
-        pass
+        state_space = {}
+        x = self.robotarium.get_poses()
+        state_space['poses'] = x
+        state_space['prey'] = self.prey_loc
+        
+        return state_space, x
+
 
     def __del__(self):
         self.robotarium.call_at_scripts_end()
