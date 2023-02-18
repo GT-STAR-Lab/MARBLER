@@ -10,23 +10,35 @@ from pcpAgents import *
 
 class PCPEnv:
     def __init__(self, pcpAgents, args):
+        '''
+        Inputs: object of the PCPAgents class and an argparse object
+        Argparse object must at least contain:
+            Number of sensing robots as args.sensing
+            Number of capture robots as args.capture
+            Radii for the sensing and capture agents as args.sensing_radius and args.capture radius respectively
+            Whether or not to show the figure as args.show_figure
+            Whether or not to run the simulation in real time as args.real_time
+        '''
         self.args = args
         self.agents = pcpAgents
         self.num_robots = self.args.sensing + self.args.capture
-        self.first_run = True
+        self.first_run = True 
         self.uni_barrier_cert = create_unicycle_barrier_certificate()
 
         if self.args.show_figure:
             self.sensing_marker_size_m = self.args.sensing_radius
             self.capture_marker_size_m = self.args.capture_radius
-            self.goal_marker_size_m = 0.3
+            self.goal_marker_size_m = 0.3 #Assuming 30cm goal size. May want to make this controllable?
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
     def run_episode(self):
+        '''
+        Creates a new instance of the robotarium and runs the agents until PCPAgents.get_actions returns []
+        '''
         self._create_robotarium()
 
-        state_space, x = self._generate_state_space() #x is the poses
+        state_space, x = self._generate_state_space() #x is the poses. Can only get the poses once per step
         actions = self.agents.get_actions(state_space)
         while actions != []:
             #Set the velocities to each agent based on the assigned action
@@ -48,6 +60,10 @@ class PCPEnv:
             actions = self.agents.get_actions(state_space)
 
     def _create_robotarium(self):
+        '''
+        Creates a new instance of the robotarium
+        Randomly initializes the prey in the right half and the agents in the left third of the Robotarium
+        '''
         if self.first_run:
             self.first_run = False
         else:
@@ -85,6 +101,9 @@ class PCPEnv:
         self.robotarium.step()
 
     def _generate_state_space(self):
+        '''
+        Generates a dictionary describing the state space of the robotarium
+        '''
         state_space = {}
         x = self.robotarium.get_poses()
         state_space['poses'] = x
