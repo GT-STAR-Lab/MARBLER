@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 
 from pcpEnv import *
 
@@ -11,9 +12,12 @@ class PCPAgents:
     def run_episode(self):
         self.env.run_episode()
 
+    #returns numpy array that is 2XNum_Robots
+    #The first row is the linear velocity of each robot
+    #The second row is the angular velocity of each robot in radians
     def get_actions(self, state_space):
+        #actions = np.ones(2, self.args.)
         pass
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PCPAgents tester')

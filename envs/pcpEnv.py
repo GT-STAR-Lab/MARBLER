@@ -4,6 +4,7 @@ from rps.utilities.barrier_certificates import *
 from rps.utilities.misc import *
 from rps.utilities.controllers import *
 
+import numpy as np
 import random
 from pcpAgents import *
 
@@ -14,15 +15,19 @@ class PCPEnv:
         self.num_robots = self.args.sensing + self.args.capture
         self.first_run = True
 
+        self.uni_barrier_cert = create_unicycle_barrier_certificate()
+
     def run_episode(self):
         self._create_robotarium()
 
         actions = self.agents.get_actions(self._generate_state_space())
         while actions != []:
             #Set the velocities to each agent based on the assigned action
+            x = self.robotarium.get_poses()
+            velocities = uni_barrier_cert(actions, x) #makes sure no collisions
+            self.robotarium.set_velocities(np.arrange(self.num_robots), velocities)
             
             if self.args.show_figure:
-                x = self.robotarium.get_poses()
                 for i in range(x.shape[1]):
                     self.robot_markers[i].set_offsets(x[:2,i].T)
 
@@ -61,7 +66,7 @@ class PCPEnv:
             self.robot_marker_size_m = 0.2
             self.goal_marker_size_m = 0.3
             line_width = 5
-            CM = plt.cm.get_cmap('hsv', 3) # Agent/goal color scheme
+            CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
             marker_size_robot = determine_marker_size(self.robotarium, self.robot_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)
