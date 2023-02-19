@@ -4,6 +4,7 @@ from enum import Enum
 from rps.utilities.graph import *
 from utilities import *
 from pcpEnv import *
+import warnings
 
 TYPE = Enum('TYPE', ['Predator', 'Capture'])
 class Agent:
@@ -13,7 +14,8 @@ class Agent:
         self.sensing_radius = sensing_radius
         self.reward = reward
         # agent hasn't found prey, nor has been communicated the location of the prey
-        self.prey_loc = None
+        self.prey_loc = []
+        self.prey_found = False
 
     def get_observation( self, nbr_indices, state_space, agents):
         '''
@@ -27,16 +29,19 @@ class Agent:
         observation['neighbours'] = []
         for nbr_index in nbr_indices:
             observation['neighbours'].append( state_space['poses'][:, nbr_index ] )
-            if self.prey_loc == None:
+            if not self.prey_found:
                 # check if neighbour found the prey
-                if agents[nbr_index].prey_loc != None:
+                if agents[nbr_index].prey_found:
+                    print("Prey found by neighbour ", nbr_index, " communicated to agent ", self.index)
                     self.prey_loc = agents[nbr_index].prey_loc
+                    self.prey_found = True
         
         # if prey hasnt been found check if prey is within sensing radius of the agent
-        if self.prey_loc == None:
+        if not self.prey_found:
             if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
-                print("Prey found by ", self.index, self.type.value)
+                print("Prey found by ", self.index, self.type.name)
                 self.prey_loc = state_space['prey']
+                self.prey_found = True
 
         return observation
 
@@ -98,9 +103,9 @@ class PCPAgents:
         rewards = self.get_rewards(state_space)
 
         actions = self._construct_ideal_actions(state_space)
-        # for i, agent in enumerate(self.agents):
-        #     if agent.prey_loc == None:     
-        #         actions[:,i] = get_random_vel()
+        for i, agent in enumerate(self.agents):
+            if agent.prey_loc == []:     
+                actions[:,i] = get_random_vel()
         return actions
     
     def get_observations(self, state_space):
@@ -126,23 +131,22 @@ class PCPAgents:
         return rewards
 
 if __name__ == "__main__":
+    warnings.filterwarnings(action='ignore', category=DeprecationWarning)
     parser = argparse.ArgumentParser(description='PCPAgents tester')
     # predator arguments
     parser.add_argument('-predator', type=int, default=2)
-    parser.add_argument('-predator_radius', type=float, default = .3)
+    parser.add_argument('-predator_radius', type=float, default = .2)
     parser.add_argument('-predator_reward', type=float, default = -0.05)
     # capture arguments
     parser.add_argument('-capture', type=int, default=2)
-    parser.add_argument('-capture_radius', type=float, default = .3)
+    parser.add_argument('-capture_radius', type=float, default = .15)
     parser.add_argument('-capture_reward', type=float, default = -0.05)
     # environment
     parser.add_argument('-show_figure', type=bool, default=True)
     parser.add_argument('-real_time', type=bool, default= False)
-    parser.add_argument('-max_episode_steps', type=int, default = 2000)
+    parser.add_argument('-max_episode_steps', type=int, default = 1000)
     parser.add_argument('-goal_size', type=int, default = 0.2)
     args = parser.parse_args()
     
     agents = PCPAgents(args)
-    print("run1")
     agents.run_episode()
-    # agents.run_episode()

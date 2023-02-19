@@ -3,7 +3,9 @@ import random
 
 def is_close( agent_poses, agent_index, prey_loc, sensing_radius):
     agent_pose = agent_poses[:2, agent_index]
-    return np.linalg.norm(agent_pose - prey_loc, 2) <= sensing_radius
+    prey_loc = prey_loc.reshape((1,2))[0]
+    # print(agent_pose, prey_loc, np.linalg.norm(agent_pose - prey_loc), sensing_radius)
+    return np.linalg.norm(agent_pose - prey_loc) <= sensing_radius
 
 def get_random_vel():
     '''
