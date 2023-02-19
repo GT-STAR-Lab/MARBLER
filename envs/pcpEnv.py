@@ -28,7 +28,7 @@ class PCPEnv:
         if self.args.show_figure:
             self.predator_marker_size_m = self.args.predator_radius
             self.capture_marker_size_m = self.args.capture_radius
-            self.goal_marker_size_m = 0.3 #Assuming 30cm goal size. May want to make this controllable?
+            self.goal_marker_size_m = self.args.goal_size 
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
@@ -107,7 +107,7 @@ class PCPEnv:
         state_space = {}
         x = self.robotarium.get_poses()
         state_space['poses'] = x
-        state_space['prey'] = self.prey_loc
+        state_space['prey'] = np.array(self.prey_loc).reshape((2,1))
         
         return state_space, x
 
