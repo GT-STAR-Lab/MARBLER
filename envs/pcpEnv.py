@@ -23,7 +23,7 @@ class PCPEnv:
         self.agents = pcpAgents
         self.num_robots = self.args.predator + self.args.capture
         self.first_run = True 
-        self.uni_barrier_cert = create_unicycle_barrier_certificate()
+        self.uni_barrier_cert = create_unicycle_barrier_certificate_with_boundary()
 
         if self.args.show_figure:
             self.predator_marker_size_m = self.args.predator_radius
