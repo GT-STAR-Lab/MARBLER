@@ -52,10 +52,11 @@ class PCPAgents:
         # Settings
         self.max_episode_steps = args.max_episode_steps
         self.args = args
-
+        
         self.N_predator = args.predator
         self.N_capture = args.capture
         self.N = self.N_predator + self.N_capture
+        self.rewards = np.zeros(self.N)
 
         self._initialize_agents(args)
         # Laplacian graph considering all agents communicating with each other (L = D - A)
@@ -85,8 +86,10 @@ class PCPAgents:
         Runs an episode of the simulation
         Episode will end based on what is returned in get_actions
         '''
+        self.rewards = np.zeros(self.N)
         self.episode_steps = 0
         self.env.run_episode()
+        print("Agent rewards for episode: ", self.rewards)
 
     def get_actions(self, state_space):
         '''
@@ -100,7 +103,7 @@ class PCPAgents:
         self.episode_steps+=1
         
         observations = self.get_observations(state_space)
-        rewards = self.get_rewards(state_space)
+        self.rewards += self.get_rewards(state_space)
 
         actions = self._construct_ideal_actions(state_space)
         for i, agent in enumerate(self.agents):
@@ -124,10 +127,11 @@ class PCPAgents:
     def get_rewards(self, state_space):
         rewards = np.zeros(self.N)
         for i in range(self.N):
-            if is_close(state_space['poses'],i , state_space['prey'], self.args.goal_size ):
-                rewards[i] = 1
+            if is_close(state_space['poses'],i , state_space['prey'], self.agents[i].sensing_radius ):
+                rewards[i] = 0
             else:
                 rewards[i] = self.agents[i].reward
+
         return rewards
 
 if __name__ == "__main__":
@@ -135,7 +139,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='PCPAgents tester')
     # predator arguments
     parser.add_argument('-predator', type=int, default=2)
-    parser.add_argument('-predator_radius', type=float, default = .2)
+    parser.add_argument('-predator_radius', type=float, default = .3)
     parser.add_argument('-predator_reward', type=float, default = -0.05)
     # capture arguments
     parser.add_argument('-capture', type=int, default=2)
