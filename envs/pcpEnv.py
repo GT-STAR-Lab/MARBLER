@@ -13,22 +13,22 @@ class PCPEnv:
         '''
         Inputs: object of the PCPAgents class and an argparse object
         Argparse object must at least contain:
-            Number of sensing robots as args.sensing
+            Number of predator robots as args.predator
             Number of capture robots as args.capture
-            Radii for the sensing and capture agents as args.sensing_radius and args.capture radius respectively
+            Radii for the predator and capture agents as args.predator_radius and args.capture radius respectively
             Whether or not to show the figure as args.show_figure
             Whether or not to run the simulation in real time as args.real_time
         '''
         self.args = args
         self.agents = pcpAgents
-        self.num_robots = self.args.sensing + self.args.capture
+        self.num_robots = self.args.predator + self.args.capture
         self.first_run = True 
         self.uni_barrier_cert = create_unicycle_barrier_certificate_with_boundary()
 
         if self.args.show_figure:
-            self.sensing_marker_size_m = self.args.sensing_radius
+            self.predator_marker_size_m = self.args.predator_radius
             self.capture_marker_size_m = self.args.capture_radius
-            self.goal_marker_size_m = 0.3 #Assuming 30cm goal size. May want to make this controllable?
+            self.goal_marker_size_m = self.args.goal_size 
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
@@ -52,7 +52,7 @@ class PCPEnv:
                     # Next two lines updates the marker sizes if the figure window size is changed. 
                     # They should be removed when submitting to the Robotarium.
                     self.robot_markers[i].set_sizes([determine_marker_size(self.robotarium, \
-                                                        (self.sensing_marker_size_m if i < self.args.sensing else self.capture_marker_size_m))])
+                                                        (self.predator_marker_size_m if i < self.args.predator else self.capture_marker_size_m))])
                 self.goal_marker.set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
 
             self.robotarium.step()
@@ -88,11 +88,11 @@ class PCPEnv:
         if self.args.show_figure:
             x = self.robotarium.get_poses()
 
-            marker_size_sensing = determine_marker_size(self.robotarium, self.sensing_marker_size_m)
+            marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)
             marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)
             self.robot_markers = [self.robotarium.axes.scatter( \
-                x[0,ii], x[1,ii], s=(marker_size_sensing if ii < self.args.sensing else marker_size_capture), marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.sensing else 1),linewidth=self.line_width) 
+                x[0,ii], x[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.predator else 1),linewidth=self.line_width) 
                 for ii in range(self.num_robots)]
             
             self.goal_marker = self.robotarium.axes.scatter( \
@@ -107,7 +107,7 @@ class PCPEnv:
         state_space = {}
         x = self.robotarium.get_poses()
         state_space['poses'] = x
-        state_space['prey'] = self.prey_loc
+        state_space['prey'] = np.array(self.prey_loc).reshape((2,1))
         
         return state_space, x
 
