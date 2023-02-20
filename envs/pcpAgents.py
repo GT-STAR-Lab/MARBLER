@@ -149,7 +149,6 @@ if __name__ == "__main__":
     parser.add_argument('-show_figure', type=bool, default=True)
     parser.add_argument('-real_time', type=bool, default= False)
     parser.add_argument('-max_episode_steps', type=int, default = 1000)
-    parser.add_argument('-goal_size', type=int, default = 0.2)
     args = parser.parse_args()
     
     agents = PCPAgents(args)

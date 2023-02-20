@@ -28,7 +28,7 @@ class PCPEnv:
         if self.args.show_figure:
             self.predator_marker_size_m = self.args.predator_radius
             self.capture_marker_size_m = self.args.capture_radius
-            self.goal_marker_size_m = self.args.goal_size 
+            self.goal_marker_size_m = .05
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
@@ -96,7 +96,7 @@ class PCPEnv:
                 for ii in range(self.num_robots)]
             
             self.goal_marker = self.robotarium.axes.scatter( \
-                prey_x, prey_y, s=marker_size_goal, marker='o', facecolors='none',edgecolors=self.CM(2),linewidth=self.line_width,zorder=-2)
+                prey_x, prey_y, s=marker_size_goal, marker='.', facecolors='none',edgecolors=self.CM(2),linewidth=self.line_width,zorder=-2)
 
         self.robotarium.step()
 
