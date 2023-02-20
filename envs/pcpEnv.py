@@ -42,7 +42,10 @@ class PCPEnv:
         actions = self.agents.get_actions(state_space)
         while actions != []:
             #Set the velocities to each agent based on the assigned action
-            velocities = self.uni_barrier_cert(actions, x) #makes sure no collisions
+            velocities = np.zeros((2,self.num_robots))
+            for i,a in enumerate(actions):
+                velocities[:,i] = (a['Velocity'].flatten())
+            velocities = self.uni_barrier_cert(np.array(velocities), x) #makes sure no collisions
             self.robotarium.set_velocities(np.arange(self.num_robots), velocities)
             
             if self.args.show_figure:
