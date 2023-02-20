@@ -2,8 +2,8 @@ import numpy as np
 from enum import Enum
 from rps.utilities.graph import *
 from utilities import *
+
 from pcpEnv import *
-import warnings
 
 TYPE = Enum('TYPE', ['Predator', 'Capture'])
 class Agent:
@@ -12,12 +12,12 @@ class Agent:
         self.type = agent_type
         self.sensing_radius = sensing_radius
         self.reward = reward
-        # agent hasn't found prey, nor has been communicated the location of the prey
-        self.prey_loc = []
+        self.prey_loc = [] # agent hasn't found prey, nor has been communicated the location of the prey
         self.prey_found = False
         self.prey_in_range = False
         self.prey_caught = False #Always false for predator agents
 
+    #TODO: is this really what we want for the observations?
     def get_observation( self, nbr_indices, state_space, agents):
         '''
             each agent's observation-
@@ -36,16 +36,19 @@ class Agent:
                     print("Prey found by neighbour ", nbr_index, " communicated to agent ", self.index)
                     self.prey_loc = agents[nbr_index].prey_loc
                     self.prey_found = True
-        
-        # if prey hasnt been found check if prey is within sensing radius of the agent
+                
+        #Checks if the prey is in range of the agent
+        if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
+            self.prey_in_range = True
+        else:
+            self.prey_in_range = False
+
+        #If another agent hasn't already found the prey, update the prey location
         if not self.prey_found:
-            if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
+            if self.prey_in_range:
                 print("Prey found by ", self.index, self.type.name)
                 self.prey_loc = state_space['prey']
                 self.prey_found = True
-                
-        if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
-            self.prey_in_range = True
 
         observation['agent_loc'] = state_space['poses'][:, self.index ]
         observation['prey_loc'] = self.prey_loc
@@ -104,7 +107,7 @@ class PCPAgents:
         if self.episode_steps > self.max_episode_steps:
             return []
         
-        #Check if every capture agent has already captured the prey
+        #Check if every capture agent has already captured the prey and ends the episode if they have
         end_episode = True
         for a in self.agents:
             if a.type == TYPE.Capture and not a.prey_caught:
