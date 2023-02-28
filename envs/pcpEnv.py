@@ -45,6 +45,7 @@ class PCPEnv:
             velocities = np.zeros((2,self.num_robots))
             for i,a in enumerate(actions):
                 velocities[:,i] = (a['Velocity'].flatten())
+            velocities[0] = np.clip(velocities[0],-.25,.25)
             velocities = self.uni_barrier_cert(np.array(velocities), x) #makes sure no collisions
             self.robotarium.set_velocities(np.arange(self.num_robots), velocities)
             

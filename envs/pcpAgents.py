@@ -74,7 +74,7 @@ class PCPAgents:
         self._initialize_agents(args)
         # Laplacian graph considering all agents communicating with each other (L = D - A)
         # TODO: Could change it to a dynamic, sparse graph
-        self.Laplacian = completeGL(self.N)
+        #self.Laplacian = completeGL(self.N)
         self.env = PCPEnv(self, args)
 
     def _initialize_agents(self, args):
@@ -134,7 +134,8 @@ class PCPAgents:
         # get pose and velocity of all neighbours based on laplacian graph
         observations = {}
         for agent in self.agents:
-            nbr_indices = topological_neighbors(self.Laplacian, agent.index)
+            nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
+            #nbr_indices = topological_neighbors(self.Laplacian, agent.index)
             observations[agent.index] = agent.get_observation(nbr_indices, state_space, self.agents)
         return observations     
 
