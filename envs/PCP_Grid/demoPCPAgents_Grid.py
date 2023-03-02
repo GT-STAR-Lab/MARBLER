@@ -19,11 +19,11 @@ class DemoPredatorAgent:
         self.rewards.append(prevReward)
         action = {}
         if observations['prey_loc'] == []:
-            action['Velocity'] = (get_random_vel())
+            action['Velocity'] = 'right'
         else:
             goal = np.array(observations['prey_loc'])
             start = np.array([observations['agent_loc']]).T
-            action['Velocity'] = self.controller(start, goal)
+            action['Velocity'] = 'stop'
        
         self.actions.append(action)
         return action
@@ -45,12 +45,12 @@ class DemoCaptureAgent:
         self.rewards.append(prevReward)
         action = {}
         if observations['prey_loc'] == []:
-            action['Velocity'] = (get_random_vel())
+            action['Velocity'] = 'right'
             action['Capture'] = False
         else:
             goal = np.array(observations['prey_loc'])
             start = np.array([observations['agent_loc']]).T
-            action['Velocity'] = self.controller(start, goal)
+            action['Velocity'] = 'stop'
             action['Capture'] = True #Obviously not ideal. This should only be true when the prey is in the capture range of the agent
        
         self.actions.append(action)
