@@ -3,7 +3,7 @@ from enum import Enum
 from rps.utilities.graph import *
 from utilities import *
 
-from pcpEnv import *
+from PCP import pcpEnv
 
 TYPE = Enum('TYPE', ['Predator', 'Capture'])
 class Agent:
@@ -75,7 +75,7 @@ class PCPAgents:
         # Laplacian graph considering all agents communicating with each other (L = D - A)
         # TODO: Could change it to a dynamic, sparse graph
         #self.Laplacian = completeGL(self.N)
-        self.env = PCPEnv(self, args)
+        self.env = pcpEnv.PCPEnv(self, args)
 
     def _initialize_agents(self, args):
         '''

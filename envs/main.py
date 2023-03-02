@@ -1,8 +1,8 @@
 import argparse
 import warnings
 
-from demoPCPAgents import *
-from pcpAgents import *
+from PCP import demoPCPAgents, pcpAgents
+#from PCP.pcpAgents import * 
 
 def create_parser():
     parser = argparse.ArgumentParser(description='PCPAgents tester')
@@ -27,8 +27,8 @@ if __name__ == "__main__":
 
     args = create_parser().parse_args()
 
-    predatorPolicy = DemoPredatorAgent()
-    capturePolicy = DemoCaptureAgent()
+    predatorPolicy = demoPCPAgents.DemoPredatorAgent()
+    capturePolicy = demoPCPAgents.DemoCaptureAgent()
     policies = []
 
     #Uses the two policies; one for each predator agent and one for each capture agent
@@ -37,5 +37,5 @@ if __name__ == "__main__":
     for i in range(args.capture):
         policies.append(capturePolicy)
 
-    agents = PCPAgents(args, policies)
+    agents = pcpAgents.PCPAgents(args, policies)
     agents.run_episode()
