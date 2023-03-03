@@ -47,8 +47,8 @@ class PCPEnv:
         self.agent_poses = [[0,0]] * self.num_robots
 
         if self.args.show_figure:
-            self.predator_marker_size_m = (self.args.predator_radius - .5) * (1/self.width) 
-            self.capture_marker_size_m = (self.args.capture_radius - .5) * (1/self.width)
+            self.predator_marker_size_m = (self.args.predator_radius - .5) / self.args.grid_size 
+            self.capture_marker_size_m = (.05 if self.args.capture_radius == 0 else (self.args.capture_radius - .5) / self.args.grid_size)
             self.goal_marker_size_m = .05
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
@@ -144,7 +144,7 @@ class PCPEnv:
         #Assumes y can be anything but the x locations are within the left third of the robotarium
         initial_values = np.random.choice(2 * self.args.grid_size ** 2, self.num_robots, replace = False)
         for i in range(len(initial_values)):
-            self.agent_poses[i] = [initial_values[i]%2, int(initial_values[i]/2)]
+            self.agent_poses[i] = [initial_values[i]%self.args.grid_size, int(initial_values[i]/self.args.grid_size)]
 
         initial_conditions = self._generate_goal_positions()
 
@@ -153,7 +153,7 @@ class PCPEnv:
         
         #setting the prey location to a random location in the right third of the grid
         prey_loc = np.random.choice(2 * self.args.grid_size ** 2, 1)
-        self.prey_loc = self._get_real_width_height(prey_loc[0]%2 + self.width*(2/3), int(prey_loc[0] / 2))
+        self.prey_loc = self._get_real_width_height(prey_loc[0]%self.args.grid_size + self.width*(2/3), int(prey_loc[0] / self.args.grid_size))
 
         if self.args.show_figure:
             x = self.robotarium.get_poses()
@@ -162,7 +162,7 @@ class PCPEnv:
             marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)
             self.robot_markers = [self.robotarium.axes.scatter( \
-                x[0,ii], x[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), marker='s', facecolors='none',edgecolors=self.CM(0 if ii < self.args.predator else 1),linewidth=self.line_width) 
+                x[0,ii], x[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.predator else 1),linewidth=self.line_width) 
                 for ii in range(self.num_robots)]
             
             self.goal_marker = self.robotarium.axes.scatter( self.prey_loc[0], self.prey_loc[1], \

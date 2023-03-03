@@ -83,11 +83,15 @@ class PCPAgents:
         Initializes all agents and pushes them into a list - self.agents 
         predators first and then capture agents
         '''
-        self.agents = []
+        self.agents = [] 
+
+        radius = (0 if self.args.predator_radius == 0 else (self.args.predator_radius - .5) / self.args.grid_size)
         for i in range(self.N_predator):
-            self.agents.append( Agent(i, TYPE.Predator, args.predator_radius, args.predator_reward) )
-        for i in range(self.N_capture):
-            self.agents.append( Agent(i + self.N_predator, TYPE.Capture, args.capture_radius, args.capture_reward) )
+            self.agents.append( Agent(i, TYPE.Predator, radius, args.predator_reward) )
+
+        radius = (0 if self.args.capture_radius == 0 else (self.args.capture_radius - .5) / self.args.grid_size)
+        for i in range(self.N_capture):         
+            self.agents.append( Agent(i + self.N_predator, TYPE.Capture, radius, args.capture_reward) )
 
     def run_episode(self):
         '''
@@ -165,18 +169,18 @@ def create_parser():
     parser = argparse.ArgumentParser(description='Grid PCP Agents Parser')
     # predator arguments
     parser.add_argument('-predator', type=int, default=4)
-    parser.add_argument('-predator_radius', type=float, default = 2)
+    parser.add_argument('-predator_radius', type=float, default = 2, help='neighboring grids that the predators can see, 1 means only its own grid')
     parser.add_argument('-predator_reward', type=float, default = -0.05)
     # capture arguments
     parser.add_argument('-capture', type=int, default=2)
-    parser.add_argument('-capture_radius', type=float, default = 0)
+    parser.add_argument('-capture_radius', type=float, default = 0, help='neighboring grids that the capture agents can see, 1 means only its own grid')
     parser.add_argument('-capture_reward', type=float, default = -0.05)
     # environment
     parser.add_argument('-show_figure', type=bool, default=True)
     parser.add_argument('-real_time', type=bool, default= False)
-    parser.add_argument('-delta', type=float, default= .5)
+    parser.add_argument('-delta', type=float, default= 2)
     parser.add_argument('-max_episode_steps', type=int, default = 2000)
-    parser.add_argument('-grid_size', type=int, default=2, help='Horizontal boxes of the grid is 3x this argument, verticle boxes is 2x this argument')
-    parser.add_argument('-update_frequency', type=int, default=30)
+    parser.add_argument('-grid_size', type=int, default=3, help='Horizontal boxes of the grid is 3x this argument, verticle boxes is 2x this argument')
+    parser.add_argument('-update_frequency', type=int, default=90)
 
     return parser
