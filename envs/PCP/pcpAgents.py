@@ -27,29 +27,24 @@ class Agent:
                 or whether prey has been found by any of the neighbours
         '''
         observation = {}
+        
+        #Checks if the prey is in range of the agent
+        if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
+            self.prey_in_range = True
+            if self.type == TYPE.Predator: #Only the predator agents can find the prey
+                self.prey_loc = state_space['prey']
+        else:
+            self.prey_in_range = False
+        
         # get the poses of all neighbours
         observation['neighbours'] = []
         for nbr_index in nbr_indices:
             observation['neighbours'].append( state_space['poses'][:, nbr_index ] )
-            if not self.prey_found:
+            if self.prey_loc == []:
                 # check if neighbour found the prey
-                if agents[nbr_index].prey_found:
+                if len(agents[nbr_index].prey_loc) == 2:
                     print("Prey found by neighbour ", nbr_index, " communicated to agent ", self.index)
                     self.prey_loc = agents[nbr_index].prey_loc
-                    self.prey_found = True
-                
-        #Checks if the prey is in range of the agent
-        if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
-            self.prey_in_range = True
-        else:
-            self.prey_in_range = False
-
-        #If another agent hasn't already found the prey, update the prey location
-        if not self.prey_found:
-            if self.prey_in_range:
-                print("Prey found by ", self.index, self.type.name)
-                self.prey_loc = state_space['prey']
-                self.prey_found = True
 
         observation['agent_loc'] = state_space['poses'][:, self.index ]
         observation['prey_loc'] = self.prey_loc
@@ -152,7 +147,7 @@ class PCPAgents:
                     rewards[i] = 0
                     self.agents[i].prey_caught = True
                 else:
-                    rewards[i] = self.agent[i].reward
+                    rewards[i] = self.agents[i].reward
             elif self.agents[i].type == TYPE.Capture and actions[i]["Capture"]:
                 rewards[i] = self.agents[i].reward * 10 #BIG penalty for false capture. TODO: evaluate this
             else:

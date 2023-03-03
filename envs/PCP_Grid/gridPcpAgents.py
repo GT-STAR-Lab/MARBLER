@@ -14,7 +14,11 @@ class Agent:
         self.sensing_radius = sensing_radius
         self.reward = reward
         self.prey_loc = [] # agent hasn't found prey, nor has been communicated the location of the prey
-        self.prey_found = False
+        self.prey_in_range = False
+        self.prey_caught = False #Always false for predator agents
+
+    def reset(self):
+        self.prey_loc = [] # agent hasn't found prey, nor has been communicated the location of the prey
         self.prey_in_range = False
         self.prey_caught = False #Always false for predator agents
 
@@ -27,29 +31,24 @@ class Agent:
                 or whether prey has been found by any of the neighbours
         '''
         observation = {}
+        
+        #Checks if the prey is in range of the agent
+        if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
+            self.prey_in_range = True
+            if self.type == TYPE.Predator: #Only the predator agents can find the prey
+                self.prey_loc = state_space['prey']
+        else:
+            self.prey_in_range = False
+        
         # get the poses of all neighbours
         observation['neighbours'] = []
         for nbr_index in nbr_indices:
             observation['neighbours'].append( state_space['poses'][:, nbr_index ] )
-            if not self.prey_found:
+            if self.prey_loc == []:
                 # check if neighbour found the prey
-                if agents[nbr_index].prey_found:
+                if len(agents[nbr_index].prey_loc) == 2:
                     print("Prey found by neighbour ", nbr_index, " communicated to agent ", self.index)
                     self.prey_loc = agents[nbr_index].prey_loc
-                    self.prey_found = True
-                
-        #Checks if the prey is in range of the agent
-        if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
-            self.prey_in_range = True
-        else:
-            self.prey_in_range = False
-
-        #If another agent hasn't already found the prey, update the prey location
-        if not self.prey_found:
-            if self.prey_in_range:
-                print("Prey found by ", self.index, self.type.name)
-                self.prey_loc = state_space['prey']
-                self.prey_found = True
 
         observation['agent_loc'] = state_space['poses'][:, self.index ]
         observation['prey_loc'] = self.prey_loc
@@ -98,6 +97,8 @@ class PCPAgents:
         Runs an episode of the simulation
         Episode will end based on what is returned in get_actions
         '''
+        for a in self.agents:
+            a.reset()
         self.episode_steps = 0
         self.env.run_episode()
         print("Agent rewards for episode: ", sum(self.rewards))
@@ -136,10 +137,10 @@ class PCPAgents:
         Outputs:
             a dictionary of observations for each agent with agent index as key
         '''
-        # get pose and velocity of all neighbours based on laplacian graph
+        # get pose of all neighbours based on delta
         observations = {}
         for agent in self.agents:
-            nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
+            nbr_indices = delta_disk_neighbors(state_space['poses'], agent.index, self.args.delta)
             #nbr_indices = topological_neighbors(self.Laplacian, agent.index)
             observations[agent.index] = agent.get_observation(nbr_indices, state_space, self.agents)
         return observations     
@@ -156,7 +157,7 @@ class PCPAgents:
                     rewards[i] = 0
                     self.agents[i].prey_caught = True
                 else:
-                    rewards[i] = self.agent[i].reward
+                    rewards[i] = self.agents[i].reward
             elif self.agents[i].type == TYPE.Capture and actions[i]["Capture"]:
                 rewards[i] = self.agents[i].reward * 10 #BIG penalty for false capture. TODO: evaluate this
             else:
@@ -173,14 +174,14 @@ def create_parser():
     parser.add_argument('-predator_reward', type=float, default = -0.05)
     # capture arguments
     parser.add_argument('-capture', type=int, default=2)
-    parser.add_argument('-capture_radius', type=float, default = 0, help='neighboring grids that the capture agents can see, 1 means only its own grid')
+    parser.add_argument('-capture_radius', type=float, default = 1, help='Radius that the capture agents can obtain the prey. 1 means only its own grid')
     parser.add_argument('-capture_reward', type=float, default = -0.05)
     # environment
     parser.add_argument('-show_figure', type=bool, default=True)
     parser.add_argument('-real_time', type=bool, default= False)
-    parser.add_argument('-delta', type=float, default= 2)
+    parser.add_argument('-delta', type=float, default= 1)
     parser.add_argument('-max_episode_steps', type=int, default = 2000)
-    parser.add_argument('-grid_size', type=int, default=3, help='Horizontal boxes of the grid is 3x this argument, verticle boxes is 2x this argument')
-    parser.add_argument('-update_frequency', type=int, default=90)
+    parser.add_argument('-grid_size', type=int, default=4, help='Horizontal boxes of the grid is 3x this argument, verticle boxes is 2x this argument')
+    parser.add_argument('-update_frequency', type=int, default=80)
 
     return parser
