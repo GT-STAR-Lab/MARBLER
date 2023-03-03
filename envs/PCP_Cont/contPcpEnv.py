@@ -6,7 +6,7 @@ from rps.utilities.controllers import *
 
 import numpy as np
 import random
-from PCP import pcpAgents
+import pcpAgents
 
 class PCPEnv:
     def __init__(self, pcpAgents, args):

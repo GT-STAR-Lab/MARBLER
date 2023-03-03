@@ -2,9 +2,9 @@ import numpy as np
 from enum import Enum
 from rps.utilities.graph import *
 from utilities import *
-import argparse
 
-from PCP import pcpEnv
+from PCP_Cont import contPcpEnv
+from PCP_Grid import gridPcpEnv
 
 TYPE = Enum('TYPE', ['Predator', 'Capture'])
 class Agent:
@@ -15,6 +15,11 @@ class Agent:
         self.reward = reward
         self.prey_loc = [] # agent hasn't found prey, nor has been communicated the location of the prey
         self.prey_found = False
+        self.prey_in_range = False
+        self.prey_caught = False #Always false for predator agents
+
+    def reset(self):
+        self.prey_loc = [] # agent hasn't found prey, nor has been communicated the location of the prey
         self.prey_in_range = False
         self.prey_caught = False #Always false for predator agents
 
@@ -55,11 +60,12 @@ class Agent:
 
 
 class PCPAgents:
-    def __init__(self, args, policies):
+    def __init__(self, args, policies, type='grid'):
         # Settings
         self.max_episode_steps = args.max_episode_steps
         self.args = args
         self.policies = policies
+        self.type=type
         
         self.N_predator = args.predator
         self.N_capture = args.capture
@@ -71,7 +77,10 @@ class PCPAgents:
         # Laplacian graph considering all agents communicating with each other (L = D - A)
         # TODO: Could change it to a dynamic, sparse graph
         #self.Laplacian = completeGL(self.N)
-        self.env = pcpEnv.PCPEnv(self, args)
+        if type=='grid':
+            self.env = gridPcpEnv.PCPEnv(self, args)
+        else:
+            self.env = contPcpEnv.PCPEnv(self, args)
 
     def _initialize_agents(self, args):
         '''
@@ -79,8 +88,17 @@ class PCPAgents:
         predators first and then capture agents
         '''
         self.agents = []
+        if self.type == 'grid':
+            radius = (0 if self.args.predator_radius == 0 else (self.args.predator_radius - .5) / self.args.grid_size)
+        else:
+            radius = args.predator_radius
         for i in range(self.N_predator):
-            self.agents.append( Agent(i, TYPE.Predator, args.predator_radius, args.predator_reward) )
+            self.agents.append( Agent(i, TYPE.Predator, radius, args.predator_reward) )
+        
+        if self.type == 'grid':
+            radius = (0 if self.args.capture_radius == 0 else (self.args.capture_radius - .5) / self.args.grid_size)
+        else:
+            radius = args.predator_radius
         for i in range(self.N_capture):
             self.agents.append( Agent(i + self.N_predator, TYPE.Capture, args.capture_radius, args.capture_reward) )
 
@@ -89,6 +107,8 @@ class PCPAgents:
         Runs an episode of the simulation
         Episode will end based on what is returned in get_actions
         '''
+        for a in self.agents:
+            a.reset()
         self.episode_steps = 0
         self.env.run_episode()
         print("Agent rewards for episode: ", sum(self.rewards))
@@ -156,21 +176,4 @@ class PCPAgents:
         return rewards
 
 
-#Argparser specifcally designed for this environment. TODO: Is this really the best way?
-def create_parser():
-    parser = argparse.ArgumentParser(description='PCP Agents Parser')
-    # predator arguments
-    parser.add_argument('-predator', type=int, default=4)
-    parser.add_argument('-predator_radius', type=float, default = .4)
-    parser.add_argument('-predator_reward', type=float, default = -0.05)
-    # capture arguments
-    parser.add_argument('-capture', type=int, default=2)
-    parser.add_argument('-capture_radius', type=float, default = .15)
-    parser.add_argument('-capture_reward', type=float, default = -0.05)
-    # environment
-    parser.add_argument('-show_figure', type=bool, default=True)
-    parser.add_argument('-real_time', type=bool, default= False)
-    parser.add_argument('-delta', type=float, default= .5)
-    parser.add_argument('-max_episode_steps', type=int, default = 2000)
 
-    return parser

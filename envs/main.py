@@ -1,15 +1,15 @@
 import warnings
 
-#from PCP import demoPCPAgents, pcpAgents
-from PCP_Grid import gridPcpAgents, demoPCPAgents_Grid
-#from PCP.pcpAgents import * 
+from PCP_Cont import demoPCPAgents_Cont, parser_cont
+from PCP_Grid import demoPCPAgents_Grid, parser_grid
+import pcpAgents
 
 
 
 if __name__ == "__main__":
     warnings.filterwarnings(action='ignore', category=DeprecationWarning)
 
-    args = gridPcpAgents.create_parser().parse_args()
+    args = parser_grid.create_parser().parse_args()
 
     predatorPolicy = demoPCPAgents_Grid.DemoPredatorAgent()
     capturePolicy = demoPCPAgents_Grid.DemoCaptureAgent()
@@ -21,5 +21,5 @@ if __name__ == "__main__":
     for i in range(args.capture):
         policies.append(capturePolicy)
 
-    agents = gridPcpAgents.PCPAgents(args, policies)
+    agents = pcpAgents.PCPAgents(args, policies, type='grid')
     agents.run_episode()

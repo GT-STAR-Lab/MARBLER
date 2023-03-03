@@ -17,13 +17,26 @@ class DemoPredatorAgent:
     def getAction(self, observations, prevReward):
         self.observations.append(observations)
         self.rewards.append(prevReward)
+        stop_dist = .3 #Ideally this is learned in a real agent
         action = {}
         if observations['prey_loc'] == []:
-            action['Velocity'] = 'right'
-        else:
-            goal = np.array(observations['prey_loc'])
-            start = np.array([observations['agent_loc']]).T
-            action['Velocity'] = 'stop'
+            if observations['agent_loc'][0] < 1.2:
+                action['Velocity'] = 'right'
+            elif observations['agent_loc'][1] > -.8:
+                action['Velocity'] = 'up'
+            else:
+                action['Velocity'] = 'down'
+        else:                
+            if observations['agent_loc'][1] < observations['prey_loc'][1] - stop_dist:
+                action['Velocity'] = 'down'
+            elif observations['agent_loc'][0] < observations['prey_loc'][0] - stop_dist:
+                action['Velocity'] = 'right'
+            elif observations['agent_loc'][0] > observations['prey_loc'][0] + stop_dist:
+                action['Velocity'] = 'left'
+            elif observations['agent_loc'][1] > observations['prey_loc'][1] + stop_dist:
+                action['Velocity'] = 'up'
+            else:
+                action['Velocity'] = 'stop'
        
         self.actions.append(action)
         return action
@@ -44,14 +57,32 @@ class DemoCaptureAgent:
         self.observations.append(observations)
         self.rewards.append(prevReward)
         action = {}
+        stop_dist = .2
+
         if observations['prey_loc'] == []:
-            action['Velocity'] = 'right'
+            if observations['agent_loc'][0] < 1.2:
+                action['Velocity'] = 'right'
+            elif observations['agent_loc'][1] > -.8:
+                action['Velocity'] = 'up'
+            else:
+                action['Velocity'] = 'down'
             action['Capture'] = False
         else:
-            goal = np.array(observations['prey_loc'])
-            start = np.array([observations['agent_loc']]).T
-            action['Velocity'] = 'stop'
-            action['Capture'] = True #Obviously not ideal. This should only be true when the prey is in the capture range of the agent
-       
+            if observations['agent_loc'][1] < observations['prey_loc'][1] - stop_dist:
+                action['Velocity'] = 'down'
+                action['Capture'] = False
+            elif observations['agent_loc'][0] < observations['prey_loc'][0] - stop_dist:
+                action['Velocity'] = 'right'
+                action['Capture'] = False
+            elif observations['agent_loc'][0] > observations['prey_loc'][0] + stop_dist:
+                action['Velocity'] = 'left'
+                action['Capture'] = False
+            elif observations['agent_loc'][1] > observations['prey_loc'][1] + stop_dist:
+                action['Velocity'] = 'up'
+                action['Capture'] = False
+            else:
+                action['Velocity'] = 'stop'
+                action['Capture'] = True 
+
         self.actions.append(action)
         return action

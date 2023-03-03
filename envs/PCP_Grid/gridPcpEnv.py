@@ -8,7 +8,7 @@ import numpy as np
 import random
 import time
 
-from PCP_Grid import gridPcpAgents
+import pcpAgents
 
 class PCPEnv:
     def __init__(self, pcpAgents, args):
