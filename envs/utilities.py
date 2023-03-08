@@ -4,7 +4,16 @@ import random
 def is_close( agent_poses, agent_index, prey_loc, sensing_radius):
     agent_pose = agent_poses[:2, agent_index]
     prey_loc = prey_loc.reshape((1,2))[0]
-    return np.linalg.norm(agent_pose - prey_loc) <= sensing_radius
+    dist = np.linalg.norm(agent_pose - prey_loc)
+    return dist <= sensing_radius, dist
+
+def get_nearest_neighbors(poses, agent, num_neighbors):
+    N = poses.shape[1]
+    agents = np.arange(N)
+    dists = [np.linalg.norm(poses[:2,x]-poses[:2,agent]) for x in agents]
+    mins = np.argpartition(dists, num_neighbors+1)
+    return np.delete(mins, np.argwhere(mins==agent))[:num_neighbors]
+
 
 def get_random_vel():
     '''
