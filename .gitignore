@@ -1,3 +1,4 @@
 __pycache__/
 tb_logs/
 results/
+.DS_Store
