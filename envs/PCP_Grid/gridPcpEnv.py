@@ -98,9 +98,12 @@ class PCPEnv:
 
             self.robotarium.step()
             iterations += 1
-            state_space, x = self._generate_state_space()
+            
             if iterations % self.args.update_frequency == 0:
-                actions, agents = self.agents.get_actions(state_space)           
+                actions, agents = self.agents.get_actions(state_space)     
+                state_space, x = self._generate_state_space()
+            else:
+                x = self.robotarium.get_poses()
 
     def _update_prey_status(self, state_space, actions, agents):
         removeIndicies = []
@@ -115,6 +118,7 @@ class PCPEnv:
                         self.num_prey -= 1
                         self.prey_captured[prey] = True
                         removeIndicies.append(prey)
+                        break
         for i in range(len(removeIndicies)-1, -1, -1):
             del self.prey_loc[removeIndicies[i]]
 
@@ -179,9 +183,9 @@ class PCPEnv:
         
         #setting the prey location to a random location in the right third of the grid
         self.prey_loc = []
-        for i in range(self.num_prey):
-            prey_loc = np.random.choice(2 * self.args.grid_size ** 2, 1)
-            self.prey_loc.append(self._get_real_width_height(prey_loc[0]%self.args.grid_size + self.width*(2/3), int(prey_loc[0] / self.args.grid_size)))
+        prey_loc = np.random.choice(2 * self.args.grid_size ** 2, self.num_prey, replace=False)
+        for p in prey_loc:        
+            self.prey_loc.append(self._get_real_width_height(p%self.args.grid_size + self.width*(2/3), int(p / self.args.grid_size)))
 
         if self.args.show_figure:
             x = self.robotarium.get_poses()

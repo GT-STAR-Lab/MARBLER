@@ -12,7 +12,7 @@ class Agent:
         self.sensing_radius = sensing_radius
         self.capture_radius = capture_radius
 
-    def get_observation( self, state_space, agents, include_velocity = False):
+    def get_observation( self, state_space, agents, continuous_agent = False):
         '''
             each agent's observation-
                 poses of all neighbour agents
@@ -29,8 +29,11 @@ class Agent:
         if closest_prey == -1:
             prey_loc = [-1,-1]
 
-        if not include_velocity:
+        if not continuous_agent:
             observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
+        else:
+            observation = np.array([*state_space['poses'][:, self.index ], *prey_loc, self.sensing_radius, self.capture_radius])
+        
         return observation
     
     def __str__(self):
@@ -95,7 +98,7 @@ class PCPAgents:
         Each column represents a different robot
         ''' 
         if self.episode_steps > self.max_episode_steps:
-            return []
+            return [], []
         
         #Check if every prey agent has already been captured the prey and ends the episode if they have
         if state_space['num_prey'] == 0:
@@ -125,8 +128,8 @@ class PCPAgents:
         critic_observations = np.array(self.prey_locs)
 
         observations = {}
-        for agent in self.agents:          
-            observations[agent.index] = agent.get_observation(state_space, self.agents)
+        for agent in self.agents: 
+            observations[agent.index] = agent.get_observation(state_space, self.agents, continuous_agent = (self.type != 'grid'))    
             critic_observations = np.concatenate((critic_observations, observations[agent.index]))
         
         full_observations = {}
@@ -138,11 +141,10 @@ class PCPAgents:
                 nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
             for nbr_index in nbr_indices:
                 full_observations[agent.index] = np.concatenate( (full_observations[agent.index],observations[nbr_index]) )
-        print(critic_observations)
         return full_observations, critic_observations 
 
     def get_rewards(self, state_space, actions):
-        reward = 0 #Fully shared reward, this is a collaborative environment
+        reward = 0 #Fully shared reward, this is a collaborative environment. TODO: is this too sparse?
         if state_space['num_prey'] < self.num_prey:
             reward = self.args.capture_reward * (self.num_prey - state_space['num_prey'])
             self.num_prey = state_space['num_prey']
