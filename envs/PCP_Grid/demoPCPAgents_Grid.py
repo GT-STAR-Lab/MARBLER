@@ -19,7 +19,7 @@ class DemoPredatorAgent:
         self.observations = []
         self.rewards = []
     
-    def getAction(self, observations, prevReward):
+    def getAction(self, observations, critic_observations, prevReward):
         self.observations.append(observations)
         self.rewards.append(prevReward)
         stop_dist = .3 #Ideally this is learned in a real agent
@@ -57,7 +57,7 @@ class DemoCaptureAgent:
         self.observations = []
         self.rewards = []
 
-    def getAction(self, observations, prevReward):
+    def getAction(self, observations, critic_observations, prevReward):
         self.observations.append(observations)
         self.rewards.append(prevReward)
         action = 'stop'
