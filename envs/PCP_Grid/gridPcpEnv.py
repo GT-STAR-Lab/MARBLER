@@ -31,8 +31,7 @@ class PCPEnv:
         self.first_run = True 
 
         self.single_integrator_position_controller = create_si_position_controller()
-        _, self.uni_to_si_states = create_si_to_uni_mapping()
-        self.si_to_uni_dyn = create_si_to_uni_dynamics_with_backwards_motion()
+        self.si_to_uni_dyn, self.uni_to_si_states = create_si_to_uni_mapping()
         self.si_barrier_cert = create_single_integrator_barrier_certificate_with_boundary()
 
         self.width = self.args.grid_size * 3
@@ -62,6 +61,9 @@ class PCPEnv:
         '''
         Creates a new instance of the robotarium and runs the agents until PCPAgents.get_actions returns []
         '''
+        self.num_prey = self.args.num_prey
+        self.prey_captured = [False] * self.num_prey
+        self.prey_sensed = [False] * self.num_prey
         self._create_robotarium()
 
         state_space, x = self._generate_state_space() #x is the poses. Can only get the poses once per step
@@ -73,13 +75,15 @@ class PCPEnv:
                 self._update_poses(actions)
                 self._update_prey_status(state_space, actions, agents)
                 
-            #uses the robotarium commands to get the velocities of each robot
-            x_si = self.uni_to_si_states(x)
-            goals = self._generate_goal_positions()
-            dxi = self.single_integrator_position_controller(x_si, goals[:2][:])
-            dxi = self.si_barrier_cert(dxi, x_si)
-            dxu = self.si_to_uni_dyn(dxi, x)
-            self.robotarium.set_velocities(np.arange(self.num_robots), dxu)
+                goals = self._generate_goal_positions()
+
+            #uses the robotarium commands to get the velocities of each robot    
+            if iterations % 10 == 0 or   iterations % self.args.update_frequency == 0:                      
+                xi = self.uni_to_si_states(x)
+                dxi = self.single_integrator_position_controller(xi, goals[:2][:])
+                dxi = self.si_barrier_cert(dxi, xi)
+                dxu = self.si_to_uni_dyn(dxi, x)
+                self.robotarium.set_velocities(np.arange(self.num_robots), dxu)
             
             if self.args.show_figure:
                 for i in range(x.shape[1]):
@@ -123,7 +127,6 @@ class PCPEnv:
             del self.prey_loc[removeIndicies[i]]
 
     def _update_poses(self, actions):
-        print(actions)
         for i in range(self.num_robots):
             match actions[i]:
                 case 'left':
@@ -168,8 +171,9 @@ class PCPEnv:
         if self.first_run:
             self.first_run = False
         else:
-            self.robotarium.call_at_scripts_end() #TODO: check if this is needed and how it affects runtime
-        
+            #self.robotarium.call_at_scripts_end() #TODO: check if this is needed and how it affects runtime
+            del self.robotarium
+
         #generate initial robot locations
         #Assumes y can be anything but the x locations are within the left third of the robotarium
         initial_values = np.random.choice(2 * self.args.grid_size ** 2, self.num_robots, replace = False)
@@ -187,9 +191,9 @@ class PCPEnv:
         for p in prey_loc:        
             self.prey_loc.append(self._get_real_width_height(p%self.args.grid_size + self.width*(2/3), int(p / self.args.grid_size)))
 
-        if self.args.show_figure:
-            x = self.robotarium.get_poses()
+        x = self.robotarium.get_poses()
 
+        if self.args.show_figure:
             marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)
             marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)

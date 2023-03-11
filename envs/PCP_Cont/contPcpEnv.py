@@ -39,6 +39,9 @@ class PCPEnv:
         '''
         Creates a new instance of the robotarium and runs the agents until PCPAgents.get_actions returns []
         '''
+        self.num_prey = self.args.num_prey
+        self.prey_captured = [False] * self.num_prey
+        self.prey_sensed = [False] * self.num_prey
         self._create_robotarium()
 
         state_space, x = self._generate_state_space() #x is the poses. Can only get the poses once per step
@@ -51,8 +54,10 @@ class PCPEnv:
                 self._update_prey_status(state_space, actions, agents)
                 velocities = np.array(actions).T
                 velocities[0] = np.clip(velocities[0],-.25,.25)
-                velocities = self.uni_barrier_cert(np.array(velocities), x) #makes sure no collisions
-                self.robotarium.set_velocities(np.arange(self.num_robots), velocities)
+
+            if iterations % 10 == 0 or iterations % self.args.update_frequency == 0:
+                safe_velocities = self.uni_barrier_cert(np.array(velocities), x) #makes sure no collisions
+                self.robotarium.set_velocities(np.arange(self.num_robots), safe_velocities)
             
             if self.args.show_figure:
                 for i in range(x.shape[1]):
@@ -99,10 +104,10 @@ class PCPEnv:
         Creates a new instance of the robotarium
         Randomly initializes the prey in the right half and the agents in the left third of the Robotarium
         '''
-        if self.first_run:
-            self.first_run = False
-        else:
-            self.robotarium.call_at_scripts_end() #TODO: check if this is needed and how it affects runtime
+        #if self.first_run:
+        #    self.first_run = False
+        #else:
+        #    self.robotarium.call_at_scripts_end() #TODO: check if this is needed and how it affects runtime
         
         #generate initial robot locations
         #Assumes y and theta can be anything but the x locations are within the left third of the robotarium
@@ -122,9 +127,8 @@ class PCPEnv:
             prey_y = random.random() * 1.8 - .9
             self.prey_loc.append([prey_x, prey_y])
 
+        x = self.robotarium.get_poses()
         if self.args.show_figure:
-            x = self.robotarium.get_poses()
-
             marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)
             marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)

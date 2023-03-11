@@ -9,10 +9,19 @@ import pcpAgents
 if __name__ == "__main__":
     warnings.filterwarnings(action='ignore', category=DeprecationWarning)
 
-    args = parser_grid.create_parser().parse_args()
+    type = 'cont'
 
-    predatorPolicy = demoPCPAgents_Grid.DemoPredatorAgent()
-    capturePolicy = demoPCPAgents_Grid.DemoCaptureAgent()
+    if type == 'grid':
+        args = parser_grid.create_parser().parse_args()
+
+        predatorPolicy = demoPCPAgents_Grid.DemoPredatorAgent()
+        capturePolicy = demoPCPAgents_Grid.DemoCaptureAgent()
+    else:
+        args = parser_cont.create_parser().parse_args()
+
+        predatorPolicy = demoPCPAgents_Cont.DemoPredatorAgent()
+        capturePolicy = demoPCPAgents_Cont.DemoCaptureAgent()
+
     policies = []
 
     #Uses the two policies; one for each predator agent and one for each capture agent
@@ -21,5 +30,7 @@ if __name__ == "__main__":
     for i in range(args.capture):
         policies.append(capturePolicy)
 
-    agents = pcpAgents.PCPAgents(args, policies, type='grid')
-    agents.run_episode()
+    agents = pcpAgents.PCPAgents(args, policies, type=type)
+    for i in range(20):
+        agents.run_episode()
+    del agents

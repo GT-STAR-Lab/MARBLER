@@ -87,6 +87,8 @@ class PCPAgents:
         '''
         self.episode_steps = 0
         self.prey_locs = []
+        self.rewards = [0]
+        self.num_prey = self.args.num_prey
         self.env.run_episode()
         print("Agent rewards for episode: ", sum(self.rewards))
 
