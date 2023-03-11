@@ -3,6 +3,12 @@ import numpy as np
 
 from utilities import *
 
+def getNeighborsPrey(observations):
+    for i in range(2, len(observations), 6):
+            if (observations[i:i+2] != [-1,-1]).all():
+                return observations[i:i+2]
+    return np.array([-1,-1])
+
 class DemoPredatorAgent:
     '''
     Naive predator agent that just drives straight until an agent sees the prey and then drives to it
@@ -12,31 +18,30 @@ class DemoPredatorAgent:
         self.actions = []
         self.observations = []
         self.rewards = []
-        self.controller = create_clf_unicycle_position_controller()
     
     def getAction(self, observations, prevReward):
         self.observations.append(observations)
         self.rewards.append(prevReward)
         stop_dist = .3 #Ideally this is learned in a real agent
-        action = {}
-        if observations['prey_loc'] == []:
-            if observations['agent_loc'][0] < 1.2:
-                action['Velocity'] = 'right'
-            elif observations['agent_loc'][1] > -.8:
-                action['Velocity'] = 'up'
+        action = 'stop'
+        if (getNeighborsPrey(observations) == [-1,-1]).all():
+            if observations[0] < 1.2:
+                action = 'right'
+            elif observations[1] > -.8:
+                action = 'up'
             else:
-                action['Velocity'] = 'down'
+                action = 'down'
         else:                
-            if observations['agent_loc'][1] < observations['prey_loc'][1] - stop_dist:
-                action['Velocity'] = 'down'
-            elif observations['agent_loc'][0] < observations['prey_loc'][0] - stop_dist:
-                action['Velocity'] = 'right'
-            elif observations['agent_loc'][0] > observations['prey_loc'][0] + stop_dist:
-                action['Velocity'] = 'left'
-            elif observations['agent_loc'][1] > observations['prey_loc'][1] + stop_dist:
-                action['Velocity'] = 'up'
+            if observations[1] < getNeighborsPrey(observations)[1] - stop_dist:
+                action = 'down'
+            elif observations[0] < getNeighborsPrey(observations)[0] - stop_dist:
+                action = 'right'
+            elif observations[0] > getNeighborsPrey(observations)[0] + stop_dist:
+                action = 'left'
+            elif observations[1] > getNeighborsPrey(observations)[1] + stop_dist:
+                action = 'up'
             else:
-                action['Velocity'] = 'stop'
+                action = 'stop'
        
         self.actions.append(action)
         return action
@@ -51,38 +56,31 @@ class DemoCaptureAgent:
         self.actions = []
         self.observations = []
         self.rewards = []
-        self.controller = create_clf_unicycle_position_controller()
-    
+
     def getAction(self, observations, prevReward):
         self.observations.append(observations)
         self.rewards.append(prevReward)
-        action = {}
-        stop_dist = .2
+        action = 'stop'
+        stop_dist = observations[5]
 
-        if observations['prey_loc'] == []:
-            if observations['agent_loc'][0] < 1.2:
-                action['Velocity'] = 'right'
-            elif observations['agent_loc'][1] > -.8:
-                action['Velocity'] = 'up'
+        if (getNeighborsPrey(observations) == [-1,-1]).all():
+            if observations[0] < 1.2:
+                action = 'right'
+            elif observations[1] > -.8:
+                action = 'up'
             else:
-                action['Velocity'] = 'down'
-            action['Capture'] = False
+                action = 'down'
         else:
-            if observations['agent_loc'][1] < observations['prey_loc'][1] - stop_dist:
-                action['Velocity'] = 'down'
-                action['Capture'] = False
-            elif observations['agent_loc'][0] < observations['prey_loc'][0] - stop_dist:
-                action['Velocity'] = 'right'
-                action['Capture'] = False
-            elif observations['agent_loc'][0] > observations['prey_loc'][0] + stop_dist:
-                action['Velocity'] = 'left'
-                action['Capture'] = False
-            elif observations['agent_loc'][1] > observations['prey_loc'][1] + stop_dist:
-                action['Velocity'] = 'up'
-                action['Capture'] = False
+            if observations[1] < getNeighborsPrey(observations)[1] - stop_dist:
+                action = 'down'
+            elif observations[0] < getNeighborsPrey(observations)[0] - stop_dist:
+                action = 'right'
+            elif observations[0] > getNeighborsPrey(observations)[0] + stop_dist:
+                action = 'left'
+            elif observations[1] > getNeighborsPrey(observations)[1] + stop_dist:
+                action = 'up'
             else:
-                action['Velocity'] = 'stop'
-                action['Capture'] = True 
+                action= 'capture'
 
         self.actions.append(action)
         return action

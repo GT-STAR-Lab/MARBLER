@@ -6,53 +6,33 @@ from utilities import *
 from PCP_Cont import contPcpEnv
 from PCP_Grid import gridPcpEnv
 
-TYPE = Enum('TYPE', ['Predator', 'Capture'])
 class Agent:
-    def __init__(self, index, agent_type, sensing_radius, reward):
+    def __init__(self, index, sensing_radius, capture_radius):
         self.index = index
-        self.type = agent_type
         self.sensing_radius = sensing_radius
-        self.reward = reward
-        self.prey_loc = [] # agent hasn't found prey, nor has been communicated the location of the prey
-        self.prey_found = False
-        self.prey_in_range = False
-        self.prey_caught = False #Always false for predator agents
+        self.capture_radius = capture_radius
 
-    def reset(self):
-        self.prey_loc = [] # agent hasn't found prey, nor has been communicated the location of the prey
-        self.prey_in_range = False
-        self.prey_caught = False #Always false for predator agents
-
-    #TODO: is this really what we want for the observations?
-    def get_observation( self, nbr_indices, state_space, agents):
+    def get_observation( self, state_space, agents, include_velocity = False):
         '''
             each agent's observation-
                 poses of all neighbour agents
                 checks whether the prey is within sensing radius of the agent
                 or whether prey has been found by any of the neighbours
         '''
-        observation = {}
+        #observation = {}
         
-        #Checks if the prey is in range of the agent
-        if is_close(state_space['poses'], self.index , state_space['prey'], self.sensing_radius):
-            self.prey_in_range = True
-            if self.type == TYPE.Predator: #Only the predator agents can find the prey
-                self.prey_loc = state_space['prey']
-        else:
-            self.prey_in_range = False
-        
-        # get the poses of all neighbours
-        observation['neighbours'] = []
-        for nbr_index in nbr_indices:
-            observation['neighbours'].append( state_space['poses'][:, nbr_index ] )
-            if self.prey_loc == []:
-                # check if neighbour found the prey
-                if len(agents[nbr_index].prey_loc) == 2:
-                    print("Prey found by neighbour ", nbr_index, " communicated to agent ", self.index)
-                    self.prey_loc = agents[nbr_index].prey_loc
+        #Checks if any prey is in range of the agent and takes the closest if so
+        closest_prey = -1
+        for p in state_space['prey']:
+            in_range, dist = is_close(state_space['poses'], self.index, p, self.sensing_radius)
+            if in_range and (dist < closest_prey or closest_prey == -1):
+                prey_loc = p.reshape((1,2))[0]
+                closest_prey = dist
+        if closest_prey == -1:
+            prey_loc = [-1,-1]
 
-        observation['agent_loc'] = state_space['poses'][:, self.index ]
-        observation['prey_loc'] = self.prey_loc
+        if not include_velocity:
+            observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
         return observation
     
     def __str__(self):
@@ -70,8 +50,9 @@ class PCPAgents:
         self.N_predator = args.predator
         self.N_capture = args.capture
         self.N = self.N_predator + self.N_capture
-        self.rewards =[]
-        self.rewards.append(np.zeros(self.N))
+        self.rewards =[0]
+        #self.rewards.append(np.zeros(self.N))
+        self.num_prey = self.args.num_prey
 
         self._initialize_agents(args)
         # Laplacian graph considering all agents communicating with each other (L = D - A)
@@ -93,22 +74,20 @@ class PCPAgents:
         else:
             radius = args.predator_radius
         for i in range(self.N_predator):
-            self.agents.append( Agent(i, TYPE.Predator, radius, args.predator_reward) )
+            self.agents.append( Agent(i, radius, 0) )
         
         if self.type == 'grid':
             radius = (0 if self.args.capture_radius == 0 else (self.args.capture_radius - .5) / self.args.grid_size)
         else:
-            radius = args.predator_radius
+            radius = args.capture_radius
         for i in range(self.N_capture):
-            self.agents.append( Agent(i + self.N_predator, TYPE.Capture, args.capture_radius, args.capture_reward) )
+            self.agents.append( Agent(i + self.N_predator, 0, radius) )
 
     def run_episode(self):
         '''
         Runs an episode of the simulation
         Episode will end based on what is returned in get_actions
         '''
-        for a in self.agents:
-            a.reset()
         self.episode_steps = 0
         self.env.run_episode()
         print("Agent rewards for episode: ", sum(self.rewards))
@@ -123,23 +102,17 @@ class PCPAgents:
         if self.episode_steps > self.max_episode_steps:
             return []
         
-        #Check if every capture agent has already captured the prey and ends the episode if they have
-        end_episode = True
-        for a in self.agents:
-            if a.type == TYPE.Capture and not a.prey_caught:
-                end_episode = False
-                break
-        if end_episode:
-            return []
+        #Check if every prey agent has already been captured the prey and ends the episode if they have
+        if state_space['num_prey'] == 0:
+            return [], []
         
         self.episode_steps+=1
         self.observations = self.get_observations(state_space)
         actions = []
         for i in range(self.N):
-            actions.append(self.policies[i].getAction(self.observations[i], self.rewards[-1][i]))
+            actions.append(self.policies[i].getAction(self.observations[i], self.rewards[-1]))
         self.rewards.append(self.get_rewards(state_space, actions))
-        
-        return actions
+        return actions, self.agents
     
     def get_observations(self, state_space):
         '''
@@ -149,15 +122,31 @@ class PCPAgents:
         '''
         # get pose and velocity of all neighbours based on laplacian graph
         observations = {}
+        for agent in self.agents:          
+            observations[agent.index] = agent.get_observation(state_space, self.agents)
+        
+        full_observations = {}
         for agent in self.agents:
-            nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
+            full_observations[agent.index] = observations[agent.index]
+            if self.args.delta > 0:
+                nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
+            else:
+                nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
             #nbr_indices = topological_neighbors(self.Laplacian, agent.index)
-            observations[agent.index] = agent.get_observation(nbr_indices, state_space, self.agents)
-        return observations     
+            for nbr_index in nbr_indices:
+                full_observations[agent.index] = np.concatenate( (full_observations[agent.index],observations[nbr_index]) )
+        return full_observations     
 
     def get_rewards(self, state_space, actions):
-        rewards = np.zeros(self.N)
+        reward = 0 #Fully shared reward, this is a collaborative environment
+        if state_space['num_prey'] < self.num_prey:
+            reward = self.args.capture_reward * (self.num_prey - state_space['num_prey'])
+            self.num_prey = state_space['num_prey']
+        else:
+            reward = self.args.no_capture_reward
+        '''
         for i in range(self.N):
+            
             if self.agents[i].type == TYPE.Capture and self.agents[i].prey_caught:
                 rewards[i] = 0
             elif self.agents[i].prey_in_range:
@@ -172,8 +161,10 @@ class PCPAgents:
                 rewards[i] = self.agents[i].reward * 10 #BIG penalty for false capture. TODO: evaluate this
             else:
                 rewards[i] = self.agents[i].reward
+        '''
+            
 
-        return rewards
+        return reward
 
 
 
