@@ -80,7 +80,7 @@ class PCPAgents:
         for i in range(self.N_capture):
             self.agents.append( Agent(i + self.N_predator, 0, radius) )
 
-    def run_episode(self):
+    def reset(self):
         '''
         Runs an episode of the simulation
         Episode will end based on what is returned in get_actions
@@ -89,8 +89,30 @@ class PCPAgents:
         self.prey_locs = []
         self.rewards = [0]
         self.num_prey = self.args.num_prey
-        self.env.run_episode()
+        self.env.reset()
         print("Agent rewards for episode: ", sum(self.rewards))
+
+    def step(self, actions_):
+        '''
+        Step into the environment
+        Returns observation, reward, done, info
+        '''
+        terminated = False
+        self.episode_steps += 1
+
+        prey_sensed = []
+        updated_state = self.env.step(actions_)
+        obs, critic_obs = self.get_observations(updated_state)
+        rewards = self.get_rewards(updated_state, actions_)
+        
+        # condition for checking for the whether the episode is terminated
+        if self.episode_steps > self.max_episode_steps or updated_state['num_prey'] == 0:
+            terminated = True             
+        
+        # Maybe iterate over all the agents to check who have sensed
+
+        return obs, rewards, terminated, prey_sensed
+
 
     def get_actions(self, state_space):
         '''

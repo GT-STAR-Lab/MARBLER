@@ -56,6 +56,14 @@ class PCPEnv:
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
 
+    def reset(self):
+        '''
+        Reset the environmrnt
+        '''
+        self.num_prey = self.args.num_prey
+        self.prey_captured = [False] * self.num_prey
+        self.prey_sensed = [False] * self.num_prey
+        self._create_robotarium()
 
     def run_episode(self):
         '''
@@ -108,6 +116,55 @@ class PCPEnv:
                 state_space, x = self._generate_state_space()
             else:
                 x = self.robotarium.get_poses()
+    
+    def step(self, actions_):
+        '''
+        Take a step into the environment given the action
+        '''
+
+        
+
+        # Considering one step to be equivalent to 60 iters
+        for iterations in range(self.args.update_frequency):
+            
+            x = self.robotarium.get_poses()
+
+            if iterations % self.args.update_frequency == 0:
+                state_space = self._generate_state_space(x) #x is the poses. Can only get the poses once per step
+                self._update_poses(actions_)
+                self._update_prey_status(state_space, actions_, self.agents)
+                goals = self._generate_goal_positions()
+
+            #uses the robotarium commands to get the velocities of each robot    
+            if iterations % 10 == 0 or iterations % self.args.update_frequency == 0:                      
+                xi = self.uni_to_si_states(x)
+                dxi = self.single_integrator_position_controller(xi, goals[:2][:])
+                dxi = self.si_barrier_cert(dxi, xi)
+                dxu = self.si_to_uni_dyn(dxi, x)
+                self.robotarium.set_velocities(np.arange(self.num_robots), dxu)
+            
+            if self.args.show_figure:
+                for i in range(x.shape[1]):
+                    self.robot_markers[i].set_offsets(x[:2,i].T)
+
+                    # Next two lines updates the marker sizes if the figure window size is changed. 
+                    # They should be removed when submitting to the Robotarium.
+                    self.robot_markers[i].set_sizes([determine_marker_size(self.robotarium, \
+                                                        (self.predator_marker_size_m if i < self.args.predator else self.capture_marker_size_m))])
+                #self.goal_marker.set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
+                for i in range(len(self.prey_markers)):
+                    if not self.prey_captured[i]:
+                        self.prey_markers[i].set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
+                    else:
+                        self.prey_markers[i].set_sizes([0,0])
+
+            self.robotarium.step()
+            x = self.robotarium.get_poses()
+        
+        state_space = self._generate_state_space(x) 
+
+        return state_space
+        
 
     def _update_prey_status(self, state_space, actions, agents):
         removeIndicies = []
@@ -207,19 +264,19 @@ class PCPEnv:
 
         self.robotarium.step()
 
-    def _generate_state_space(self):
+    def _generate_state_space(self, x):
         '''
         Generates a dictionary describing the state space of the robotarium
+        x: Poses of all the robots
         '''
         state_space = {}
-        x = self.robotarium.get_poses()
         state_space['poses'] = x
         state_space['num_prey'] = self.num_prey
         state_space['prey'] = []
         for i in range(self.num_prey):
             state_space['prey'].append(np.array(self.prey_loc[i]).reshape((2,1)))
         
-        return state_space, x
+        return state_space
 
 
     def __del__(self):
