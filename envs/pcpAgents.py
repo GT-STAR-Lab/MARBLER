@@ -12,15 +12,13 @@ class Agent:
         self.sensing_radius = sensing_radius
         self.capture_radius = capture_radius
 
-    def get_observation( self, state_space, agents, include_velocity = False):
+    def get_observation( self, state_space, agents, continuous_agent = False):
         '''
             each agent's observation-
                 poses of all neighbour agents
                 checks whether the prey is within sensing radius of the agent
                 or whether prey has been found by any of the neighbours
         '''
-        #observation = {}
-        
         #Checks if any prey is in range of the agent and takes the closest if so
         closest_prey = -1
         for p in state_space['prey']:
@@ -31,8 +29,11 @@ class Agent:
         if closest_prey == -1:
             prey_loc = [-1,-1]
 
-        if not include_velocity:
+        if not continuous_agent:
             observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
+        else:
+            observation = np.array([*state_space['poses'][:, self.index ], *prey_loc, self.sensing_radius, self.capture_radius])
+        
         return observation
     
     def __str__(self):
@@ -51,13 +52,9 @@ class PCPAgents:
         self.N_capture = args.capture
         self.N = self.N_predator + self.N_capture
         self.rewards =[0]
-        #self.rewards.append(np.zeros(self.N))
         self.num_prey = self.args.num_prey
 
         self._initialize_agents(args)
-        # Laplacian graph considering all agents communicating with each other (L = D - A)
-        # TODO: Could change it to a dynamic, sparse graph
-        #self.Laplacian = completeGL(self.N)
         if type=='grid':
             self.env = gridPcpEnv.PCPEnv(self, args)
         else:
@@ -89,6 +86,9 @@ class PCPAgents:
         Episode will end based on what is returned in get_actions
         '''
         self.episode_steps = 0
+        self.prey_locs = []
+        self.rewards = [0]
+        self.num_prey = self.args.num_prey
         self.env.run_episode()
         print("Agent rewards for episode: ", sum(self.rewards))
 
@@ -100,17 +100,17 @@ class PCPAgents:
         Each column represents a different robot
         ''' 
         if self.episode_steps > self.max_episode_steps:
-            return []
+            return [], []
         
         #Check if every prey agent has already been captured the prey and ends the episode if they have
         if state_space['num_prey'] == 0:
             return [], []
         
         self.episode_steps+=1
-        self.observations = self.get_observations(state_space)
+        self.observations, critic_observations = self.get_observations(state_space)
         actions = []
         for i in range(self.N):
-            actions.append(self.policies[i].getAction(self.observations[i], self.rewards[-1]))
+            actions.append(self.policies[i].getAction(self.observations[i], critic_observations, self.rewards[-1]))
         self.rewards.append(self.get_rewards(state_space, actions))
         return actions, self.agents
     
@@ -118,12 +118,21 @@ class PCPAgents:
         '''
         Input: Takes in the current state space of the environment
         Outputs:
-            a dictionary of observations for each agent with agent index as key
+            an array with [agent_x_pos, agent_y_pos, sensed_prey_x_pose, sensed_prey_y_pose, sensing_radius, capture_radius]
+            concatenated with the same array for the nearest neighbors based on args.delta or args.num_neighbors
+
+            Also returns a global critic observations which is a list that starts with the true position for every prey agent which is then
+            concatenated with the list of observations of each agent
         '''
-        # get pose and velocity of all neighbours based on laplacian graph
+        if self.prey_locs == []:
+            for p in state_space['prey']:
+                self.prey_locs = np.concatenate((self.prey_locs, p.reshape((1,2))[0]))
+        critic_observations = np.array(self.prey_locs)
+
         observations = {}
-        for agent in self.agents:          
-            observations[agent.index] = agent.get_observation(state_space, self.agents)
+        for agent in self.agents: 
+            observations[agent.index] = agent.get_observation(state_space, self.agents, continuous_agent = (self.type != 'grid'))    
+            critic_observations = np.concatenate((critic_observations, observations[agent.index]))
         
         full_observations = {}
         for agent in self.agents:
@@ -132,37 +141,17 @@ class PCPAgents:
                 nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
             else:
                 nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
-            #nbr_indices = topological_neighbors(self.Laplacian, agent.index)
             for nbr_index in nbr_indices:
                 full_observations[agent.index] = np.concatenate( (full_observations[agent.index],observations[nbr_index]) )
-        return full_observations     
+        return full_observations, critic_observations 
 
     def get_rewards(self, state_space, actions):
-        reward = 0 #Fully shared reward, this is a collaborative environment
+        reward = 0 #Fully shared reward, this is a collaborative environment. TODO: is this too sparse?
         if state_space['num_prey'] < self.num_prey:
             reward = self.args.capture_reward * (self.num_prey - state_space['num_prey'])
             self.num_prey = state_space['num_prey']
         else:
             reward = self.args.no_capture_reward
-        '''
-        for i in range(self.N):
-            
-            if self.agents[i].type == TYPE.Capture and self.agents[i].prey_caught:
-                rewards[i] = 0
-            elif self.agents[i].prey_in_range:
-                if self.agents[i].type == TYPE.Predator: 
-                    rewards[i] = 0
-                elif self.agents[i].type == TYPE.Capture and actions[i]["Capture"]:
-                    rewards[i] = 0
-                    self.agents[i].prey_caught = True
-                else:
-                    rewards[i] = self.agents[i].reward
-            elif self.agents[i].type == TYPE.Capture and actions[i]["Capture"]:
-                rewards[i] = self.agents[i].reward * 10 #BIG penalty for false capture. TODO: evaluate this
-            else:
-                rewards[i] = self.agents[i].reward
-        '''
-            
 
         return reward
 
