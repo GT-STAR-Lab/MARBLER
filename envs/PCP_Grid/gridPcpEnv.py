@@ -122,8 +122,6 @@ class PCPEnv:
         Take a step into the environment given the action
         '''
 
-        
-
         # Considering one step to be equivalent to 60 iters
         for iterations in range(self.args.update_frequency):
             
@@ -159,7 +157,6 @@ class PCPEnv:
                         self.prey_markers[i].set_sizes([0,0])
 
             self.robotarium.step()
-            x = self.robotarium.get_poses()
         
         state_space = self._generate_state_space(x) 
 
