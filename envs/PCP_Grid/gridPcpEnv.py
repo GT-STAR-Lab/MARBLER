@@ -7,6 +7,7 @@ from rps.utilities.controllers import *
 import numpy as np
 import random
 import time
+from gym import spaces
 
 import pcpAgents
 from utilities import *
@@ -55,6 +56,18 @@ class PCPEnv:
             self.goal_marker_size_m = .05
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
+        
+        # define the observation space & action space for the agents
+        self.action_space = []
+        self.observation_space = []
+        
+        for agent in self.agents:
+            self.action_space.append(spaces.Discrete(5))
+            obs_dim = len(agent.observations)
+            self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
+        
+        self.action_space = spaces.Tuple(tuple(self.action_space))
+        self.observation_space = spaces.Tuple(tuple(self.observation_space))
 
     def reset(self):
         '''
@@ -69,10 +82,7 @@ class PCPEnv:
         '''
         Creates a new instance of the robotarium and runs the agents until PCPAgents.get_actions returns []
         '''
-        self.num_prey = self.args.num_prey
-        self.prey_captured = [False] * self.num_prey
-        self.prey_sensed = [False] * self.num_prey
-        self._create_robotarium()
+        self.reset()
 
         state_space, x = self._generate_state_space() #x is the poses. Can only get the poses once per step
         actions, agents = self.agents.get_actions(state_space)

@@ -109,11 +109,13 @@ class PCPAgents:
         if self.episode_steps > self.max_episode_steps or updated_state['num_prey'] == 0:
             terminated = True             
         
-        # Maybe iterate over all the agents to check who have sensed
+        # Maybe iterate over all the agents to check who have sensed/found the prey
 
         return obs, rewards, terminated, prey_sensed
 
-
+    def get_action_space(self):
+        return self.env.action_space
+    
     def get_actions(self, state_space):
         '''
         returns numpy array that is 2XNum_Robots
@@ -136,6 +138,9 @@ class PCPAgents:
         self.rewards.append(self.get_rewards(state_space, actions))
         return actions, self.agents
     
+    def get_observation_space(self):
+        return self.env.observation_space
+
     def get_observations(self, state_space):
         '''
         Input: Takes in the current state space of the environment
