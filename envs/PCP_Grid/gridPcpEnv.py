@@ -69,6 +69,11 @@ class PCPEnv:
         self.action_space = spaces.Tuple(tuple(self.action_space))
         self.observation_space = spaces.Tuple(tuple(self.observation_space))
 
+        self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
+        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
+
+        
+
     def reset(self):
         '''
         Reset the environmrnt
@@ -192,7 +197,7 @@ class PCPEnv:
 
     def _update_poses(self, actions):
         for i in range(self.num_robots):
-            match actions[i]:
+            match self.action_id2w[actions[i]]:
                 case 'left':
                     self.agent_poses[i] = [max(self.agent_poses[i][0]-1, 0), self.agent_poses[i][1]]
                 case 'right':
@@ -201,7 +206,7 @@ class PCPEnv:
                     self.agent_poses[i] = [self.agent_poses[i][0], max(self.agent_poses[i][1]-1, 0)]
                 case 'down':
                     self.agent_poses[i] = [self.agent_poses[i][0], min(self.agent_poses[i][1]+1, self.height-1)]
-                case _:
+                case 'no_action':
                     continue #if 'stop' or 'capture' the agent i's pose does not change
 
     def _generate_goal_positions(self):
