@@ -92,7 +92,7 @@ class PCPAgents:
         self.rewards = [0]
         self.num_prey = self.args.num_prey
         self.env.reset()
-        print("Agent rewards for episode: ", sum(self.rewards))
+        
 
     def step(self, actions_):
         '''
@@ -111,9 +111,11 @@ class PCPAgents:
         if self.episode_steps > self.max_episode_steps or updated_state['num_prey'] == 0:
             terminated = True             
         
-        # Maybe iterate over all the agents to check who have sensed/found the prey
+        obs_ = []
+        for id in obs.keys():
+            obs_.append(obs[id])
 
-        return obs, rewards, terminated, prey_sensed
+        return obs_, [rewards]*self.N, [terminated]*self.N, [{}]*self.N
 
     def get_action_space(self):
         return self.env.action_space
