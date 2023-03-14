@@ -6,6 +6,8 @@ from utilities import *
 from PCP_Cont import contPcpEnv
 from PCP_Grid import gridPcpEnv
 
+import gym
+
 class Agent:
     def __init__(self, index, sensing_radius, capture_radius):
         self.index = index
@@ -182,5 +184,29 @@ class PCPAgents:
 
         return reward
 
+    def render(self, mode='human'):
+        # Render your environment
+        pass
 
 
+class PCPWrapper(gym.Wrapper):
+    def __init__(self, env):
+        """Creates a Gym Wrapper for PCPAgents
+
+        Args:
+            env (PCPAgents): A PCPAgents object to wrap in a gym env
+        """
+        super().__init__(env)
+
+    def reset(self):
+        # Reset the wrapped environment and modify the initial observation if needed
+        # TODO: rn PCPEnv reset is not returning anything, fix this
+        observation = self.env.reset()
+        pass
+
+    def step(self, action_n):
+        # Execute the given action in the wrapped environment and modify the observation, reward, done and info if needed
+        # TODO: currently PCPEnv step is returning state_space, but it should return all these things: 
+        obs_n, reward_n, done_n, info_n = self.env.step(action)
+        # done signifies termination, info gives additional info for debugging. Can summarize current state
+        return tuple(obs_n), reward_n, done_n, info_n
