@@ -159,7 +159,7 @@ class PCPAgents:
             reward = self.args.capture_reward * (self.num_prey - state_space['num_prey'])
             self.num_prey = state_space['num_prey']
         reward += state_space['unseen_prey'] * self.args.no_capture_reward
-        reward += state_space['num_prey'] * self.args.no_capture_reward
+        #reward += state_space['num_prey'] * self.args.no_capture_reward
 
         return reward
 
