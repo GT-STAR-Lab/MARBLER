@@ -57,7 +57,6 @@ class PCPAgents:
         self.N_predator = args.predator
         self.N_capture = args.capture
         self.N = self.N_predator + self.N_capture
-        self.rewards =[0]
         self.num_prey = self.args.num_prey
 
         self._initialize_agents(args)
@@ -93,7 +92,6 @@ class PCPAgents:
         '''
         self.episode_steps = 0
         self.prey_locs = []
-        self.rewards = [0]
         self.num_prey = self.args.num_prey
         self.env.reset()
         return [[0]*(6 * (self.args.num_neighbors + 1))] * self.N
@@ -109,7 +107,7 @@ class PCPAgents:
 
         updated_state = self.env.step(actions_)
         obs = self.get_observations(updated_state)
-        rewards = self.get_rewards(updated_state, actions_)
+        rewards = self.get_rewards(updated_state)
         
         # condition for checking for the whether the episode is terminated
         if self.episode_steps > self.max_episode_steps or updated_state['num_prey'] == 0:
@@ -155,13 +153,13 @@ class PCPAgents:
                 full_observations[i] = np.concatenate( (full_observations[i],observations[nbr_index]) )
         return full_observations#, critic_observations 
 
-    def get_rewards(self, state_space, actions):
+    def get_rewards(self, state_space):
         reward = 0 #Fully shared reward, this is a collaborative environment. TODO: is this too sparse?
         if state_space['num_prey'] < self.num_prey:
             reward = self.args.capture_reward * (self.num_prey - state_space['num_prey'])
             self.num_prey = state_space['num_prey']
-        reward -= state_space['unseen_prey'] * self.args.no_capture_reward
-        #reward -= state_space['num_prey'] * self.args.no_capture_reward
+        reward += state_space['unseen_prey'] * self.args.no_capture_reward
+        reward += state_space['num_prey'] * self.args.no_capture_reward
 
         return reward
 
