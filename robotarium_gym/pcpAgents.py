@@ -7,6 +7,10 @@ from .PCP_Cont import contPcpEnv
 from .PCP_Grid import gridPcpEnv, parser_grid
 import yaml
 import gym
+import os
+
+module_dir = os.path.dirname(__file__)
+config_path = os.path.join(module_dir, 'PCP_Grid', 'grid.yaml')
 
 class Agent:
     def __init__(self, index, sensing_radius, capture_radius):
@@ -201,27 +205,23 @@ class PCPWrapper(gym.Env):
             env (PCPAgents): A PCPAgents object to wrap in a gym env
         """
         super().__init__()
-        with open('/home/rtorbati/GTClasses/DLM/Project/Heterogeneous-MARL/robogym/PCP_Grid/grid.yaml', 'r') as f:
+        with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
         
         args = objectview(config)
-        #self.env = PCPAgents(parser_grid.create_parser().parse_args(), [], type='grid')
         self.env = PCPAgents(args, [], type='grid')
         self.observation_space = self.get_observation_space()
         self.action_space = self.get_action_space()
         self.n_agents = self.env.N
 
     def reset(self):
-        # Reset the wrapped environment and modify the initial observation if needed
-        # TODO: rn PCPEnv reset is not returning anything, fix this
+        # Reset the wrapped environment and return the initial observation
         observation = self.env.reset()
         return observation
 
     def step(self, action_n):
-        # Execute the given action in the wrapped environment and modify the observation, reward, done and info if needed
-        # TODO: currently PCPEnv step is returning state_space, but it should return all these things: 
+        # Execute the given action in the wrapped environment
         obs_n, reward_n, done_n, info_n = self.env.step(action_n)
-        # done signifies termination, info gives additional info for debugging. Can summarize current state
         return tuple(obs_n), reward_n, done_n, info_n
     
     def get_action_space(self):

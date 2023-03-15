@@ -1,4 +1,7 @@
-__pycache__/
+**/__pycache__/
 tb_logs/
 results/
 .DS_Store
+.idea/
+**/.ipynb_checkpoints/
+robotarium_gym.egg-info/
