@@ -4,11 +4,11 @@ predator: 2
 predator_radius: 2.0
 capture: 2
 capture_radius: 1.0
-show_figure: False
+show_figure_frequency: 1000
 real_time: False
-delta: 0.0
-num_neighbors: 2
-max_episode_steps: 30
-grid_size: 3
-update_frequency: 65
-num_prey: 2
+delta: 0.0 #THIS DOES NOT CURRENTLY WORK IF > 0
+num_neighbors: 1
+max_episode_steps: 25
+grid_size: 2
+update_frequency: 89
+num_prey: 3
