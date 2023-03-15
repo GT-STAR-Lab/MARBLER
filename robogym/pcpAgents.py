@@ -57,7 +57,6 @@ class PCPAgents:
         self.N_predator = args.predator
         self.N_capture = args.capture
         self.N = self.N_predator + self.N_capture
-        self.rewards =[0]
         self.num_prey = self.args.num_prey
 
         self._initialize_agents(args)
@@ -93,10 +92,9 @@ class PCPAgents:
         '''
         self.episode_steps = 0
         self.prey_locs = []
-        self.rewards = [0]
         self.num_prey = self.args.num_prey
         self.env.reset()
-        return [[0]*18] * self.N
+        return [[0]*(6 * (self.args.num_neighbors + 1))] * self.N
         
 
     def step(self, actions_):
@@ -107,10 +105,9 @@ class PCPAgents:
         terminated = False
         self.episode_steps += 1
 
-        prey_sensed = []
         updated_state = self.env.step(actions_)
         obs = self.get_observations(updated_state)
-        rewards = self.get_rewards(updated_state, actions_)
+        rewards = self.get_rewards(updated_state)
         
         # condition for checking for the whether the episode is terminated
         if self.episode_steps > self.max_episode_steps or updated_state['num_prey'] == 0:
@@ -120,28 +117,6 @@ class PCPAgents:
 
     def get_action_space(self):
         return self.env.action_space
-    
-    def get_actions(self, state_space):
-        '''
-        returns numpy array that is 2XNum_Robots
-        The first row is the linear velocity of each robot in meters/second (range +- .03-.2)
-        The second row is the angular velocity of each robot in radians/second
-        Each column represents a different robot
-        ''' 
-        if self.episode_steps > self.max_episode_steps:
-            return [], []
-        
-        #Check if every prey agent has already been captured the prey and ends the episode if they have
-        if state_space['num_prey'] == 0:
-            return [], []
-        
-        self.episode_steps+=1
-        self.observations, critic_observations = self.get_observations(state_space)
-        actions = []
-        for i in range(self.N):
-            actions.append(self.policies[i].getAction(self.observations[i], critic_observations, self.rewards[-1]))
-        self.rewards.append(self.get_rewards(state_space, actions))
-        return actions, self.agents
     
     def get_observation_space(self):
         return self.env.observation_space
@@ -159,12 +134,12 @@ class PCPAgents:
         if self.prey_locs == []:
             for p in state_space['prey']:
                 self.prey_locs = np.concatenate((self.prey_locs, p.reshape((1,2))[0]))
-        critic_observations = np.array(self.prey_locs)
+        #critic_observations = np.array(self.prey_locs)
 
         observations = {}
         for agent in self.agents: 
             observations[agent.index] = agent.get_observation(state_space, self.agents, continuous_agent = (self.type != 'grid'))    
-            critic_observations = np.concatenate((critic_observations, observations[agent.index]))
+        #    critic_observations = np.concatenate((critic_observations, observations[agent.index]))
         
         full_observations = []
         for i, agent in enumerate(self.agents):
@@ -178,13 +153,13 @@ class PCPAgents:
                 full_observations[i] = np.concatenate( (full_observations[i],observations[nbr_index]) )
         return full_observations#, critic_observations 
 
-    def get_rewards(self, state_space, actions):
+    def get_rewards(self, state_space):
         reward = 0 #Fully shared reward, this is a collaborative environment. TODO: is this too sparse?
         if state_space['num_prey'] < self.num_prey:
             reward = self.args.capture_reward * (self.num_prey - state_space['num_prey'])
             self.num_prey = state_space['num_prey']
-        else:
-            reward = self.args.no_capture_reward
+        reward += state_space['unseen_prey'] * self.args.no_capture_reward
+        #reward += state_space['num_prey'] * self.args.no_capture_reward
 
         return reward
 
@@ -219,7 +194,6 @@ class PCPWrapper(gym.Env):
 
     def step(self, action_n):
         # Execute the given action in the wrapped environment and modify the observation, reward, done and info if needed
-        # TODO: currently PCPEnv step is returning state_space, but it should return all these things: 
         obs_n, reward_n, done_n, info_n = self.env.step(action_n)
         # done signifies termination, info gives additional info for debugging. Can summarize current state
         return tuple(obs_n), reward_n, done_n, info_n
