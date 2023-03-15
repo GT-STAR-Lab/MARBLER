@@ -1,7 +1,7 @@
 from rps.utilities.controllers import *
 import numpy as np
 
-from utilities import *
+from ..utilities import *
 
 def getNeighborsPrey(observations):
     for i in range(3, len(observations), 7):

@@ -1,0 +1,14 @@
+no_capture_reward: -0.05
+capture_reward: 1
+predator: 2
+predator_radius: 2.0
+capture: 2
+capture_radius: 1.0
+show_figure: False
+real_time: False
+delta: 0.0
+num_neighbors: 2
+max_episode_steps: 30
+grid_size: 3
+update_frequency: 60
+num_prey: 2

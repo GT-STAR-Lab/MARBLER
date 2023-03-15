@@ -7,9 +7,10 @@ from rps.utilities.controllers import *
 import numpy as np
 import random
 import time
+from gym import spaces
 
-import pcpAgents
-from utilities import *
+from ..pcpAgents import *
+from ..utilities import *
 
 class PCPEnv:
     def __init__(self, pcpAgents, args):
@@ -55,16 +56,38 @@ class PCPEnv:
             self.goal_marker_size_m = .05
             self.line_width = 5
             self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
+        
+        # define the observation space & action space for the agents
+        self.action_space = []
+        self.observation_space = []
+        
+        for agent in self.agents.agents:
+            self.action_space.append(spaces.Discrete(5))
+            obs_dim = 18 #len(agent.observations)
+            self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
+        
+        self.action_space = spaces.Tuple(tuple(self.action_space))
+        self.observation_space = spaces.Tuple(tuple(self.observation_space))
 
+        self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
+        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
-    def run_episode(self):
+        
+
+    def reset(self):
         '''
-        Creates a new instance of the robotarium and runs the agents until PCPAgents.get_actions returns []
+        Reset the environmrnt
         '''
         self.num_prey = self.args.num_prey
         self.prey_captured = [False] * self.num_prey
         self.prey_sensed = [False] * self.num_prey
         self._create_robotarium()
+
+    def run_episode(self):
+        '''
+        Creates a new instance of the robotarium and runs the agents until PCPAgents.get_actions returns []
+        '''
+        self.reset()
 
         state_space, x = self._generate_state_space() #x is the poses. Can only get the poses once per step
         actions, agents = self.agents.get_actions(state_space)
@@ -108,6 +131,52 @@ class PCPEnv:
                 state_space, x = self._generate_state_space()
             else:
                 x = self.robotarium.get_poses()
+    
+    def step(self, actions_):
+        '''
+        Take a step into the environment given the action
+        '''
+
+        # Considering one step to be equivalent to 60 iters
+        for iterations in range(self.args.update_frequency):
+            
+            x = self.robotarium.get_poses()
+
+            if iterations % self.args.update_frequency == 0:
+                state_space = self._generate_state_space(x) #x is the poses. Can only get the poses once per step
+                self._update_poses(actions_)
+                self._update_prey_status(state_space, actions_, self.agents.agents)
+                goals = self._generate_goal_positions()
+
+            #uses the robotarium commands to get the velocities of each robot    
+            if iterations % 10 == 0 or iterations % self.args.update_frequency == 0:                      
+                xi = self.uni_to_si_states(x)
+                dxi = self.single_integrator_position_controller(xi, goals[:2][:])
+                dxi = self.si_barrier_cert(dxi, xi)
+                dxu = self.si_to_uni_dyn(dxi, x)
+                self.robotarium.set_velocities(np.arange(self.num_robots), dxu)
+            
+            if self.args.show_figure:
+                for i in range(x.shape[1]):
+                    self.robot_markers[i].set_offsets(x[:2,i].T)
+
+                    # Next two lines updates the marker sizes if the figure window size is changed. 
+                    # They should be removed when submitting to the Robotarium.
+                    self.robot_markers[i].set_sizes([determine_marker_size(self.robotarium, \
+                                                        (self.predator_marker_size_m if i < self.args.predator else self.capture_marker_size_m))])
+                #self.goal_marker.set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
+                for i in range(len(self.prey_markers)):
+                    if not self.prey_captured[i]:
+                        self.prey_markers[i].set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
+                    else:
+                        self.prey_markers[i].set_sizes([0,0])
+
+            self.robotarium.step()
+        
+        state_space = self._generate_state_space(x) 
+
+        return state_space
+        
 
     def _update_prey_status(self, state_space, actions, agents):
         removeIndicies = []
@@ -128,16 +197,15 @@ class PCPEnv:
 
     def _update_poses(self, actions):
         for i in range(self.num_robots):
-            match actions[i]:
-                case 'left':
+            if self.action_id2w[actions[i]] == 'left':
                     self.agent_poses[i] = [max(self.agent_poses[i][0]-1, 0), self.agent_poses[i][1]]
-                case 'right':
+            elif self.action_id2w[actions[i]] == 'right':
                     self.agent_poses[i] = [min(self.agent_poses[i][0]+1, self.width-1), self.agent_poses[i][1]]
-                case 'up':
+            elif self.action_id2w[actions[i]] == 'up':
                     self.agent_poses[i] = [self.agent_poses[i][0], max(self.agent_poses[i][1]-1, 0)]
-                case 'down':
+            elif self.action_id2w[actions[i]] == 'down':
                     self.agent_poses[i] = [self.agent_poses[i][0], min(self.agent_poses[i][1]+1, self.height-1)]
-                case _:
+            else:
                     continue #if 'stop' or 'capture' the agent i's pose does not change
 
     def _generate_goal_positions(self):
@@ -207,19 +275,19 @@ class PCPEnv:
 
         self.robotarium.step()
 
-    def _generate_state_space(self):
+    def _generate_state_space(self, x):
         '''
         Generates a dictionary describing the state space of the robotarium
+        x: Poses of all the robots
         '''
         state_space = {}
-        x = self.robotarium.get_poses()
         state_space['poses'] = x
         state_space['num_prey'] = self.num_prey
         state_space['prey'] = []
         for i in range(self.num_prey):
             state_space['prey'].append(np.array(self.prey_loc[i]).reshape((2,1)))
         
-        return state_space, x
+        return state_space
 
 
     def __del__(self):
