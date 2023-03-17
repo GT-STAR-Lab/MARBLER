@@ -15,7 +15,13 @@ def plot_logs(args,
 
     # Regular expressions to match episode number and metrics
     episode_regex = r'Episode:\s+(\d+)'
-    metrics_regex = r'agent_grad_norm:\s+([\d\.]+)\s+critic_grad_norm:\s+([\d\.]+)\s+critic_loss:\s+([\d\.]+)\s+ep_length_mean:\s+([\d\.]+)\s+pg_loss:\s+([\d\.-]+)\s+q_taken_mean:\s+([\d\.-]+)\s+return_mean:\s+([\d\.-]+)\s+return_std:\s+([\d\.]+)\s+target_mean:\s+([\d\.-]+)\s+td_error_abs:\s+([\d\.]+)\s+test_ep_length_mean:\s+([\d\.]+)\s+test_return_mean:\s+([\d\.-]+)\s+test_return_std:\s+([\d\.]+)'
+    metrics_regex = r'agent_grad_norm:\s+([\d\.]+)\s+critic_grad_norm:\s+([\d\.]+)\s+' + \
+                    r'critic_loss:\s+([\d\.]+)\s+ep_length_mean:\s+([\d\.]+)\s+' + \
+                    r'pg_loss:\s+([\d\.-]+)\s+q_taken_mean:\s+([\d\.-]+)\s+' + \
+                    r'return_mean:\s+([\d\.-]+)\s+return_std:\s+([\d\.]+)\s+' + \
+                    r'target_mean:\s+([\d\.-]+)\s+td_error_abs:\s+([\d\.]+)\s+' + \
+                    r'test_ep_length_mean:\s+([\d\.]+)\s+test_return_mean:\s+([\d\.-]+)\s+' + \
+                    r'test_return_std:\s+([\d\.]+)'
 
     # Initialize dictionary to store data
     episodes = []
@@ -50,8 +56,8 @@ def plot_logs(args,
                 # Extract the corresponding metrics
                 metrics_line = ''
                 
-#                 for _ in range(4):
-#                     metrics_line += file.readline()
+                # for _ in range(4):
+                #     metrics_line += file.readline()
                     
                 i = 0
                 while i < 4:
@@ -67,6 +73,7 @@ def plot_logs(args,
     # Plot the data for each metric against episode number
     for metric_name, metric_values in metrics.items():
         if metric_name in metrics_to_plot:
+            plt.figure()
             plt.plot(episodes, metric_values)
             plt.ylabel(metrics_to_plot[metric_name])
             plt.xlabel('Episodes')
