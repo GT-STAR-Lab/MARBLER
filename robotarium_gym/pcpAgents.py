@@ -4,7 +4,7 @@ from rps.utilities.graph import *
 from .utilities import *
 
 from .PCP_Cont import contPcpEnv
-from .PCP_Grid import gridPcpEnv, parser_grid
+from .PCP_Grid import gridPcpEnv
 import yaml
 import gym
 import os

@@ -1,5 +1,6 @@
 **/__pycache__/
 tb_logs/
+build/
 results/
 .DS_Store
 .idea/
