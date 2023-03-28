@@ -9,8 +9,8 @@ import random
 import time
 from gym import spaces
 
-from ..pcpAgents import *
-from ..utilities import *
+from pcpAgents import *
+from utilities import *
 
 class PCPEnv:
     def __init__(self, pcpAgents, args):

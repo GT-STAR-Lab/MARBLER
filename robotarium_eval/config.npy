@@ -1,10 +1,18 @@
+model_config_file: model_config.mat
+actor_file: rnn_agent
+actor_class: RNNAgent
+model_file: agent.tiff
+env_file: pcpAgents
+env_class: PCPAgents
+n_actions: 5
+steps: 100
 no_capture_reward: -0.05
 capture_reward: 1
 predator: 2
 predator_radius: 2.0
 capture: 2
 capture_radius: 1.0
-show_figure_frequency: 1000
+show_figure_frequency: 1
 real_time: False
 delta: 0.0 #THIS DOES NOT CURRENTLY WORK IF > 0
 num_neighbors: 2
