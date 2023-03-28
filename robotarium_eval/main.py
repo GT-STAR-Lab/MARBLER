@@ -17,7 +17,6 @@ def load_model(args):
 
     params = torch.load(args.model_file, map_location=torch.device('cpu'))
     input_dim = params[list(params.keys())[0]].shape[1]
-    print(input_dim)
 
     actor = importlib.import_module(args.actor_file)
     actor = getattr(actor, args.actor_class)
@@ -25,7 +24,7 @@ def load_model(args):
     model = actor(input_dim, model_config)
     model.load_state_dict(params)
 
-    print(model.eval())
+    #print(model.eval())
     return model, model_config
 
 with open(config_path, 'r') as f:
@@ -43,11 +42,13 @@ n_agents = len(obs)
 hs = [np.zeros((model_config.hidden_dim, )) for i in range(n_agents)]
 
 for i in range(args.steps):
-    if model_config.obs_agent_id:
+    if model_config.obs_agent_id: #Appends the agent id if obs_agent_id is true. TODO: support obs_last_action too
         obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
+
+    #Gets the q values and then the action from the q values
     q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs))
     actions = np.argmax(q_values.detach().numpy(), axis=1)
 
     obs, reward, done, _ = env.step(actions)
-    if all(done) == True:
+    if all(done):
          break

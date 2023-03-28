@@ -4,9 +4,9 @@ actor_file: rnn_agent
 actor_class: RNNAgent
 model_file: agent.tiff
 env_file: pcpAgents
-env_class: PCPAgents
-n_actions: 5
-steps: 100
+env_class: PCPAgents #This needs to have all of the functionalities of a gym to work
+n_actions: 5 #The number of actions available for the agent
+steps: 100 #The maxiumum number of steps for the environment to take
 
 #Arguments needed by the environment
 no_capture_reward: -0.05
