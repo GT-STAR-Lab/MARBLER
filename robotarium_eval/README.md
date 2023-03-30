@@ -1,6 +1,6 @@
 # How to Run on the Robotarium
 The Robotarium only accepts files, not folders. Additionally, the file types it accepts is limited.
-Therefore, the following, at times strange, steps are necessary. <br>
+Therefore, the following steps are necessary. <br>
 
 1. Copy the actor file you are using to this folder ()
     - The actor files are typically located in `src/modules/agents` within epymarl
@@ -14,10 +14,10 @@ Therefore, the following, at times strange, steps are necessary. <br>
 4. Update config.npy. The first 9 lines are required for all experiments. The last part is the environment specific config file
     - This is really a yaml file
 5. Submit main.py, config.npy, the model config, the model weights, the actor file, and the environment files to the [Robotarium](https://www.robotarium.gatech.edu/dashboard) and set main.py as your Main file
-    - To test before submitting, it is helpful to set show_figure_frequency to 1
+    - To test before submitting, it is helpful to set show_figure_frequency to 1 but show_figure_frequency should be -1 when submitting to the Robotarium
 
 ## Note on File Types
-The acceptable files types in the Robotarium are ` .m, .jpg, .jpeg, .png, .gif, .tiff, .bmp, .py, .mat, .npy, and .mexa64 ` <br>
+The acceptable files types in the Robotarium are ` .m`, `.jpg`, `.jpeg`, `.png`, `.gif`, `.tiff`, `.bmp`, `.py`, `.mat`, `.npy`, and `.mexa64 ` <br>
 Therefore, I am using `.tiff` for `.th` files, `.mat` for `.json` files, and `.npy` for `.yaml` files. It is not required you follow these conventions.
 
 ## Sources

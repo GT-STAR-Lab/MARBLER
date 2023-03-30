@@ -7,8 +7,8 @@ import yaml
 config_path = "config.npy"
 
 class DictView(object):
-        def __init__(self, d):
-            self.__dict__ = d
+    def __init__(self, d):
+        self.__dict__ = d
 
 def load_model(args):
     model_config = open(args.model_config_file)
