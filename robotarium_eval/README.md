@@ -13,8 +13,8 @@ Therefore, the following steps are necessary. <br>
     - It is likely that include paths will need to be changed because there can be no subdirectories
 4. Update config.npy. The first 9 lines are required for all experiments. The last part is the environment specific config file
     - This is really a yaml file
+    - When submitting, show_figure_frequency needs to be 1 and robotarium should be true
 5. Submit main.py, config.npy, the model config, the model weights, the actor file, and the environment files to the [Robotarium](https://www.robotarium.gatech.edu/dashboard) and set main.py as your Main file
-    - To test before submitting, it is helpful to set show_figure_frequency to 1 but show_figure_frequency should be -1 when submitting to the Robotarium
 
 ## Note on File Types
 The acceptable files types in the Robotarium are ` .m`, `.jpg`, `.jpeg`, `.png`, `.gif`, `.tiff`, `.bmp`, `.py`, `.mat`, `.npy`, and `.mexa64 ` <br>
