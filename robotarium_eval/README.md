@@ -2,7 +2,7 @@
 The Robotarium only accepts files, not folders. Additionally, the file types it accepts is limited.
 Therefore, the following steps are necessary. <br>
 
-1. Copy the actor file you are using to this folder ()
+1. Copy the actor file you are using to this folder
     - The actor files are typically located in `src/modules/agents` within epymarl
     - The standard agents from epymarl are already here
 2. Copy the saved weights that you wish to run on the Robotarium here and change the extension from `.th` to something allowed by the Robotarium

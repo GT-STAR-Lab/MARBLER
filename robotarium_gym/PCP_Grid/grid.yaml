@@ -4,12 +4,12 @@ predator: 2
 predator_radius: 2.0
 capture: 2
 capture_radius: 1.0
-show_figure_frequency: 1000 #Set to -1 to turn off figures
+show_figure_frequency: -1 #Set to -1 to turn off figures
 real_time: False
 delta: 0.0 #THIS DOES NOT CURRENTLY WORK IF > 0
 num_neighbors: 2
-max_episode_steps: 25
-grid_size: 2
-update_frequency: 89
+max_episode_steps: 40
+grid_size: 4
+update_frequency: 49
 num_prey: 3
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
