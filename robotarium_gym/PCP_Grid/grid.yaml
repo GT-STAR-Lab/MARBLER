@@ -1,3 +1,9 @@
+LEFT: -1.5
+RIGHT: 1.5
+UP: -1
+DOWN: 1
+ROBOT_INIT_RIGHT_THRESH : -0.5
+PREY_INIT_LEFT_THRESH : 0.5
 no_capture_reward: -0.05
 capture_reward: 1
 predator: 2
@@ -9,7 +15,7 @@ real_time: False
 delta: 0.0 #THIS DOES NOT CURRENTLY WORK IF > 0
 num_neighbors: 2
 max_episode_steps: 25
-grid_size: 2
+grid_size: 2 # using this as minimum initial distance and step size
 update_frequency: 89
 num_prey: 3
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting

@@ -25,3 +25,13 @@ def get_random_vel():
     angular_vel = 0
     # angular_vel = random.uniform(0,10)
     return np.array([linear_vel,angular_vel]).T
+
+def convert_to_robotarium_poses(locations):
+    poses = np.array(locations)
+    N = poses.shape[0]
+    return np.hstack(poses.T, np.zeros(N))
+
+
+class objectview(object):
+    def __init__(self, d):
+        self.__dict__ = d
