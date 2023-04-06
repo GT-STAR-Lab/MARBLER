@@ -1,3 +1,4 @@
+import copy
 import rps.robotarium as robotarium
 from rps.utilities.transformations import *
 from rps.utilities.barrier_certificates import *
@@ -88,7 +89,7 @@ class PCPEnv:
         for iterations in range(self.args.update_frequency):
             
             # Get the actual position of the agents
-            x = self.robotarium.get_poses()
+            self.agent_poses = self.robotarium.get_poses()
 
             if iterations == 0:
                 goals_ = self._generate_goal_positions(actions_)
@@ -96,15 +97,15 @@ class PCPEnv:
             # Uses the robotarium commands to get the velocities of each robot   
             # Only does this once every 10 steps because otherwise training is really slow 
             if iterations % 10 == 0 or self.args.robotarium:                    
-                xi = self.uni_to_si_states(x)
+                xi = self.uni_to_si_states(self.agent_poses)
                 dxi = self.single_integrator_position_controller(xi, goals_[:2][:])
                 dxi = self.si_barrier_cert(dxi, xi)
-                dxu = self.si_to_uni_dyn(dxi, x)
+                dxu = self.si_to_uni_dyn(dxi, self.agent_poses)
                 self.robotarium.set_velocities(np.arange(self.num_robots), dxu)
             
             if self.show_figure:
-                for i in range(x.shape[1]):
-                    self.robot_markers[i].set_offsets(x[:2,i].T)
+                for i in range(self.agent_poses.shape[1]):
+                    self.robot_markers[i].set_offsets(self.agent_poses[:2,i].T)
 
                     # Next two lines updates the marker sizes if the figure window size is changed. 
                     # They should be removed when submitting to the Robotarium.
@@ -120,10 +121,9 @@ class PCPEnv:
             self.robotarium.step()
         
         # the agent poses should ideally be equal to goals_ variable above, 
-        # but due to collisions with other agents and barriers may not reach it exactly
-        self.agent_poses = x # updating the agent poses to the actual positions reached after step
+         # updating the agent poses to the actual positions reached after step
         # TODO: Need to clean up next two functions, update_prey_status doesnt update state space?
-        state_space = self._generate_state_space(x) # updates the state space
+        state_space = self._generate_state_space() # updates the state space
         self._update_prey_status(state_space, actions_, self.agents.agents)
         # state_space = self._generate_state_space(x)
         return state_space
@@ -146,16 +146,16 @@ class PCPEnv:
         Using the positions from self.agent_poses as the robot goal locations on the grid,
         returns an array of the robotarium positions that it is trying to reach
         '''
-        goal = self.agent_poses
+        goal = copy.deepcopy(self.agent_poses)
         for i in range(self.num_robots):
             if self.action_id2w[actions[i]] == 'left':
-                    goal[0][i] = max( goal[0][i] - self.args.grid_size, self.args.LEFT)
+                    goal[0][i] = max( goal[0][i] - self.args.MIN_DIST, self.args.LEFT)
             elif self.action_id2w[actions[i]] == 'right':
-                    goal[0][i] = min( goal[0][i] + self.args.grid_size, self.args.RIGHT)
+                    goal[0][i] = min( goal[0][i] + self.args.MIN_DIST, self.args.RIGHT)
             elif self.action_id2w[actions[i]] == 'up':
-                    goal[1][i] = max( goal[1][i] - self.args.grid_size, self.args.UP)
+                    goal[1][i] = max( goal[1][i] - self.args.MIN_DIST, self.args.UP)
             elif self.action_id2w[actions[i]] == 'down':
-                    goal[1][i] = min( goal[1][i] + self.args.grid_size, self.args.DOWN)
+                    goal[1][i] = min( goal[1][i] + self.args.MIN_DIST, self.args.DOWN)
             else:
                     continue #if 'stop' or 'capture' the agent i's pose does not change
         return goal
@@ -188,14 +188,12 @@ class PCPEnv:
         # initial_conditions = self._generate_locations( self.num_robots, right = self.args.ROBOT_INIT_RIGHT_THRESH)
         initial_conditions = generate_initial_conditions( self.num_robots, spacing=0.2, width=2.8, height=1.8 )
         print("initial conditions", initial_conditions)
-        self.agent_poses = initial_conditions
 
         # Figure showing and setting up robotarium
         if self.args.show_figure_frequency != -1 and self.episodes % self.args.show_figure_frequency == 0:
             self.show_figure = True
         else: 
             self.show_figure = False
-        self.show_figure = True
         self.robotarium = robotarium.Robotarium(number_of_robots= self.num_robots, show_figure = self.show_figure, \
                                                 initial_conditions=initial_conditions, sim_in_real_time=self.args.real_time)
         
@@ -208,15 +206,14 @@ class PCPEnv:
         self.prey_loc = self._generate_locations(self.num_prey, left = self.args.PREY_INIT_LEFT_THRESH, robotarium_poses = False)
         print(self.prey_loc)
 
-        x = self.robotarium.get_poses()
-        # if self.show_figure:
-        if True:
+        self.agent_poses = self.robotarium.get_poses()
+        if self.show_figure:
             marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)
             marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)            
 
             self.robot_markers = [self.robotarium.axes.scatter( \
-                x[0,ii], x[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.predator else 1),linewidth=self.line_width) 
+                self.agent_poses[0,ii], self.agent_poses[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.predator else 1),linewidth=self.line_width) 
                 for ii in range(self.num_robots)]
             
             self.prey_markers = [self.robotarium.axes.scatter( \
@@ -254,13 +251,13 @@ class PCPEnv:
 
         return locations
 
-    def _generate_state_space(self, x):
+    def _generate_state_space(self):
         '''
         Generates a dictionary describing the state space of the robotarium
         x: Poses of all the robots
         '''
         state_space = {}
-        state_space['poses'] = x
+        state_space['poses'] = self.agent_poses
         state_space['num_prey'] = self.num_prey
         state_space['unseen_prey'] = len(self.prey_sensed) - sum(self.prey_sensed)
         state_space['prey'] = []

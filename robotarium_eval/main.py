@@ -48,7 +48,6 @@ for i in range(args.steps):
     #Gets the q values and then the action from the q values
     q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs))
     actions = np.argmax(q_values.detach().numpy(), axis=1)
-
     obs, reward, done, _ = env.step(actions)
     if all(done):
          break
