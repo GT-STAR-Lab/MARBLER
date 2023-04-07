@@ -154,6 +154,10 @@ class PCPAgents:
         reward += state_space['unseen_prey'] * self.args.no_capture_reward
 
         return reward
+    
+    def render(self, mode='human'):
+        # Render your environment
+        pass
 
 
 class PCPWrapper(gym.Env):

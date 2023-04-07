@@ -37,22 +37,13 @@ class PCPEnv:
         self.si_to_uni_dyn, self.uni_to_si_states = create_si_to_uni_mapping()
         self.si_barrier_cert = create_single_integrator_barrier_certificate_with_boundary()
 
-        # self.width = self.args.grid_size * 3 # change
-        # self.height = self.args.grid_size * 2 # change 
-        
-        # #Will spawn agents in left third of the robotarium
-        # if self.num_robots > 2 * self.args.grid_size ** 2:
-        #     print('Error, too many agents for the grid size')
-        #     exit(-1)
-        # grid world coordinates
-
         self.agent_poses = None
 
-        self.predator_marker_size_m = (self.args.predator_radius - .5) / self.args.grid_size 
-        self.capture_marker_size_m = (.05 if self.args.capture_radius == 0 else (self.args.capture_radius - .5) / self.args.grid_size)
+        self.predator_marker_size_m = self.args.predator_radius
+        self.capture_marker_size_m = self.args.capture_radius
         self.goal_marker_size_m = .05
         self.line_width = 5
-        self.CM = plt.cm.get_cmap('hsv', 4) # Agent/goal color scheme
+        self.CM = plt.cm.get_cmap('hsv', 5) # Agent/goal color scheme
         
         # define the observation space & action space for the agents
         self.action_space = []
@@ -61,7 +52,7 @@ class PCPEnv:
         for agent in self.agents.agents:
             self.action_space.append(spaces.Discrete(5))
             obs_dim = 6 * (self.args.num_neighbors + 1)
-            self.observation_space.append(spaces.Box(low=-1.5, high=50, shape=(obs_dim,), dtype=np.float32))
+            self.observation_space.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))
         
         self.action_space = spaces.Tuple(tuple(self.action_space))
         self.observation_space = spaces.Tuple(tuple(self.observation_space))
@@ -115,31 +106,15 @@ class PCPEnv:
                 for i in range(len(self.prey_markers)):
                     if not self.prey_captured[i]:
                         self.prey_markers[i].set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
+                        if self.prey_sensed[i]:
+                            self.prey_markers[i].set_facecolor(self.CM(4))
                     else:
                         self.prey_markers[i].set_sizes([0,0])
 
             self.robotarium.step()
         
-        # the agent poses should ideally be equal to goals_ variable above, 
-         # updating the agent poses to the actual positions reached after step
-        # TODO: Need to clean up next two functions, update_prey_status doesnt update state space?
-        state_space = self._generate_state_space() # updates the state space
-        self._update_prey_status(state_space, actions_, self.agents.agents)
-        # state_space = self._generate_state_space(x)
-        return state_space
-
-    # def _update_poses(self, actions):
-    #     for i in range(self.num_robots):
-    #         if self.action_id2w[actions[i]] == 'left':
-    #                 self.agent_poses[i] = [max(self.agent_poses[i][0]-1, 0), self.agent_poses[i][1]]
-    #         elif self.action_id2w[actions[i]] == 'right':
-    #                 self.agent_poses[i] = [min(self.agent_poses[i][0]+1, self.width-1), self.agent_poses[i][1]]
-    #         elif self.action_id2w[actions[i]] == 'up':
-    #                 self.agent_poses[i] = [self.agent_poses[i][0], max(self.agent_poses[i][1]-1, 0)]
-    #         elif self.action_id2w[actions[i]] == 'down':
-    #                 self.agent_poses[i] = [self.agent_poses[i][0], min(self.agent_poses[i][1]+1, self.height-1)]
-    #         else:
-    #                 continue #if 'stop' or 'capture' the agent i's pose does not change
+        self._update_prey_status(actions_)
+        return self._generate_state_space()
 
     def _generate_goal_positions(self, actions):
         '''
@@ -160,14 +135,6 @@ class PCPEnv:
                     continue #if 'stop' or 'capture' the agent i's pose does not change
         return goal
     
-    # def _get_real_width_height(self, x, y):
-    #     '''
-    #     Given a grid coordinate, returns the coordinate in the robotarium units
-    #     '''
-    #     x = (3 * x / self.width - 1.5) + (3 / self.width / 2)
-    #     y = (2 * y / self.height - 1) + (2 / self.height / 2)
-    #     return [x,y]
-    
     def _create_robotarium(self):
         '''
         Creates a new instance of the robotarium
@@ -175,19 +142,15 @@ class PCPEnv:
         '''
         if self.first_run:
             self.first_run = False
-        # else:
-        #     #self.robotarium.call_at_scripts_end() #TODO: check if this is needed and how it affects runtime
-        #     del self.robotarium
+        else:
+            #self.robotarium.call_at_scripts_end() #TODO: check if this is needed and how it affects runtime
+            del self.robotarium
 
         #generate initial robot locations
         #Assumes y can be anything but the x locations are within the left third of the robotarium
-        # initial_values = np.random.choice(2 * self.args.grid_size ** 2, self.num_robots, replace = False)
-        # for i in range(len(initial_values)):
-        #     self.agent_poses[i] = [initial_values[i]%self.args.grid_size, int(initial_values[i]/self.args.grid_size)]
-        # initial_conditions = self._generate_goal_positions()
-        # initial_conditions = self._generate_locations( self.num_robots, right = self.args.ROBOT_INIT_RIGHT_THRESH)
-        initial_conditions = generate_initial_conditions( self.num_robots, spacing=0.2, width=2.8, height=1.8 )
-        print("initial conditions", initial_conditions)
+        initial_conditions = self._generate_locations( self.num_robots, right = self.args.ROBOT_INIT_RIGHT_THRESH)
+        # Robotarium inbuilt code -
+        # initial_conditions = generate_initial_conditions( self.num_robots, spacing=0.2, width=2.8, height=1.8 )
 
         # Figure showing and setting up robotarium
         if self.args.show_figure_frequency != -1 and self.episodes % self.args.show_figure_frequency == 0:
@@ -197,14 +160,7 @@ class PCPEnv:
         self.robotarium = robotarium.Robotarium(number_of_robots= self.num_robots, show_figure = self.show_figure, \
                                                 initial_conditions=initial_conditions, sim_in_real_time=self.args.real_time)
         
-        #setting the prey location to a random location in the right third of the grid
-        # self.prey_loc = []
-        # prey_loc = np.random.choice(2 * self.args.grid_size ** 2, self.num_prey, replace=False)
-        # for p in prey_loc:        
-        #     self.prey_loc.append(self._get_real_width_height(p%self.args.grid_size + self.width*(2/3), int(p / self.args.grid_size)))
-
         self.prey_loc = self._generate_locations(self.num_prey, left = self.args.PREY_INIT_LEFT_THRESH, robotarium_poses = False)
-        print(self.prey_loc)
 
         self.agent_poses = self.robotarium.get_poses()
         if self.show_figure:
@@ -213,12 +169,13 @@ class PCPEnv:
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)            
 
             self.robot_markers = [self.robotarium.axes.scatter( \
-                self.agent_poses[0,ii], self.agent_poses[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), marker='o', facecolors='none',edgecolors=self.CM(0 if ii < self.args.predator else 1),linewidth=self.line_width) 
-                for ii in range(self.num_robots)]
+                    self.agent_poses[0,ii], self.agent_poses[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), \
+                    marker='o', facecolors='none', edgecolors = self.CM(0 if ii < self.args.predator else 1), linewidth=self.line_width )\
+                    for ii in range(self.num_robots)]
             
             self.prey_markers = [self.robotarium.axes.scatter( \
-                self.prey_loc[ii][0], self.prey_loc[ii][1], s=marker_size_goal, marker='.', facecolors=self.CM(2),edgecolors=self.CM(2),linewidth=self.line_width,zorder=-2)
-                for ii in range(self.num_prey)]
+                    self.prey_loc[ii][0], self.prey_loc[ii][1], s=marker_size_goal, marker='.', facecolors=self.CM(2), edgecolors=self.CM(2),\
+                    linewidth=self.line_width, zorder=-2) for ii in range(self.num_prey)]
 
         self.robotarium.step()
 
@@ -234,15 +191,12 @@ class PCPEnv:
         # overlay a grid over the allowed region
         cols = int( round( (right - left )/min_dist, 0)) - 1
         rows = int( round( (down - up )/min_dist, 0)) - 1
-        # print((right - left - 2*buffer)/min_dist, (down - up- 2*buffer)/min_dist)
-        print(rows, cols)
+
         # pick random locations from the grid
         grid_indices = np.random.choice( rows*cols, num_robots, replace = False)
-        print(grid_indices)
-        # convert grid locations back to 
+        # convert grid locations back to robotarium coordinates
         locations = []
         for loc in grid_indices:
-            print(loc % cols, int(loc / cols) )
             locations.append([left + buffer + ( (loc % cols) * min_dist ),\
                                 up + buffer + ( int(loc / cols) * min_dist ) ])
 
@@ -258,39 +212,46 @@ class PCPEnv:
         '''
         state_space = {}
         state_space['poses'] = self.agent_poses
-        state_space['num_prey'] = self.num_prey
-        state_space['unseen_prey'] = len(self.prey_sensed) - sum(self.prey_sensed)
+        state_space['num_prey'] = self.num_prey - sum(self.prey_captured) # number of prey not captured
+        state_space['unseen_prey'] = self.num_prey - sum(self.prey_sensed) # number of prey unseen till now 
         state_space['prey'] = []
+
+        # return locations of all prey that are not captured  till now
         for i in range(self.num_prey):
-            state_space['prey'].append(np.array(self.prey_loc[i]).reshape((2,1)))
+            if not self.prey_captured[i]:
+                state_space['prey'].append(np.array(self.prey_loc[i]).reshape((2,1)))
         
         return state_space
 
-    def _update_prey_status(self, state_space, actions, agents):
-        removeIndices = []
-        for prey in range(len(self.prey_loc)):
-            sensed = False
-            for agent in agents:
-                if np.linalg.norm(state_space['poses'][:2, agent.index] - self.prey_loc[prey]) <= agent.sensing_radius:
-                    self.prey_sensed[self.prey_left[prey]] = True
-                    sensed = True
-                    break
-            if not sensed: #Agents can only capture the prey now when its being actively sensed
-                self.prey_sensed[self.prey_left[prey]] = False
-
-            if self.prey_sensed[self.prey_left[prey]]:
-                for i in range(len(actions)):
-                    if self.action_id2w[actions[i]]=='no_action' and np.linalg.norm(state_space['poses'][:2, agents[i].index] - self.prey_loc[prey]) <= agents[i].capture_radius:
-                        self.num_prey -= 1
-                        self.prey_captured[self.prey_left[prey]] = True
-                        removeIndices.append(prey)
+    def _update_prey_status(self, actions):
+        agents = self.agents.agents
+        # removeIndices = []
+        # iterate over all the prey
+        for i, prey_location in enumerate(self.prey_loc):
+            # if the prey has already been captured, nothing to be done
+            if self.prey_captured[i]:
+                continue
+            
+            #check if the prey has not been sensed
+            if not self.prey_sensed[i]:
+                # check if any of the agents has sensed it in the current step
+                for agent in agents:
+                    # check if any robot has it within its sensing radius
+                    print(self.agent_poses[:2, agent.index], prey_location, np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location))
+                    if np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location) <= agent.sensing_radius:
+                        self.prey_sensed[i] = True
+                        print("prey id captured", i, time.time())
                         break
 
-        for i in range(len(removeIndices)-1, -1, -1):
-            del self.prey_loc[removeIndices[i]]
-            del self.prey_left[removeIndices[i]]
+            if self.prey_sensed[i]:
+                # iterative over the actions determined for each agent 
+                for a, action in enumerate(actions):
+                    # check if any robot has no_action and has the prey within its capture radius if it is sensed already
+                    if self.action_id2w[action]=='no_action'\
+                        and np.linalg.norm(self.agent_poses[:2, agents[a].index] - prey_location) <= agents[a].capture_radius:
+                        self.prey_captured[i] = True
+                        break
 
-
-    # def __del__(self):
-    #     self.robotarium.call_at_scripts_end()
+    def __del__(self):
+        self.robotarium.call_at_scripts_end()
 
