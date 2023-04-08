@@ -1,8 +1,9 @@
 import numpy as np
 from enum import Enum
 from rps.utilities.graph import *
-from utilities import *
+from .utilities import *
 
+# from .PCP_Cont import contPcpEnv
 from .PCP_Grid import gridPcpEnv
 import yaml
 import gym
@@ -171,7 +172,7 @@ class PCPWrapper(gym.Env):
             config = yaml.safe_load(f)
         
         args = objectview(config)
-        self.env = PCPAgents(args, type='grid')
+        self.env = PCPAgents(args)
         self.observation_space = self.get_observation_space()
         self.action_space = self.get_action_space()
         self.n_agents = self.env.N

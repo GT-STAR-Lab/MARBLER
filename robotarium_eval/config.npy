@@ -15,7 +15,7 @@ UP: -1
 DOWN: 1
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
-MIN_DIST : 0.1
+MIN_DIST : 0.1 #This should probably be renamed
 no_capture_reward: -0.05
 capture_reward: 1
 predator: 2

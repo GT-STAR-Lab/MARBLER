@@ -101,7 +101,7 @@ class PCPEnv:
                     # Next two lines updates the marker sizes if the figure window size is changed. 
                     # They should be removed when submitting to the Robotarium.
                     self.robot_markers[i].set_sizes([determine_marker_size(self.robotarium, \
-                                                        (self.predator_marker_size_m if i < self.args.predator else self.capture_marker_size_m))//4])
+                                                        (self.predator_marker_size_m if i < self.args.predator else self.capture_marker_size_m))])
                 #self.goal_marker.set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
                 for i in range(len(self.prey_markers)):
                     if not self.prey_captured[i]:
@@ -164,7 +164,7 @@ class PCPEnv:
 
         self.agent_poses = self.robotarium.get_poses()
         if self.show_figure:
-            marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)//4
+            marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)//4 #TODO: figure out why this was divided this way
             marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)//4
             marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)          
 
@@ -240,7 +240,6 @@ class PCPEnv:
                     # print(self.agent_poses[:2, agent.index], prey_location, np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location))
                     if np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location) <= agent.sensing_radius:
                         self.prey_sensed[i] = True
-                        print("prey id sensed:", i)
                         break
 
             if self.prey_sensed[i]:
@@ -250,7 +249,6 @@ class PCPEnv:
                     if self.action_id2w[action]=='no_action'\
                         and np.linalg.norm(self.agent_poses[:2, agents[a].index] - prey_location) <= agents[a].capture_radius:
                         self.prey_captured[i] = True
-                        print("prey id captured:", i)
                         break
 
     def __del__(self):

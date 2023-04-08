@@ -29,7 +29,7 @@ def get_random_vel():
 def convert_to_robotarium_poses(locations):
     poses = np.array(locations)
     N = poses.shape[0]
-    return np.hstack(poses.T, np.zeros(N))
+    return np.vstack((poses.T, np.zeros(N)))
 
 
 class objectview(object):
