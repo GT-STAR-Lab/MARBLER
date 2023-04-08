@@ -69,5 +69,3 @@ for i in range(args.episodes):
     totalSteps += episodeSteps
 print('\nTotal Reward:',totalReward)
 print('Total Steps:', totalSteps)
-    
-        
