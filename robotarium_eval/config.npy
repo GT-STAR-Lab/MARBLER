@@ -19,14 +19,14 @@ MIN_DIST : 0.1
 no_capture_reward: -0.05
 capture_reward: 1
 predator: 2
-predator_radius: .5
+predator_radius: .4
 capture: 2
-capture_radius: .1
+capture_radius: .2
 show_figure_frequency: 1 #Set to -1 to turn off figures
 real_time: False
 delta: 0.0 #THIS DOES NOT CURRENTLY WORK IF > 0
 num_neighbors: 2
-max_episode_steps: 400
-update_frequency: 19
+max_episode_steps: 150
+update_frequency: 29
 num_prey: 3
-robotarium: True #Should be False during training to speed up robots, needs to be true when submitting
+robotarium: False #Should be False during training to speed up robots, needs to be true when submitting

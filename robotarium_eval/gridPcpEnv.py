@@ -42,8 +42,8 @@ class PCPEnv:
         self.predator_marker_size_m = self.args.predator_radius
         self.capture_marker_size_m = self.args.capture_radius
         self.goal_marker_size_m = .05
-        self.line_width = 5
-        self.CM = plt.cm.get_cmap('hsv', 5) # Agent/goal color scheme
+        self.line_width = 1
+        self.CM = plt.cm.get_cmap('hsv',7) # Agent/goal color scheme
         
         # define the observation space & action space for the agents
         self.action_space = []
@@ -101,7 +101,7 @@ class PCPEnv:
                     # Next two lines updates the marker sizes if the figure window size is changed. 
                     # They should be removed when submitting to the Robotarium.
                     self.robot_markers[i].set_sizes([determine_marker_size(self.robotarium, \
-                                                        (self.predator_marker_size_m if i < self.args.predator else self.capture_marker_size_m))])
+                                                        (self.predator_marker_size_m if i < self.args.predator else self.capture_marker_size_m))//4])
                 #self.goal_marker.set_sizes([determine_marker_size(self.robotarium, self.goal_marker_size_m)])
                 for i in range(len(self.prey_markers)):
                     if not self.prey_captured[i]:
@@ -164,9 +164,9 @@ class PCPEnv:
 
         self.agent_poses = self.robotarium.get_poses()
         if self.show_figure:
-            marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)
-            marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)
-            marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)            
+            marker_size_predator = determine_marker_size(self.robotarium, self.predator_marker_size_m)//4
+            marker_size_capture = determine_marker_size(self.robotarium, self.capture_marker_size_m)//4
+            marker_size_goal = determine_marker_size(self.robotarium,self.goal_marker_size_m)          
 
             self.robot_markers = [self.robotarium.axes.scatter( \
                     self.agent_poses[0,ii], self.agent_poses[1,ii], s=(marker_size_predator if ii < self.args.predator else marker_size_capture), \
@@ -237,10 +237,10 @@ class PCPEnv:
                 # check if any of the agents has sensed it in the current step
                 for agent in agents:
                     # check if any robot has it within its sensing radius
-                    print(self.agent_poses[:2, agent.index], prey_location, np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location))
+                    # print(self.agent_poses[:2, agent.index], prey_location, np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location))
                     if np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location) <= agent.sensing_radius:
                         self.prey_sensed[i] = True
-                        print("prey id captured", i, time.time())
+                        print("prey id sensed:", i)
                         break
 
             if self.prey_sensed[i]:
@@ -250,6 +250,7 @@ class PCPEnv:
                     if self.action_id2w[action]=='no_action'\
                         and np.linalg.norm(self.agent_poses[:2, agents[a].index] - prey_location) <= agents[a].capture_radius:
                         self.prey_captured[i] = True
+                        print("prey id captured:", i)
                         break
 
     def __del__(self):
