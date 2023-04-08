@@ -6,7 +6,7 @@ model_file: agent.tiff
 env_file: pcpAgents
 env_class: PCPAgents #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-steps: 400 #The maxiumum number of steps for the environment to take
+episodes: 10 #Number of episodes to run for
 
 #Arguments needed by the environment
 LEFT: -1.5
@@ -22,7 +22,7 @@ predator: 2
 predator_radius: .4
 capture: 2
 capture_radius: .2
-show_figure_frequency: 1 #Set to -1 to turn off figures
+show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 delta: 0.0 #THIS DOES NOT CURRENTLY WORK IF > 0
 num_neighbors: 2
