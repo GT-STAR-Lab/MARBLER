@@ -39,7 +39,7 @@ class Agent:
         
         # if no prey found in range
         if closest_prey == -1:
-            prey_loc = [-1,-1]
+            prey_loc = [-5,-5]
         
         # [agent_x_pos, agent_y_pos, sensed_prey_x_pose, sensed_prey_y_pose, sensing_radius, capture_radius]
         observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
