@@ -13,6 +13,7 @@
 - Better file structure - put stuff that users don't touch inside a folder
 - Make the agents code cleaner if possible
 - Make documentation for the specific function definitions required by the `env` class needs in order to function
+- Visualization modularization. - take as input number of agents, their positions etc  -- user doesn't need to deal with plotting bs at all
 
 ## `env` class interface functions necessary to be implemented in the `agents` class
 
