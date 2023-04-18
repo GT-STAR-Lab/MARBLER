@@ -10,8 +10,8 @@ class Visualize:
         self.show_figure = True
     
     def initialize_markers(self, robotarium, agents):
-        marker_size_predator = determine_marker_size(robotarium, self.predator_marker_size_m)//4 #TODO: figure out why this was divided this way
-        marker_size_capture = determine_marker_size(robotarium, self.capture_marker_size_m)//4
+        marker_size_predator = determine_marker_size(robotarium, self.predator_marker_size_m) #TODO: figure out why this was divided this way
+        marker_size_capture = determine_marker_size(robotarium, self.capture_marker_size_m)
         marker_size_goal = determine_marker_size(robotarium,self.goal_marker_size_m)          
 
         self.robot_markers = [ robotarium.axes.scatter( \
@@ -32,7 +32,7 @@ class Visualize:
             self.robot_markers[i].set_offsets(agents.agent_poses[:2,i].T)
             # Next two lines updates the marker sizes if the figure window size is changed. 
             self.robot_markers[i].set_sizes([determine_marker_size(robotarium, \
-                (self.predator_marker_size_m if i < agents.num_predators else self.capture_marker_size_m))//4])
+                (self.predator_marker_size_m if i < agents.num_predators else self.capture_marker_size_m))])
         
         # update prey marker color if sensed, remove if captured
         for i in range(agents.num_prey):

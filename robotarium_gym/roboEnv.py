@@ -3,6 +3,7 @@ import numpy as np
 import random
 import time
 
+#This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from visualize import *
 from controller import *
 from pcpAgents import *

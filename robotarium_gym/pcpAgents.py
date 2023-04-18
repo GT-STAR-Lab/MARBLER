@@ -4,12 +4,12 @@ import copy
 import yaml
 import os
 
-# from .PCP_Cont import contPcpEnv
+#This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from roboEnv import roboEnv
 from utilities import *
 
 module_dir = os.path.dirname(__file__)
-config_path = os.path.join(module_dir, 'PCP_Grid', 'grid.yaml')
+config_path = os.path.join(module_dir, 'grid.yaml')
 
 class Agent:
     def __init__(self, index, sensing_radius, capture_radius):
@@ -168,6 +168,7 @@ class PCPAgents:
         self.episode_steps = 0
         self.prey_locs = []
         self.num_prey = self.args.num_prey
+        self.remaining_prey = self.num_prey #TODO: THIS IS A TEMPORARY FIX, PLZ DON'T LEAVE THIS
         self.env.reset()
         # TODO: clean the empty observation returning
         return [[0]*(6 * (self.args.num_neighbors + 1))] * self.num_robots
@@ -236,11 +237,12 @@ class PCPAgents:
     def get_rewards(self, state_space):
         # Fully shared reward, this is a collaborative environment.
         reward = 0
+        print(state_space)
         # check if any of the prey were captured by checking the current state_space 
-        if state_space['num_prey'] < self.num_prey:
+        if state_space['num_prey'] < self.remaining_prey:
             # reward is proportional to the number of agents captured
-            reward = self.args.capture_reward * (self.num_prey - state_space['num_prey'])
-            self.num_prey = state_space['num_prey']
+            reward = self.args.capture_reward * (self.remaining_prey - state_space['num_prey'])
+            self.remaining_prey = state_space['num_prey']
         reward += state_space['unseen_prey'] * self.args.no_capture_reward
 
         return reward

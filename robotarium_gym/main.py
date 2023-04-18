@@ -55,10 +55,12 @@ for i in range(args.episodes):
         actions = np.argmax(q_values.detach().numpy(), axis=1)
 
         obs, reward, done, _ = env.step(actions)
+        print(obs[0],'\n', reward)
         episodeReward += reward[0]
         if done[0]:
             episodeSteps = j+1
             break
+        print()
     if episodeSteps == 0:
         episodeSteps = args.max_episode_steps
     obs = env.reset()
