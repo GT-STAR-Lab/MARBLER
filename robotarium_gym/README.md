@@ -9,6 +9,7 @@
 `visualizer.py` - according to the required scenario
 
 ## More TODOs-
+- Superclass for agents class abstracting away functions user doesn't need to implement
 - Better file structure - put stuff that users don't touch inside a folder
 - Make the agents code cleaner if possible
 - Make documentation for the specific function definitions required by the `env` class needs in order to function
