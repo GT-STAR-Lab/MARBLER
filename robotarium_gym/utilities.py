@@ -30,8 +30,36 @@ def convert_to_robotarium_poses(locations):
     poses = np.array(locations)
     N = poses.shape[0]
     return np.vstack((poses.T, np.zeros(N)))
-
-
 class objectview(object):
     def __init__(self, d):
         self.__dict__ = d
+
+def generate_locations(args, num_robots, left = None, right = None,\
+                    robotarium_poses = True, min_dist = None ):
+    '''
+        Generates random locations on a grid defined within the specified thresholds.
+        Overlays a grid of unit size min_dist and picks num_robots random points from it 
+    '''
+    if left  == None: left  = args.LEFT 
+    if right == None: right = args.RIGHT
+    up   = args.UP
+    down = args.DOWN
+    if min_dist == None: min_dist = args.MIN_DIST
+    buffer = args.MIN_DIST
+
+    # overlay a grid over the allowed region
+    cols = int( round( (right - left )/min_dist, 0)) - 1
+    rows = int( round( (down - up )/min_dist, 0)) - 1
+
+    # pick random locations from the grid
+    grid_indices = np.random.choice( rows*cols, num_robots, replace = False)
+    # convert grid locations back to robotarium coordinates
+    locations = []
+    for loc in grid_indices:
+        locations.append([left + buffer + ( (loc % cols) * min_dist ),\
+                            up + buffer + ( int(loc / cols) * min_dist ) ])
+
+    if robotarium_poses:
+        return convert_to_robotarium_poses(locations)
+
+    return locations
