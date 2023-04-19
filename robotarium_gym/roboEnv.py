@@ -20,14 +20,17 @@ class roboEnv:
 
         # Figure showing and visualizing
         self.visualizer = Visualize( self.args )
-        if self.args.show_figure_frequency == -1:
-            self.visualizer.show_figure = False
+        
 
     def reset(self):
         '''
         Reset the environment
         '''
         self.episodes += 1
+        if self.args.show_figure_frequency == -1 or self.episodes % self.args.show_figure_frequency > 0:
+            self.visualizer.show_figure = False
+        else:
+            self.visualizer.show_figure = True
         self._create_robotarium()
 
     def step(self, actions_):

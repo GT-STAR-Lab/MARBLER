@@ -5,8 +5,8 @@ import yaml
 import os
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from roboEnv import roboEnv
-from utilities import *
+from .roboEnv import roboEnv
+from .utilities import *
 
 module_dir = os.path.dirname(__file__)
 config_path = os.path.join(module_dir, 'grid.yaml')
@@ -226,6 +226,8 @@ class PCPAgents:
             # For getting neighbors in delta radius. Not being used right now to avoid inconsistent observation dimensions
             if self.args.delta > 0:
                 nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
+            elif self.args.num_neighbors >= self.num_robots-1:
+                nbr_indices = [i for i in range(self.num_robots) if i != agent.index]
             else:
                 nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
             
