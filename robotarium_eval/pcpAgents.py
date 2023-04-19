@@ -38,7 +38,7 @@ class Agent:
         
         # if no prey found in range
         if closest_prey == -1:
-            prey_loc = [-1,-1]
+            prey_loc = [-5,-5]
         
         # [agent_x_pos, agent_y_pos, sensed_prey_x_pose, sensed_prey_y_pose, sensing_radius, capture_radius]
         observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
@@ -131,10 +131,10 @@ class PCPAgents:
             full_observations.append(observations[agent.index])
             
             # For getting neighbors in delta radius. Not being used right now to avoid inconsistent observation dimensions
-            # if self.args.delta > 0:
-            #     nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
-
-            nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
+            if self.args.delta > 0:
+                nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
+            else:
+                nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
             
             # full_observation[i] is of dimension [NUM_NBRS, OBS_DIM]
             for nbr_index in nbr_indices:

@@ -61,7 +61,7 @@ for i in range(args.episodes):
             break
     if episodeSteps == 0:
         episodeSteps = args.max_episode_steps
-    obs = env.reset()
+    obs = np.array(env.reset())
     print('Episode', i+1)
     print('Episode reward:', episodeReward)
     print('Episode steps:', episodeSteps)

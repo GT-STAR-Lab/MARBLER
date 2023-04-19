@@ -1,8 +1,8 @@
 #Arguments needed by main.py
-model_config_file: qmix.mat
+model_config_file: model_config.mat
 actor_file: rnn_agent
 actor_class: RNNAgent
-model_file: qmix.tiff
+model_file: agent.tiff
 env_file: pcpAgents
 env_class: PCPAgents #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
@@ -16,7 +16,8 @@ DOWN: 1
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
 MIN_DIST : 0.1 #This should probably be renamed
-no_capture_reward: -0.05
+time_penalty: -0.05
+sense_reward: .2
 capture_reward: 1
 predator: 2
 predator_radius: .4

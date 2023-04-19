@@ -60,8 +60,6 @@ class roboEnv:
         Randomly initializes the prey in the right half and the agents in the left third of the Robotarium
         '''
         # Initialize agents and tracking variables
-        self.agents._initialize_tracking_and_locations()
-
         if self.first_run:
             self.first_run = False
         else:

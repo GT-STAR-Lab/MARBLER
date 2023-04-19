@@ -110,14 +110,6 @@ class PCPAgents:
                     continue #if 'stop' or 'capture' the agent i's pose does not change
         return goal
 
-    def _initialize_tracking_and_locations(self):
-        # Agent locations
-        self.agent_poses = generate_locations(self.args, self.num_robots, right = self.args.ROBOT_INIT_RIGHT_THRESH)
-        # Prey locations and tracking
-        self.prey_loc = generate_locations(self.args, self.num_prey, left = self.args.PREY_INIT_LEFT_THRESH, robotarium_poses = False)
-        self.prey_captured = [False] * self.num_prey
-        self.prey_sensed = [False] * self.num_prey
-
     def _update_tracking_and_locations(self, agent_actions):
         # iterate over all the prey
         for i, prey_location in enumerate(self.prey_loc):
@@ -167,8 +159,16 @@ class PCPAgents:
         '''
         self.episode_steps = 0
         self.prey_locs = []
-        self.num_prey = self.args.num_prey
-        self.remaining_prey = self.num_prey #TODO: THIS IS A TEMPORARY FIX, PLZ DON'T LEAVE THIS
+        self.num_prey = self.args.num_prey      
+        
+        # Agent locations
+        self.agent_poses = generate_locations(self.args, self.num_robots, right = self.args.ROBOT_INIT_RIGHT_THRESH)
+        # Prey locations and tracking
+        self.prey_loc = generate_locations(self.args, self.num_prey, left = self.args.PREY_INIT_LEFT_THRESH, robotarium_poses = False)
+        self.prey_captured = [False] * self.num_prey
+        self.prey_sensed = [False] * self.num_prey
+
+        self.state_space = self._generate_state_space()
         self.env.reset()
         # TODO: clean the empty observation returning
         return [[0]*(6 * (self.args.num_neighbors + 1))] * self.num_robots
@@ -224,9 +224,10 @@ class PCPAgents:
             full_observations.append(observations[agent.index])
             
             # For getting neighbors in delta radius. Not being used right now to avoid inconsistent observation dimensions
-            # if self.args.delta > 0:
-            #     nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
-            nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
+            if self.args.delta > 0:
+                nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
+            else:
+                nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
             
             # full_observation[i] is of dimension [NUM_NBRS, OBS_DIM]
             for nbr_index in nbr_indices:
@@ -237,14 +238,10 @@ class PCPAgents:
     def get_rewards(self, state_space):
         # Fully shared reward, this is a collaborative environment.
         reward = 0
-        print(state_space)
-        # check if any of the prey were captured by checking the current state_space 
-        if state_space['num_prey'] < self.remaining_prey:
-            # reward is proportional to the number of agents captured
-            reward = self.args.capture_reward * (self.remaining_prey - state_space['num_prey'])
-            self.remaining_prey = state_space['num_prey']
-        reward += state_space['unseen_prey'] * self.args.no_capture_reward
-
+        reward += (self.state_space['unseen_prey'] - state_space['unseen_prey']) * self.args.sense_reward
+        reward += (self.state_space['num_prey'] - state_space['num_prey']) * self.args.capture_reward
+        reward += self.args.time_penalty
+        self.state_space = state_space
         return reward
     
     def render(self, mode='human'):
