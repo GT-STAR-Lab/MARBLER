@@ -3,22 +3,24 @@ import json
 import importlib
 import numpy as np
 import yaml
+import os
 
-config_path = "grid.yaml"
+module_dir = os.path.dirname(__file__)
+config_path = os.path.join(module_dir, 'grid.yaml')
 
-class DictView(object):
+class ObjectView(object):
     def __init__(self, d):
         self.__dict__ = d
 
 def load_model(args):
-    model_config = open(args.model_config_file)
-    model_config = DictView(json.load(model_config))
+    model_config = os.path.join(module_dir, args.model_config_file)
+    model_config = ObjectView(json.load(open(model_config)))
     model_config.n_actions = args.n_actions
 
-    params = torch.load(args.model_file, map_location=torch.device('cpu'))
+    params = torch.load(os.path.join(module_dir, args.model_file), map_location=torch.device('cpu'))
     input_dim = params[list(params.keys())[0]].shape[1]
 
-    actor = importlib.import_module(args.actor_file)
+    actor = importlib.import_module(f'robotarium_gym.{args.actor_file}')
     actor = getattr(actor, args.actor_class)
     
     model = actor(input_dim, model_config)
@@ -30,10 +32,10 @@ def load_model(args):
 with open(config_path, 'r') as f:
     config = yaml.safe_load(f)
 
-args = DictView(config)
+args = ObjectView(config)
 model, model_config = load_model(args)
 
-env_module = importlib.import_module(args.env_file)
+env_module = importlib.import_module(f'robotarium_gym.{args.env_file}')
 env_class = getattr(env_module, args.env_class)
 env = env_class(args)
 

@@ -4,10 +4,10 @@ import random
 import time
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from visualize import *
-from controller import *
-from pcpAgents import *
-from utilities import *
+from robotarium_gym.visualize import *
+from robotarium_gym.controller import *
+from robotarium_gym.pcpAgents import *
+from robotarium_gym.utilities import *
 
 class roboEnv:
     def __init__(self, agents, args):
