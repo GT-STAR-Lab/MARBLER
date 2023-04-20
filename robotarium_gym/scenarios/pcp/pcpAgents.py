@@ -160,7 +160,6 @@ class pcpAgents:
         Runs an episode of the simulation
         Episode will end based on what is returned in get_actions
         '''
-        print('resetting')
         self.episode_steps = 0
         self.prey_locs = []
         self.num_prey = self.args.num_prey      
