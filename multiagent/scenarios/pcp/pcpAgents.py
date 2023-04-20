@@ -5,11 +5,12 @@ import yaml
 import os
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from robotarium_gym.roboEnv import roboEnv
-from robotarium_gym.utilities import *
+from ...robotarium_env.roboEnv import roboEnv
+from ...robotarium_env.utilities import *
+from .visualize import *
 
 module_dir = os.path.dirname(__file__)
-config_path = os.path.join(module_dir, 'grid.yaml')
+config_path = os.path.join(module_dir, 'config.yaml')
 
 class Agent:
     def __init__(self, index, sensing_radius, capture_radius):
@@ -63,6 +64,7 @@ class PCPAgents:
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
         
+        self.visualizer = Visualize( self.args )
         self.env = roboEnv(self, args)
 
     def _initialize_agents(self, args):
