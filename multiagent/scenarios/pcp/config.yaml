@@ -1,8 +1,12 @@
 #Arguments needed by main.py
-model_config_file: ./scenarios/pcp/model/model_config.mat
+scenario: pcp #name of the folder inside scenarios
+
+model_config_file: qmix.mat
+model_file: qmix.tiff
+
 actor_file: rnn_agent
 actor_class: RNNAgent
-model_file: ./scenarios/pcp/model/agent.tiff
+
 env_file: pcpAgents
 env_class: PCPAgents #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
