@@ -1,12 +1,12 @@
 import numpy as np
-from gym import spaces, Env
+from gym import spaces
 import copy
 import yaml
 import os
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from ...robotarium_env.roboEnv import roboEnv
-from ...robotarium_env.utilities import *
+from multiagent.robotarium_env.roboEnv import roboEnv
+from multiagent.robotarium_env.utilities import *
 from .visualize import *
 
 module_dir = os.path.dirname(__file__)
@@ -45,7 +45,7 @@ class Agent:
         return observation
 
 
-class PCPAgents:
+class pcpAgents:
     def __init__(self, args):
         # Settings
         self.args = args
@@ -95,6 +95,7 @@ class PCPAgents:
 
     def _generate_step_goal_positions(self, actions):
         '''
+        User implemented
         Calculates the goal locations for the current agent poses and actions
         returns an array of the robotarium positions that it is trying to reach
         '''
@@ -251,37 +252,3 @@ class PCPAgents:
     def render(self, mode='human'):
         # Render your environment
         pass
-
-
-class PCPWrapper(Env):
-    def __init__(self):
-        """Creates a Gym Wrapper for PCPAgents
-
-        Args:
-            env (PCPAgents): A PCPAgents object to wrap in a gym env
-        """
-        super().__init__()
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-        
-        args = objectview(config)
-        self.env = PCPAgents(args)
-        self.observation_space = self.get_observation_space()
-        self.action_space = self.get_action_space()
-        self.n_agents = self.env.num_robots
-
-    def reset(self):
-        # Reset the wrapped environment and return the initial observation
-        observation = self.env.reset()
-        return observation
-
-    def step(self, action_n):
-        # Execute the given action in the wrapped environment
-        obs_n, reward_n, done_n, info_n = self.env.step(action_n)
-        return tuple(obs_n), reward_n, done_n, info_n
-    
-    def get_action_space(self):
-        return self.env.get_action_space()
-    
-    def get_observation_space(self):
-        return self.env.get_observation_space()
