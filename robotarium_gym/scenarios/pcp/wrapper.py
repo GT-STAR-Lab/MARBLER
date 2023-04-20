@@ -1,9 +1,12 @@
 from gym import spaces, Env
-from pcpAgents import pcpAgents
+from .pcpAgents import pcpAgents
+from robotarium_gym.robotarium_env.utilities import objectview
+import os
+import yaml
 module_dir = os.path.dirname(__file__)
 config_path = os.path.join(module_dir, 'config.yaml')
 
-class PCPWrapper(Env):
+class Wrapper(Env):
     def __init__(self):
         """Creates a Gym Wrapper for PCPAgents
 

@@ -5,9 +5,9 @@ import yaml
 import os
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from multiagent.robotarium_env.roboEnv import roboEnv
-from multiagent.robotarium_env.utilities import *
-from .visualize import *
+from robotarium_gym.robotarium_env.roboEnv import roboEnv
+from robotarium_gym.robotarium_env.utilities import *
+from robotarium_gym.scenarios.pcp.visualize import *
 
 module_dir = os.path.dirname(__file__)
 config_path = os.path.join(module_dir, 'config.yaml')
@@ -160,6 +160,7 @@ class pcpAgents:
         Runs an episode of the simulation
         Episode will end based on what is returned in get_actions
         '''
+        print('resetting')
         self.episode_steps = 0
         self.prey_locs = []
         self.num_prey = self.args.num_prey      

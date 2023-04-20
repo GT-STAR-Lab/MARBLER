@@ -1,5 +1,5 @@
 ```
-├── main.py           # user calls this file, specify scenario -> python -m robotarium.main --scenario pcp
+├── main.py           # user calls this file, specify scenario -> python -m robotarium.main --scenario pcp. Primarily to debug scenarios before training with them
 ├── robotarium_env    # user doesn't have to touch this folder
 │   ├── controller.py
 │   ├── rnn_agent.py
