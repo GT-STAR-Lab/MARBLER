@@ -1,8 +1,0 @@
-README.md
-setup.py
-robotarium_env.egg-info/PKG-INFO
-robotarium_env.egg-info/SOURCES.txt
-robotarium_env.egg-info/dependency_links.txt
-robotarium_env.egg-info/not-zip-safe
-robotarium_env.egg-info/requires.txt
-robotarium_env.egg-info/top_level.txt
