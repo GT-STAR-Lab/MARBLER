@@ -20,6 +20,7 @@ DOWN: .95
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
 MIN_DIST : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
+START_DIST: 0.3 #Minimum distance the agents start from each other
 time_penalty: -0.05
 sense_reward: 1 
 capture_reward: 5
@@ -34,4 +35,4 @@ num_neighbors: 3
 max_episode_steps: 80
 update_frequency: 34
 num_prey: 6
-robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
+robotarium: True #Should be False during training to speed up robots, needs to be true when submitting
