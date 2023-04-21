@@ -1,32 +1,37 @@
 #Arguments needed by main.py
-model_config_file: model_config.mat
+scenario: pcp #name of the folder inside scenarios
+
+model_config_file: qmix.mat
+model_file: qmix.tiff
+
 actor_file: rnn_agent
 actor_class: RNNAgent
-model_file: agent.tiff
+
 env_file: pcpAgents
-env_class: PCPAgents #This needs to have all of the functionalities of a gym to work
+env_class: pcpAgents #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
 episodes: 10 #Number of episodes to run for
 
 #Arguments needed by the environment
-LEFT: -1.5
-RIGHT: 1.5
-UP: -1
-DOWN: 1
+LEFT: -1.45
+RIGHT: 1.45
+UP: -0.95
+DOWN: .95
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
-MIN_DIST : 0.1 #This should probably be renamed
-no_capture_reward: -0.05
-capture_reward: 1
+MIN_DIST : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
+time_penalty: -0.05
+sense_reward: 1 
+capture_reward: 5
 predator: 2
-predator_radius: .4
+predator_radius: .45
 capture: 2
-capture_radius: .2
+capture_radius: .225
 show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
-delta: 0.0 #THIS DOES NOT CURRENTLY WORK IF > 0
-num_neighbors: 2
-max_episode_steps: 150
-update_frequency: 29
-num_prey: 3
+delta: 0.0 #If > 0, make sure that the agent can handle changing observation sizes
+num_neighbors: 3
+max_episode_steps: 80
+update_frequency: 34
+num_prey: 6
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting

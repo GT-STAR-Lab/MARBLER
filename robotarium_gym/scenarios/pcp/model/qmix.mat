@@ -11,9 +11,9 @@
   "double_q": true,
   "env": "gymma",
   "env_args": {
-    "key": "robotarium_gym:RoboPCPGrid-v0",
+    "key": "robotarium_gym:PredatorCapturePrey-v0",
     "pretrained_wrapper": null,
-    "time_limit": 152
+    "time_limit": 82
   },
   "epsilon_anneal_time": 50000,
   "epsilon_finish": 0.05,
@@ -49,10 +49,10 @@
   "save_model": true,
   "save_model_interval": 50000,
   "save_replay": false,
-  "seed": 693267420,
+  "seed": 827541775,
   "standardise_returns": false,
   "standardise_rewards": true,
-  "t_max": 2050000,
+  "t_max": 5000000,
   "target_update_interval_or_tau": 200,
   "test_greedy": true,
   "test_interval": 50000,
