@@ -7,10 +7,8 @@ import os
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from robotarium_gym.robotarium_env.roboEnv import roboEnv
 from robotarium_gym.robotarium_env.utilities import *
-from robotarium_gym.scenarios.pcp.visualize import *
-
-module_dir = os.path.dirname(__file__)
-config_path = os.path.join(module_dir, 'config.yaml')
+from robotarium_gym.scenarios.pcpAgents.visualize import *
+from robotarium_gym.scenarios.base_scenario import BaseEnv
 
 class Agent:
     def __init__(self, index, sensing_radius, capture_radius):
@@ -45,7 +43,7 @@ class Agent:
         return observation
 
 
-class pcpAgents:
+class pcpAgents(BaseEnv):
     def __init__(self, args):
         # Settings
         self.args = args
@@ -195,7 +193,7 @@ class pcpAgents:
             updated_state['num_prey'] == 0:
             terminated = True             
         
-        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, [{}]*self.num_robots
+        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
 
     def get_action_space(self):
         return self.action_space
