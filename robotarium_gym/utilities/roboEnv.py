@@ -5,7 +5,7 @@ import time
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from .controller import *
-from .utilities import *
+from .misc import *
 
 class roboEnv:
     def __init__(self, agents, args):

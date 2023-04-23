@@ -9,7 +9,7 @@ from robotarium_gym.utilities.roboEnv import roboEnv
 from robotarium_gym.utilities.misc import *
 from robotarium_gym.scenarios.PredatorCapturePrey.visualize import *
 from robotarium_gym.scenarios.base import BaseScenario
-from robotarium_gym.utilities.agent import Agent
+from robotarium_gym.scenarios.PredatorCapturePrey.agent import Agent
 
 class pcpAgents(BaseScenario):
     def __init__(self, args):

@@ -67,7 +67,7 @@ def load_env_and_model(args, module_dir):
                          map_location=torch.device('cpu'))
     input_dim = model_weights[list(model_weights.keys())[0]].shape[1]
 
-    actor = importlib.import_module(f'robotarium_gym.robotarium_env.{args.actor_file}')
+    actor = importlib.import_module(f'robotarium_gym.utilities.{args.actor_file}')
     actor = getattr(actor, args.actor_class)
     
     model = actor(input_dim, model_config)

@@ -1,6 +1,6 @@
 import yaml
 import os
-from robotarium_gym.robotarium_env.utilities import run_env, objectview
+from robotarium_gym.utilities.misc import run_env, objectview
 import argparse
 
 
