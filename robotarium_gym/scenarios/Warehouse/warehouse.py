@@ -37,61 +37,71 @@ class Warehouse(BaseEnv):
         self.args = args
         self.num_robots = self.args.num_robots
         self.agent_poses = None
+
+        #Agent agent's observation is [pos_x,pos_y,loaded] where loaded is a bool
+        self.agent_obs_dim = 3 
         
-        #This isn't really needed but makes a bunch of stuff cleaner
+        #This isn't really needed but makes a bunch of stuff clearer
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
         
         self.agents = [Agent(i, self.action_id2w, self.action_w2id) for i in range(self.num_robots)]
         for i, a in enumerate(self.agents):
-            if i % 2 == 0:
+            if i % 2 == 0: #Even numbered agents are assigned the green zone
                 a.goal = 'Green'
 
+        #Initializes the action and observation spaces
         actions = []
         observations = []
         for a in self.agents:
             actions.append(spaces.Discrete(5))
             #each agent's observation is a tuple of size 3
-            obs_dim = 3 * (self.args.num_neighbors + 1)
+            obs_dim = self.agent_obs_dim * (self.args.num_neighbors + 1)
             #the minimum observation is the left corner of the robotarium, the maximum is the righ corner
             observations.append(spaces.Box(low=-1.5, high=1.5, shape=(obs_dim,), dtype=np.float32))
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
         
-        self.visualizer = Visualize(self.args)
-        self.env = roboEnv(self, args)
+        self.visualizer = Visualize(self.args) #needed for Robotarium renderings
+        #Env impliments the robotarium backend
+        #It expects to have access to agent_poses, visualizer, num_agents and _generate_step_goal_positions
+        self.env = roboEnv(self, args)  
 
     def reset(self):
         self.episode_steps = 0
         
-        #Agent Locations
+        #Generate the agent locations based on the config
         width = self.args.RIGHT - self.args.LEFT
         height = self.args.DOWN - self.args.UP
-        #Agents can spawn anywhere in the Robotarium
+        #Agents can spawn anywhere in the Robotarium between UP, DOWN, LEFT and RIGHT for this scenario
         self.agent_poses = generate_initial_conditions(self.num_robots, spacing=self.args.START_DIST, width=width, height=height)
-        for a in self.agent_poses:
-            a[0] += (1.5 + self.args.LEFT)
-            a[1] += (1+self.args.UP)
+        #Adjusts the poses based on the config
+        self.agent_poses[0] += (1.5 + self.args.LEFT)/2
+        self.agent_poses[0] -= (1.5 - self.args.RIGHT)/2
+        self.agent_poses[1] -= (1+self.args.UP)/2
+        self.agent_poses[1] += (1-self.args.DOWN)/2
         self.env.reset()
-        return [[0]*(3 * (self.args.num_neighbors + 1))] * self.num_robots
+        return [[0]*(self.agent_obs_dim * (self.args.num_neighbors + 1))] * self.num_robots
     
     def step(self, actions_):
         self.episode_steps += 1
-        self.env.step(actions_)
+
+        #Robotarium actions and updating agent_poses all happen here
+        self.env.step(actions_) 
 
         rewards = self.get_rewards()
         obs = self.get_observations()
-        terminated = self.episode_steps > self.args.max_episode_steps
-        print('obs: ', obs[0])
-        print('reward: ', rewards)
-        print()
+        terminated = self.episode_steps > self.args.max_episode_steps #For this environment, episode only ends after timing out
+        
         return obs, rewards, [terminated]*self.num_robots, {}
     
     def get_observations(self):
-        observations = []
+        observations = [] #Each agent's individual observation
         for a in self.agents:
             observations.append([*self.agent_poses[:, a.index ][:2], a.loaded])
 
+        #Get each agent's observations concatenated with args.num_neighbors nearest neighbors
+        #Or all of the agent's observations within args.delta radius if args.delta>0
         full_observations = []
         for i, agent in enumerate(self.agents):
             full_observations.append(observations[agent.index])
@@ -110,6 +120,11 @@ class Warehouse(BaseEnv):
         return full_observations
 
     def get_rewards(self):
+        '''
+        If loaded the agents score by driving to their color zone on the left
+        If unloaded the agents score by driving to their color zone on the right
+        Kind of like robots that have to move stuff around at a warehouse
+        '''
         rewards = []
         for a in self.agents:
             pos = self.agent_poses[:, a.index ][:2]
