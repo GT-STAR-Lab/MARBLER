@@ -1,4 +1,4 @@
-from robotarium_gym.robotarium_env.utilities import is_close
+from robotarium_gym.utilities.misc import is_close
 import numpy as np
 
 class Agent:

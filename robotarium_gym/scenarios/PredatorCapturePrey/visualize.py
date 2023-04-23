@@ -1,6 +1,7 @@
 from rps.utilities.misc import *
+from robotarium_gym.scenarios.base import BaseVisualization
 
-class Visualize:
+class Visualize(BaseVisualization):
     def __init__(self, args):
         self.predator_marker_size_m = args.predator_radius
         self.capture_marker_size_m = args.capture_radius

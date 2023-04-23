@@ -1,6 +1,6 @@
 from gym import spaces, Env
 from .scenarios.pcpAgents.pcpAgents import pcpAgents
-from robotarium_gym.robotarium_env.utilities import objectview
+from robotarium_gym.utilities.misc import objectview
 import os
 import yaml
 
