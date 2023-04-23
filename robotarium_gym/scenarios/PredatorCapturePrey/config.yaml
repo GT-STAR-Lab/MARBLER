@@ -1,5 +1,5 @@
 #Arguments needed by main.py
-scenario: pcpAgents #name of the folder inside scenarios
+scenario: PredatorCapturePrey #name of the folder inside scenarios
 
 model_config_file: qmix.mat
 model_file: qmix.tiff

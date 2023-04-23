@@ -7,7 +7,7 @@ import argparse
 def main():
     module_dir = os.path.dirname(__file__)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--scenario', type=str, default='pcpAgents', help='scenario name')
+    parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
     args = parser.parse_args()
 
     config_path = os.path.join(module_dir, "scenarios", args.scenario, "config.yaml")

@@ -2,7 +2,7 @@ from gym.envs.registration import register
 import os
 
 _particles = {
-    "pcpAgents": "PredatorCapturePrey-v0",
+    "PredatorCapturePrey": "PredatorCapturePrey-v0",
 }
 
 for scenario_name, gymkey in _particles.items():

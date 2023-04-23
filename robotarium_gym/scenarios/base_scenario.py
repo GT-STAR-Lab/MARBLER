@@ -7,9 +7,18 @@ class BaseEnv(object):
     def _update_tracking_and_locations(self):
         raise NotImplementedError()
     
-    def reset(self):
+    def step(self):
         raise NotImplementedError()
     
-    def step(self):
+    def make_world(self):
+        raise NotImplementedError()
+
+    def reset(self):
+        raise NotImplementedError()
+
+    def reward(self):
+        raise NotImplementedError()
+    
+    def observation(self):
         raise NotImplementedError()
     
