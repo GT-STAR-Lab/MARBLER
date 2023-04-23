@@ -8,10 +8,10 @@ import os
 from robotarium_gym.utilities.roboEnv import roboEnv
 from robotarium_gym.utilities.misc import *
 from robotarium_gym.scenarios.PredatorCapturePrey.visualize import *
-from robotarium_gym.scenarios.base import BaseScenario
+from robotarium_gym.scenarios.base import BaseEnv
 from robotarium_gym.scenarios.PredatorCapturePrey.agent import Agent
 
-class pcpAgents(BaseScenario):
+class pcpAgents(BaseEnv):
     def __init__(self, args):
         # Settings
         self.args = args
@@ -24,20 +24,7 @@ class pcpAgents(BaseScenario):
         self.num_predators = args.predator
         self.num_capture = args.capture
         
-        self._initialize_agents(args)
-        self._initialize_actions_observations()
-
-        self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
-
-        self.visualizer = Visualize( self.args )
-        self.env = roboEnv(self, args)
-        
-    def _initialize_agents(self, args):
-        '''
-        Initializes all agents and pushes them into a list - self.agents 
-        predators first and then capture agents
-        '''
+        #Initializes the agents
         self.agents = []
         # Initialize predator agents
         for i in range(self.num_predators):
@@ -46,18 +33,23 @@ class pcpAgents(BaseScenario):
         for i in range(self.num_capture):
             self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius) )
 
-    def _initialize_actions_observations( self ):
+        #initializes the actions and observation spaces
         actions = []
-        observations = []
-        
+        observations = []      
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
             ## This line seems too hacky. @Reza might want to look into it
             obs_dim = 6 * (self.args.num_neighbors + 1)
-            observations.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))
-        
+            observations.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))        
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
+
+        self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
+        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
+
+        self.visualizer = Visualize( self.args )
+        self.env = roboEnv(self, args)
+             
 
     def _generate_step_goal_positions(self, actions):
         '''
@@ -148,7 +140,10 @@ class pcpAgents(BaseScenario):
         self.episode_steps += 1
 
         # call the environment step function and get the updated state
-        updated_state = self.env.step(actions_)
+        self.env.step(actions_)
+        self._update_tracking_and_locations(actions_)
+        updated_state = self._generate_state_space()
+        
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
         rewards = self.get_rewards(updated_state)
