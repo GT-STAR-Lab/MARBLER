@@ -1,7 +1,7 @@
 class BaseEnv(object):
     '''
     Template for what a Robotarium Environment must have
-    Additionally, it must have the following variables:
+    Additionally, it must have the following class variables:
         num_agents, agent_poses, visualizer
     '''
 
@@ -30,10 +30,10 @@ class BaseEnv(object):
         raise NotImplementedError()
 
 class BaseVisualization():
-    #How the markers get reset at the beginning of each episode
+    #How the robotarium's background gets reset at the beginning of each episode
     def initialize_markers(self, robotarium, agents):
         raise NotImplementedError()
     
-    #How the markers move at each robotarium step
+    #How the robotarium's background changes at each robotarium step
     def update_markers(self, robotarium, agents):
         raise NotImplementedError()

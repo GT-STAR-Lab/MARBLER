@@ -59,11 +59,11 @@ def load_env_and_model(args, module_dir):
     ''' 
     Helper function to load a model from a specified scenario in args
     '''
-    model_config = os.path.join(module_dir, "scenarios", args.scenario, "model", args.model_config_file)
+    model_config = os.path.join(module_dir, "scenarios", args.scenario, "models", args.model_config_file)
     model_config = objectview(json.load(open(model_config)))
     model_config.n_actions = args.n_actions
 
-    model_weights = torch.load( os.path.join(module_dir,  "scenarios", args.scenario, "model", args.model_file),\
+    model_weights = torch.load( os.path.join(module_dir,  "scenarios", args.scenario, "models", args.model_file),\
                          map_location=torch.device('cpu'))
     input_dim = model_weights[list(model_weights.keys())[0]].shape[1]
 
