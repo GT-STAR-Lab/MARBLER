@@ -2,6 +2,12 @@ from robotarium_gym.utilities.misc import is_close
 import numpy as np
 
 class Agent:
+    '''
+    This is a helper class for pcpAgents
+    Keeps track of information for each agent and creates functions needed by each agent
+    This could optionally all be done in pcpAgents
+    '''
+
     def __init__(self, index, sensing_radius, capture_radius):
         self.index = index
         self.sensing_radius = sensing_radius

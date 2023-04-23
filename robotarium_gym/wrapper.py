@@ -1,10 +1,11 @@
 from gym import spaces, Env
-from .scenarios.pcpAgents.pcpAgents import pcpAgents
+from .scenarios.PredatorCapturePrey.pcpAgents import pcpAgents
+#Add other scenario imports here
 from robotarium_gym.utilities.misc import objectview
 import os
 import yaml
 
-env_dict = {'pcpAgents': pcpAgents}
+env_dict = {'PredatorCapturePrey': pcpAgents}
 
 class Wrapper(Env):
     def __init__(self, env_name, config_path):

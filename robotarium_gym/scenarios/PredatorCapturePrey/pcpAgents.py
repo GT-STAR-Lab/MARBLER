@@ -206,7 +206,3 @@ class pcpAgents(BaseEnv):
         reward += self.args.time_penalty
         self.state_space = state_space
         return reward
-    
-    def render(self, mode='human'):
-        # Render your environment
-        pass
