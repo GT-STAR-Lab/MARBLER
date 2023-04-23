@@ -8,12 +8,12 @@ class Agent:
     This could optionally all be done in pcpAgents
     '''
 
-    def __init__(self, index, sensing_radius, capture_radius):
+    def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, action_word_to_id):
         self.index = index
         self.sensing_radius = sensing_radius
         self.capture_radius = capture_radius
-        self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
+        self.action_id2w = action_id_to_word
+        self.action_w2id = action_word_to_id
         
 
     def get_observation( self, state_space, agents):

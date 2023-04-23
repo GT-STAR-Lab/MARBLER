@@ -24,28 +24,29 @@ class pcpAgents(BaseEnv):
         self.num_predators = args.predator
         self.num_capture = args.capture
         
+        self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
+        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
+
         #Initializes the agents
         self.agents = []
         # Initialize predator agents
         for i in range(self.num_predators):
-            self.agents.append( Agent(i, args.predator_radius, 0) )
+            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.action_w2id) )
         # Initialize capture agents
         for i in range(self.num_capture):
-            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius) )
+            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.action_w2id) )
 
         #initializes the actions and observation spaces
         actions = []
         observations = []      
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            ## This line seems too hacky. @Reza might want to look into it
+            #Each agent's observation is a tuple of size 6
             obs_dim = 6 * (self.args.num_neighbors + 1)
-            observations.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))        
+            #The lowest any observation will be is -5 (prey loc when can't see one), the highest is 3 (largest reasonable radius an agent will have)
+            observations.append(spaces.Box(low=-5, high=3, shape=(obs_dim,), dtype=np.float32))        
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
-
-        self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
         self.visualizer = Visualize( self.args )
         self.env = roboEnv(self, args)
@@ -107,8 +108,7 @@ class pcpAgents(BaseEnv):
     
     def reset(self):
         '''
-        Runs an episode of the simulation
-        Episode will end based on what is returned in get_actions
+        Resets the simulation
         '''
         self.episode_steps = 0
         self.prey_locs = []

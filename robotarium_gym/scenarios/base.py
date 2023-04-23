@@ -1,5 +1,10 @@
-#Every Robotarium Environment needs these methods to work
 class BaseEnv(object):
+    '''
+    Template for what a Robotarium Environment must have
+    Additionally, it must have the following variables:
+        num_agents, agent_poses, visualizer
+    '''
+
     def get_action_space(self):
         #Must return the action space
         raise NotImplementedError()
@@ -8,7 +13,7 @@ class BaseEnv(object):
         #Must return the observation space
         raise NotImplementedError()
     
-    def step(self):
+    def step(self, actions_):
         #Must return [observations, rewards, done, info]
         raise NotImplementedError()
 
@@ -20,7 +25,7 @@ class BaseEnv(object):
         #This isn't really used in our environments
         pass
     
-    def _generate_step_goal_positions():
+    def _generate_step_goal_positions(self, actions):
         #Must return goal locations for each agent
         raise NotImplementedError()
 
