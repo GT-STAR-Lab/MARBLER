@@ -9,39 +9,7 @@ from robotarium_gym.robotarium_env.roboEnv import roboEnv
 from robotarium_gym.robotarium_env.utilities import *
 from robotarium_gym.scenarios.pcpAgents.visualize import *
 from robotarium_gym.scenarios.base_scenario import BaseEnv
-
-class Agent:
-    def __init__(self, index, sensing_radius, capture_radius):
-        self.index = index
-        self.sensing_radius = sensing_radius
-        self.capture_radius = capture_radius
-
-    def get_observation( self, state_space, agents):
-        '''
-            For each agent's observation-
-                Checks for all prey in the range of the current agent
-                Returns the closest prey if multiple agents in range
-            Returns: [agent_x_pos, agent_y_pos, sensed_prey_x_pose, sensed_prey_y_pose, sensing_radius, capture_radius]
-            array of dimension [1, OBS_DIM] 
-        '''
-        # distance from the closest prey in range
-        closest_prey = -1
-        # Iterate over all prey
-        for p in state_space['prey']:
-            # For each prey check if they are in range and get the distance
-            in_range, dist = is_close(state_space['poses'], self.index, p, self.sensing_radius)
-            # If the prey is in range, check if it is the closest till now
-            if in_range and (dist < closest_prey or closest_prey == -1):
-                prey_loc = p.reshape((1,2))[0]
-                closest_prey = dist
-        
-        # if no prey found in range
-        if closest_prey == -1:
-            prey_loc = [-5,-5]
-        
-        observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
-        return observation
-
+from robotarium_gym.robotarium_env.agent import Agent
 
 class pcpAgents(BaseEnv):
     def __init__(self, args):
@@ -61,10 +29,10 @@ class pcpAgents(BaseEnv):
 
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
-        
+
         self.visualizer = Visualize( self.args )
         self.env = roboEnv(self, args)
-
+        
     def _initialize_agents(self, args):
         '''
         Initializes all agents and pushes them into a list - self.agents 
@@ -98,17 +66,9 @@ class pcpAgents(BaseEnv):
         returns an array of the robotarium positions that it is trying to reach
         '''
         goal = copy.deepcopy(self.agent_poses)
-        for i in range(self.num_robots):
-            if self.action_id2w[actions[i]] == 'left':
-                    goal[0][i] = max( goal[0][i] - self.args.MIN_DIST, self.args.LEFT)
-            elif self.action_id2w[actions[i]] == 'right':
-                    goal[0][i] = min( goal[0][i] + self.args.MIN_DIST, self.args.RIGHT)
-            elif self.action_id2w[actions[i]] == 'up':
-                    goal[1][i] = max( goal[1][i] - self.args.MIN_DIST, self.args.UP)
-            elif self.action_id2w[actions[i]] == 'down':
-                    goal[1][i] = min( goal[1][i] + self.args.MIN_DIST, self.args.DOWN)
-            else:
-                    continue #if 'stop' or 'capture' the agent i's pose does not change
+        for i, agent in enumerate(self.agents):
+            goal[:,i] = agent.generate_goal(goal[:,i], actions[i], self.args)
+        
         return goal
 
     def _update_tracking_and_locations(self, agent_actions):

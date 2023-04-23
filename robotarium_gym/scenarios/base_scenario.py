@@ -3,12 +3,13 @@ class BaseEnv(object):
 
     def _generate_state_space(self):
         raise NotImplementedError()
-    
-    def reset():
+
+    def _update_tracking_and_locations(self):
         raise NotImplementedError()
     
-    def step():
+    def reset(self):
         raise NotImplementedError()
     
-    def get_rewards():
+    def step(self):
         raise NotImplementedError()
+    
