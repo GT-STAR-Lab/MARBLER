@@ -31,9 +31,9 @@ class BaseEnv(object):
 
 class BaseVisualization():
     #How the markers get reset at the beginning of each episode
-    def initialize_markers(self):
+    def initialize_markers(self, robotarium, agents):
         raise NotImplementedError()
     
     #How the markers move at each robotarium step
-    def update_markers(self):
+    def update_markers(self, robotarium, agents):
         raise NotImplementedError()

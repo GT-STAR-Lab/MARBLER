@@ -3,7 +3,7 @@ import numpy as np
 import copy
 from robotarium_gym.scenarios.base import BaseEnv
 from robotarium_gym.utilities.misc import *
-from robotarium_gym.scenarios.Warehouse.visualize import *
+from robotarium_gym.scenarios.Warehouse.visualize import Visualize
 from robotarium_gym.utilities.roboEnv import roboEnv
 
 
@@ -45,7 +45,7 @@ class Warehouse(BaseEnv):
         self.agents = [Agent(i, self.action_id2w, self.action_w2id) for i in range(self.num_robots)]
         for i, a in enumerate(self.agents):
             if i % 2 == 0:
-                a.goal = 'Blue'
+                a.goal = 'Green'
 
         actions = []
         observations = []
@@ -68,10 +68,12 @@ class Warehouse(BaseEnv):
         width = self.args.RIGHT - self.args.LEFT
         height = self.args.DOWN - self.args.UP
         #Agents can spawn anywhere in the Robotarium
-        self.agent_poses = generate_initial_locations(self.num_robots, width, height, 3, start_dist=self.args.START_DIST)
-
+        self.agent_poses = generate_initial_conditions(self.num_robots, spacing=self.args.START_DIST, width=width, height=height)
+        for a in self.agent_poses:
+            a[0] += (1.5 + self.args.LEFT)
+            a[1] += (1+self.args.UP)
         self.env.reset()
-        return [[0]*(6 * (self.args.num_neighbors + 1))] * self.num_robots
+        return [[0]*(3 * (self.args.num_neighbors + 1))] * self.num_robots
     
     def step(self, actions_):
         self.episode_steps += 1
@@ -79,7 +81,10 @@ class Warehouse(BaseEnv):
 
         rewards = self.get_rewards()
         obs = self.get_observations()
-        terminated = self.episode_steps > self.args.episode_steps
+        terminated = self.episode_steps > self.args.max_episode_steps
+        print('obs: ', obs[0])
+        print('reward: ', rewards)
+        print()
         return obs, rewards, [terminated]*self.num_robots, {}
     
     def get_observations(self):
@@ -106,24 +111,31 @@ class Warehouse(BaseEnv):
 
     def get_rewards(self):
         rewards = []
-        for a in self.agents():
+        for a in self.agents:
             pos = self.agent_poses[:, a.index ][:2]
             if a.loaded:             
                 if pos[0] < -1.5 + self.args.goal_width:
-                    if a.goal == 'Blue' and a.pos[1] > 0:
+                    if a.goal == 'Green' and pos[1] > 0:
+                        a.loaded = False
+                    elif a.goal == 'Red' and pos[1] <= 0:
                         rewards.append(self.args.unload_reward)
-                    elif a.goal == 'Red' and a.pos[1] <= 0:
-                        rewards.append(self.args.unload_reward)
+                        a.loaded = False
                     else:
                         rewards.append(0)
+                else:
+                    rewards.append(0)
             else:
                 if pos[0] > 1.5 - self.args.goal_width:
-                    if a.goal == 'Blue' and a.pos[1] > 0:
+                    if a.goal == 'Red' and pos[1] > 0:
                         rewards.append(self.args.load_reward)
-                    elif a.goal == 'Red' and a.pos[1] <= 0:
+                        a.loaded = True
+                    elif a.goal == 'Green' and pos[1] <= 0:
                         rewards.append(self.args.load_reward)
+                        a.loaded = True
                     else:
                         rewards.append(0)
+                else:
+                    rewards.append(0)
         return rewards
 
     def _generate_step_goal_positions(self, actions):

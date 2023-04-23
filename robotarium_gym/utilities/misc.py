@@ -100,7 +100,7 @@ def run_env(config, module_dir):
             actions = np.argmax(q_values.detach().numpy(), axis=1)
 
             obs, reward, done, _ = env.step(actions)
-            episodeReward += reward[0]
+            episodeReward += sum(reward)
             if done[0]:
                 episodeSteps = j+1
                 break

@@ -11,7 +11,7 @@ class Visualize(BaseVisualization):
         self.show_figure = True
     
     def initialize_markers(self, robotarium, agents):
-        marker_size_predator = determine_marker_size(robotarium, self.predator_marker_size_m) #TODO: figure out why this was divided this way
+        marker_size_predator = determine_marker_size(robotarium, self.predator_marker_size_m)
         marker_size_capture = determine_marker_size(robotarium, self.capture_marker_size_m)
         marker_size_goal = determine_marker_size(robotarium,self.goal_marker_size_m)          
 

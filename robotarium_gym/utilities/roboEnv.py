@@ -51,9 +51,6 @@ class roboEnv:
                 self.visualizer.update_markers(self.robotarium, self.agents)
 
             self.robotarium.step()
-        
-        self.agents._update_tracking_and_locations(actions_)
-        return self.agents._generate_state_space()
     
     def _create_robotarium(self):
         '''
