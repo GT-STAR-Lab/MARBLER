@@ -3,7 +3,6 @@ from gym import spaces
 import copy
 import yaml
 import os
-from rps.utilities.misc import *
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from roboEnv import roboEnv
@@ -167,13 +166,14 @@ class pcpAgents:
         self.num_prey = self.args.num_prey      
         
         # Agent locations
-        #self.agent_poses = generate_locations(self.args, self.num_robots, right = self.args.ROBOT_INIT_RIGHT_THRESH)
-        self.agent_poses = generate_initial_conditions(self.num_robots, spacing=self.args.START_DIST, width = 1.5+self.args.ROBOT_INIT_RIGHT_THRESH)
-        for i in range(len(self.agent_poses[0])):
-            self.agent_poses[0][i] -= (.75 - .5 * self.args.ROBOT_INIT_RIGHT_THRESH)
-            self.agent_poses[2][i] = 0
+        width = self.args.ROBOT_INIT_RIGHT_THRESH - self.args.LEFT
+        height = self.args.DOWN - self.args.UP
+        self.agent_poses = generate_initial_locations(self.num_robots, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.START_DIST)
+        
         # Prey locations and tracking
-        self.prey_loc = generate_locations(self.args, self.num_prey, left = self.args.PREY_INIT_LEFT_THRESH, robotarium_poses = False)
+        width = self.args.RIGHT - self.args.PREY_INIT_LEFT_THRESH
+        self.prey_loc = generate_initial_locations(self.num_prey, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.MIN_DIST, spawn_left=False)
+        self.prey_loc = self.prey_loc[:2].T
         self.prey_captured = [False] * self.num_prey
         self.prey_sensed = [False] * self.num_prey
 

@@ -5,7 +5,7 @@ import time
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from .controller import *
-from .utilities import *
+from .misc import *
 
 class roboEnv:
     def __init__(self, agents, args):
@@ -51,9 +51,6 @@ class roboEnv:
                 self.visualizer.update_markers(self.robotarium, self.agents)
 
             self.robotarium.step()
-        
-        self.agents._update_tracking_and_locations(actions_)
-        return self.agents._generate_state_space()
     
     def _create_robotarium(self):
         '''

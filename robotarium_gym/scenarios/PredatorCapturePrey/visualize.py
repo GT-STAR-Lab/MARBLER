@@ -1,6 +1,7 @@
 from rps.utilities.misc import *
+from robotarium_gym.scenarios.base import BaseVisualization
 
-class Visualize:
+class Visualize(BaseVisualization):
     def __init__(self, args):
         self.predator_marker_size_m = args.predator_radius
         self.capture_marker_size_m = args.capture_radius
@@ -10,7 +11,7 @@ class Visualize:
         self.show_figure = True
     
     def initialize_markers(self, robotarium, agents):
-        marker_size_predator = determine_marker_size(robotarium, self.predator_marker_size_m) #TODO: figure out why this was divided this way
+        marker_size_predator = determine_marker_size(robotarium, self.predator_marker_size_m)
         marker_size_capture = determine_marker_size(robotarium, self.capture_marker_size_m)
         marker_size_goal = determine_marker_size(robotarium,self.goal_marker_size_m)          
 

@@ -5,11 +5,11 @@ import yaml
 import os
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from robotarium_gym.robotarium_env.roboEnv import roboEnv
-from robotarium_gym.robotarium_env.utilities import *
-from robotarium_gym.scenarios.pcpAgents.visualize import *
-from robotarium_gym.scenarios.base_scenario import BaseEnv
-from robotarium_gym.robotarium_env.agent import Agent
+from robotarium_gym.utilities.roboEnv import roboEnv
+from robotarium_gym.utilities.misc import *
+from robotarium_gym.scenarios.PredatorCapturePrey.visualize import *
+from robotarium_gym.scenarios.base import BaseEnv
+from robotarium_gym.scenarios.PredatorCapturePrey.agent import Agent
 
 class pcpAgents(BaseEnv):
     def __init__(self, args):
@@ -24,40 +24,33 @@ class pcpAgents(BaseEnv):
         self.num_predators = args.predator
         self.num_capture = args.capture
         
-        self._initialize_agents(args)
-        self._initialize_actions_observations()
-
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
-        self.visualizer = Visualize( self.args )
-        self.env = roboEnv(self, args)
-        
-    def _initialize_agents(self, args):
-        '''
-        Initializes all agents and pushes them into a list - self.agents 
-        predators first and then capture agents
-        '''
+        #Initializes the agents
         self.agents = []
         # Initialize predator agents
         for i in range(self.num_predators):
-            self.agents.append( Agent(i, args.predator_radius, 0) )
+            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.action_w2id) )
         # Initialize capture agents
         for i in range(self.num_capture):
-            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius) )
+            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.action_w2id) )
 
-    def _initialize_actions_observations( self ):
+        #initializes the actions and observation spaces
         actions = []
-        observations = []
-        
+        observations = []      
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            ## This line seems too hacky. @Reza might want to look into it
+            #Each agent's observation is a tuple of size 6
             obs_dim = 6 * (self.args.num_neighbors + 1)
-            observations.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))
-        
+            #The lowest any observation will be is -5 (prey loc when can't see one), the highest is 3 (largest reasonable radius an agent will have)
+            observations.append(spaces.Box(low=-5, high=3, shape=(obs_dim,), dtype=np.float32))        
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
+
+        self.visualizer = Visualize( self.args )
+        self.env = roboEnv(self, args)
+             
 
     def _generate_step_goal_positions(self, actions):
         '''
@@ -115,20 +108,24 @@ class pcpAgents(BaseEnv):
     
     def reset(self):
         '''
-        Runs an episode of the simulation
-        Episode will end based on what is returned in get_actions
+        Resets the simulation
         '''
         self.episode_steps = 0
         self.prey_locs = []
         self.num_prey = self.args.num_prey      
         
         # Agent locations
-        self.agent_poses = generate_locations(self.args, self.num_robots, right = self.args.ROBOT_INIT_RIGHT_THRESH)
+        width = self.args.ROBOT_INIT_RIGHT_THRESH - self.args.LEFT
+        height = self.args.DOWN - self.args.UP
+        self.agent_poses = generate_initial_locations(self.num_robots, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.START_DIST)
+        
         # Prey locations and tracking
-        self.prey_loc = generate_locations(self.args, self.num_prey, left = self.args.PREY_INIT_LEFT_THRESH, robotarium_poses = False)
+        width = self.args.RIGHT - self.args.PREY_INIT_LEFT_THRESH
+        self.prey_loc = generate_initial_locations(self.num_prey, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.MIN_DIST, spawn_left=False)
+        self.prey_loc = self.prey_loc[:2].T
         self.prey_captured = [False] * self.num_prey
         self.prey_sensed = [False] * self.num_prey
-
+        
         self.state_space = self._generate_state_space()
         self.env.reset()
         # TODO: clean the empty observation returning
@@ -143,7 +140,10 @@ class pcpAgents(BaseEnv):
         self.episode_steps += 1
 
         # call the environment step function and get the updated state
-        updated_state = self.env.step(actions_)
+        self.env.step(actions_)
+        self._update_tracking_and_locations(actions_)
+        updated_state = self._generate_state_space()
+        
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
         rewards = self.get_rewards(updated_state)
@@ -206,7 +206,3 @@ class pcpAgents(BaseEnv):
         reward += self.args.time_penalty
         self.state_space = state_space
         return reward
-    
-    def render(self, mode='human'):
-        # Render your environment
-        pass

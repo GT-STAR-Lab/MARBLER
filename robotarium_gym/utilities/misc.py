@@ -4,6 +4,7 @@ import os
 import importlib
 import json
 import torch
+from rps.utilities.misc import *
 
 def is_close( agent_poses, agent_index, prey_loc, sensing_radius):
     agent_pose = agent_poses[:2, agent_index]
@@ -38,35 +39,21 @@ class objectview(object):
     def __init__(self, d):
         self.__dict__ = d
 
-def generate_locations(args, num_robots, left = None, right = None,\
-                    robotarium_poses = True, min_dist = None ):
+def generate_initial_locations(num_locs, width, height, thresh, start_dist=.3, spawn_left = True):
     '''
-        Generates random locations on a grid defined within the specified thresholds.
-        Overlays a grid of unit size min_dist and picks num_robots random points from it 
+    generates initial conditions for the robots and prey
+    spawns all of them left of thresh if spawn_left is true, spawns them all right if spawn_left is false
     '''
-    if left  == None: left  = args.LEFT 
-    if right == None: right = args.RIGHT
-    up   = args.UP
-    down = args.DOWN
-    if min_dist == None: min_dist = args.MIN_DIST
-    buffer = args.MIN_DIST
-
-    # overlay a grid over the allowed region
-    cols = int( round( (right - left )/min_dist, 0)) - 1
-    rows = int( round( (down - up )/min_dist, 0)) - 1
-
-    # pick random locations from the grid
-    grid_indices = np.random.choice( rows*cols, num_robots, replace = False)
-    # convert grid locations back to robotarium coordinates
-    locations = []
-    for loc in grid_indices:
-        locations.append([left + buffer + ( (loc % cols) * min_dist ),\
-                            up + buffer + ( int(loc / cols) * min_dist ) ])
-
-    if robotarium_poses:
-        return convert_to_robotarium_poses(locations)
-
-    return locations
+    poses = generate_initial_conditions(num_locs, spacing=start_dist, width=width, height=height)
+    if spawn_left:
+        for i in range(len(poses[0])):
+            poses[0][i] -= (width/2 - thresh)
+            poses[2][i] = 0
+    else:
+        for i in range(len(poses[0])):
+            poses[0][i] += (width/2 - thresh)
+            poses[2][i] = 0
+    return poses
 
 def load_env_and_model(args, module_dir):
     ''' 
@@ -80,7 +67,7 @@ def load_env_and_model(args, module_dir):
                          map_location=torch.device('cpu'))
     input_dim = model_weights[list(model_weights.keys())[0]].shape[1]
 
-    actor = importlib.import_module(f'robotarium_gym.robotarium_env.{args.actor_file}')
+    actor = importlib.import_module(f'robotarium_gym.utilities.{args.actor_file}')
     actor = getattr(actor, args.actor_class)
     
     model = actor(input_dim, model_config)
@@ -113,7 +100,7 @@ def run_env(config, module_dir):
             actions = np.argmax(q_values.detach().numpy(), axis=1)
 
             obs, reward, done, _ = env.step(actions)
-            episodeReward += reward[0]
+            episodeReward += sum(reward)
             if done[0]:
                 episodeSteps = j+1
                 break

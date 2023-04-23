@@ -10,6 +10,9 @@ from utilities import *
 class roboEnv:
     def __init__(self, agents, args):
         self.args = args
+
+        #Agents are REQUIRED to at least have
+        #agent_poses, visualizer, num_robots _generate_step_goal_positions()
         self.agents = agents
 
         self.controller = Controller()
@@ -17,7 +20,7 @@ class roboEnv:
         self.episodes = 0
 
         # Figure showing and visualizing
-        self.visualizer = agents.visualizer
+        self.visualizer = self.agents.visualizer
         
 
     def reset(self):
@@ -51,9 +54,6 @@ class roboEnv:
                 self.visualizer.update_markers(self.robotarium, self.agents)
 
             self.robotarium.step()
-        
-        self.agents._update_tracking_and_locations(actions_)
-        return self.agents._generate_state_space()
     
     def _create_robotarium(self):
         '''
