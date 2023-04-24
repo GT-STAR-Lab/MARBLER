@@ -23,7 +23,7 @@ load_reward: 1
 unload_reward: 3
 goal_width: .5
 num_robots: 6
-show_figure_frequency: 1000 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 delta: 0.0 #If > 0, make sure that the agent can handle changing observation sizes
 num_neighbors: 5

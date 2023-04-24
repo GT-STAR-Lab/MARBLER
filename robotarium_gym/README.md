@@ -7,7 +7,7 @@ Must include the following methods:
 * `get_observation_space(self)`: Returns the observation space
 * `step(self, actions_)`: Takes a step. Should also call env.step(actions_). Returns [observations, rewards, done, info]
 * `reset(self)`: Resets the environment. Returns an observation
-* `_generate_step_goal_position(actions)`: Returns goal positions for each robot based on actions 
+* `_generate_step_goal_position(actions)`: Returns goal positions for each robot based on actions <br>
 And the following Class Variables and Objects:
 * `num_agents`: Integer, the number of agents in the scenario
 * `agent_poses`: 3 x num_agents array (first row is x poses, second is y poses, third is angle)

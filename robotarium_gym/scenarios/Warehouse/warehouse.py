@@ -69,6 +69,8 @@ class Warehouse(BaseEnv):
 
     def reset(self):
         self.episode_steps = 0
+        for a in self.agents:
+            a.loaded=False
         
         #Generate the agent locations based on the config
         width = self.args.RIGHT - self.args.LEFT
@@ -131,6 +133,7 @@ class Warehouse(BaseEnv):
             if a.loaded:             
                 if pos[0] < -1.5 + self.args.goal_width:
                     if a.goal == 'Green' and pos[1] > 0:
+                        rewards.append(self.args.unload_reward)
                         a.loaded = False
                     elif a.goal == 'Red' and pos[1] <= 0:
                         rewards.append(self.args.unload_reward)
