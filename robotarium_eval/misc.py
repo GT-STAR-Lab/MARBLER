@@ -86,32 +86,36 @@ def run_env(config, module_dir):
     obs = np.array(env.reset())
     n_agents = len(obs)
 
-    totalReward = 0
-    totalSteps = 0
-    for i in range(config.episodes):
-        episodeReward = 0
-        episodeSteps = 0
-        hs = np.array([np.zeros((model_config.hidden_dim, )) for i in range(n_agents)])
-        for j in range(config.max_episode_steps):      
-            if model_config.obs_agent_id: #Appends the agent id if obs_agent_id is true. TODO: support obs_last_action too
-                obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
+    totalReward = []
+    totalSteps = []
+    try:
+        for i in range(config.episodes):
+            episodeReward = 0
+            episodeSteps = 0
+            hs = np.array([np.zeros((model_config.hidden_dim, )) for i in range(n_agents)])
+            for j in range(config.max_episode_steps):      
+                if model_config.obs_agent_id: #Appends the agent id if obs_agent_id is true. TODO: support obs_last_action too
+                    obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
 
-            #Gets the q values and then the action from the q values
-            q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs))
-            actions = np.argmax(q_values.detach().numpy(), axis=1)
+                #Gets the q values and then the action from the q values
+                q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs))
+                actions = np.argmax(q_values.detach().numpy(), axis=1)
 
-            obs, reward, done, _ = env.step(actions)
-            episodeReward += reward[0]
-            if done[0]:
-                episodeSteps = j+1
-                break
-        if episodeSteps == 0:
-            episodeSteps = config.max_episode_steps
-        obs = np.array(env.reset())
-        print('Episode', i+1)
-        print('Episode reward:', episodeReward)
-        print('Episode steps:', episodeSteps)
-        totalReward += episodeReward
-        totalSteps += episodeSteps
-    print('\nTotal Reward:',totalReward)
-    print('Total Steps:', totalSteps)
+                obs, reward, done, _ = env.step(actions)
+                episodeReward += reward[0]
+                if done[0]:
+                    episodeSteps = j+1
+                    break
+            if episodeSteps == 0:
+                episodeSteps = config.max_episode_steps
+            obs = np.array(env.reset())
+            print('Episode', i+1)
+            print('Episode reward:', episodeReward)
+            print('Episode steps:', episodeSteps)
+            totalReward.append(episodeReward)
+            totalSteps.append(episodeSteps)
+    except Exception as error:
+        print(error)
+    finally:
+        print('\nTotal Reward:',totalReward, sum(totalReward))
+        print('Total Steps:', totalSteps, sum(totalSteps))
