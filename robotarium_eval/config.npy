@@ -10,13 +10,13 @@ actor_class: RNNAgent
 env_file: pcpAgents
 env_class: pcpAgents #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-episodes: 10 #Number of episodes to run for
+episodes: 7 #Number of episodes to run for
 
 #Arguments needed by the environment
 LEFT: -1.45
 RIGHT: 1.45
-UP: -0.9
-DOWN: .9
+UP: -0.95
+DOWN: .95
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
 MIN_DIST : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...

@@ -6,7 +6,7 @@
   "batch_size_run": 1,
   "buffer_cpu_only": true,
   "buffer_size": 50000,
-  "checkpoint_path": "results/models/maddpg_seed179926318_robotarium_gym:Warehouse-v0_2023-04-23 18:14:59.865244/",
+  "checkpoint_path": "results/models/maddpg_seed832861569_robotarium_gym:Warehouse-v0_2023-04-23 19:00:11.693071/",
   "critic_type": "maddpg_critic",
   "env": "gymma",
   "env_args": {
@@ -41,7 +41,7 @@
   "save_model": true,
   "save_model_interval": 50000,
   "save_replay": false,
-  "seed": 832861569,
+  "seed": 925931970,
   "standardise_returns": false,
   "standardise_rewards": true,
   "t_max": 2050000,

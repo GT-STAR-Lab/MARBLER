@@ -5,14 +5,11 @@ import time
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from controller import *
-from utilities import *
+from misc import *
 
 class roboEnv:
     def __init__(self, agents, args):
         self.args = args
-
-        #Agents are REQUIRED to at least have
-        #agent_poses, visualizer, num_robots _generate_step_goal_positions()
         self.agents = agents
 
         self.controller = Controller()
@@ -20,7 +17,7 @@ class roboEnv:
         self.episodes = 0
 
         # Figure showing and visualizing
-        self.visualizer = self.agents.visualizer
+        self.visualizer = agents.visualizer
         
 
     def reset(self):
@@ -46,7 +43,7 @@ class roboEnv:
             self.agents.agent_poses = self.robotarium.get_poses()
             # Uses the robotarium commands to get the velocities of each robot   
             # Only does this once every 10 steps because otherwise training is really slow 
-            if iterations % 10 == 0 or self.args.robotarium:   
+            if iterations % 10 == 0 or self.args.robotarium:                    
                 velocities = self.controller.set_velocities(self.agents.agent_poses, goals_)
                 self.robotarium.set_velocities(np.arange(self.agents.num_robots), velocities)
             

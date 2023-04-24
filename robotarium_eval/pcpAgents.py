@@ -6,47 +6,12 @@ import os
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
 from roboEnv import roboEnv
-from utilities import *
+from misc import *
 from visualize import *
+from base import BaseEnv
+from agent import Agent
 
-
-module_dir = os.path.dirname(__file__)
-config_path = os.path.join(module_dir, 'config.yaml')
-
-class Agent:
-    def __init__(self, index, sensing_radius, capture_radius):
-        self.index = index
-        self.sensing_radius = sensing_radius
-        self.capture_radius = capture_radius
-
-    def get_observation( self, state_space, agents):
-        '''
-            For each agent's observation-
-                Checks for all prey in the range of the current agent
-                Returns the closest prey if multiple agents in range
-            Returns: [agent_x_pos, agent_y_pos, sensed_prey_x_pose, sensed_prey_y_pose, sensing_radius, capture_radius]
-            array of dimension [1, OBS_DIM] 
-        '''
-        # distance from the closest prey in range
-        closest_prey = -1
-        # Iterate over all prey
-        for p in state_space['prey']:
-            # For each prey check if they are in range and get the distance
-            in_range, dist = is_close(state_space['poses'], self.index, p, self.sensing_radius)
-            # If the prey is in range, check if it is the closest till now
-            if in_range and (dist < closest_prey or closest_prey == -1):
-                prey_loc = p.reshape((1,2))[0]
-                closest_prey = dist
-        
-        # if no prey found in range
-        if closest_prey == -1:
-            prey_loc = [-5,-5]
-        
-        observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
-        return observation
-
-
-class pcpAgents:
+class pcpAgents(BaseEnv):
     def __init__(self, args):
         # Settings
         self.args = args
@@ -59,40 +24,33 @@ class pcpAgents:
         self.num_predators = args.predator
         self.num_capture = args.capture
         
-        self._initialize_agents(args)
-        self._initialize_actions_observations()
-
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
-        
-        self.visualizer = Visualize( self.args )
-        self.env = roboEnv(self, args)
 
-    def _initialize_agents(self, args):
-        '''
-        Initializes all agents and pushes them into a list - self.agents 
-        predators first and then capture agents
-        '''
+        #Initializes the agents
         self.agents = []
         # Initialize predator agents
         for i in range(self.num_predators):
-            self.agents.append( Agent(i, args.predator_radius, 0) )
+            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.action_w2id) )
         # Initialize capture agents
         for i in range(self.num_capture):
-            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius) )
+            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.action_w2id) )
 
-    def _initialize_actions_observations( self ):
+        #initializes the actions and observation spaces
         actions = []
-        observations = []
-        
+        observations = []      
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            ## This line seems too hacky. @Reza might want to look into it
+            #Each agent's observation is a tuple of size 6
             obs_dim = 6 * (self.args.num_neighbors + 1)
-            observations.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))
-        
+            #The lowest any observation will be is -5 (prey loc when can't see one), the highest is 3 (largest reasonable radius an agent will have)
+            observations.append(spaces.Box(low=-5, high=3, shape=(obs_dim,), dtype=np.float32))        
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
+
+        self.visualizer = Visualize( self.args )
+        self.env = roboEnv(self, args)
+             
 
     def _generate_step_goal_positions(self, actions):
         '''
@@ -101,17 +59,9 @@ class pcpAgents:
         returns an array of the robotarium positions that it is trying to reach
         '''
         goal = copy.deepcopy(self.agent_poses)
-        for i in range(self.num_robots):
-            if self.action_id2w[actions[i]] == 'left':
-                    goal[0][i] = max( goal[0][i] - self.args.MIN_DIST, self.args.LEFT)
-            elif self.action_id2w[actions[i]] == 'right':
-                    goal[0][i] = min( goal[0][i] + self.args.MIN_DIST, self.args.RIGHT)
-            elif self.action_id2w[actions[i]] == 'up':
-                    goal[1][i] = max( goal[1][i] - self.args.MIN_DIST, self.args.UP)
-            elif self.action_id2w[actions[i]] == 'down':
-                    goal[1][i] = min( goal[1][i] + self.args.MIN_DIST, self.args.DOWN)
-            else:
-                    continue #if 'stop' or 'capture' the agent i's pose does not change
+        for i, agent in enumerate(self.agents):
+            goal[:,i] = agent.generate_goal(goal[:,i], actions[i], self.args)
+        
         return goal
 
     def _update_tracking_and_locations(self, agent_actions):
@@ -158,8 +108,7 @@ class pcpAgents:
     
     def reset(self):
         '''
-        Runs an episode of the simulation
-        Episode will end based on what is returned in get_actions
+        Resets the simulation
         '''
         self.episode_steps = 0
         self.prey_locs = []
@@ -176,7 +125,7 @@ class pcpAgents:
         self.prey_loc = self.prey_loc[:2].T
         self.prey_captured = [False] * self.num_prey
         self.prey_sensed = [False] * self.num_prey
-
+        
         self.state_space = self._generate_state_space()
         self.env.reset()
         # TODO: clean the empty observation returning
@@ -191,7 +140,10 @@ class pcpAgents:
         self.episode_steps += 1
 
         # call the environment step function and get the updated state
-        updated_state = self.env.step(actions_)
+        self.env.step(actions_)
+        self._update_tracking_and_locations(actions_)
+        updated_state = self._generate_state_space()
+        
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
         rewards = self.get_rewards(updated_state)
@@ -201,7 +153,7 @@ class pcpAgents:
             updated_state['num_prey'] == 0:
             terminated = True             
         
-        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, [{}]*self.num_robots
+        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
 
     def get_action_space(self):
         return self.action_space
@@ -254,7 +206,3 @@ class pcpAgents:
         reward += self.args.time_penalty
         self.state_space = state_space
         return reward
-    
-    def render(self, mode='human'):
-        # Render your environment
-        pass
