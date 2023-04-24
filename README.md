@@ -1,14 +1,20 @@
-# Realistic Benchmarks for Collaborative Heterogeneous Multi-Robot Systems
+# MARBLER: Multi-Agent RL Benchmark and Learning Environment for the Robotarium
 Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 
-## Environment setup
-### Robotarium 
-- Github - https://github.com/robotarium/robotarium_python_simulator
+## Installation Instructions
+1. Create new Conda Environment: `conda create -n MARBLER python=3.8 && conda activate MARBLER`. 
+- Note that python 3.8 is only chosen to ensure compatitbility with EPyMARL.
+2. Download and Install the [Robotarium Python Simulator](https://github.com/robotarium/robotarium_python_simulator)
+3. Install our environment by running `pip insatll -e .` in this directory
+4. To test successfull installation run `python3 -m robotarium_gym.main` to run a pretrained model
 
-## Docs
-- [Task tracker and research doc](https://docs.google.com/document/d/1JLMaHwZFqbmhhwSzIGLDYleMH72C7DP57p80nDmEDt4/edit#)
-- [Presentation](https://docs.google.com/presentation/d/1bDh7Af0KFCIhdo_6cUrLfvN7096W5bZLdX2vQoauuEU/edit#slide=id.g1892c242234_0_0)
-
+## Training with EPyMARL
+1. Download and Install [EPyMARL](https://github.com/uoe-agents/epymarl)
+- In EPyMARL's `requirements.txt`, line 15 may need to be changed from `protobuf==3.6.1` to `protobuf`
+2. Train agents normally using our gym keys
+- For example: `python3 src/main.py --config=qmix --env-config=gymma with env_args.time_limit=1000 env_args.key="robotarium_gym:PredatorCapturePrey-v0")`
+- To train faster, ensure `robotarium` is False, `real_time` is False, and `show_figure_frequency` is large or -1 in the environment's `config.yaml`
+- Known error: if `env_args.time_limit<max_episode_steps`, EPyMARL will crash after the first episode
 
 ## Citations
 * Entire backend of the code comes from: 
