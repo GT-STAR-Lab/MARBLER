@@ -5,11 +5,11 @@ import yaml
 import os
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from roboEnv import roboEnv
-from misc import *
-from visualize import *
-from base import BaseEnv
-from agent import Agent
+from robotarium_gym.utilities.roboEnv import roboEnv
+from robotarium_gym.utilities.misc import *
+from robotarium_gym.scenarios.PredatorCapturePrey.visualize import *
+from robotarium_gym.scenarios.base import BaseEnv
+from robotarium_gym.scenarios.PredatorCapturePrey.agent import Agent
 
 class pcpAgents(BaseEnv):
     def __init__(self, args):

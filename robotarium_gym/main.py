@@ -1,6 +1,6 @@
 import yaml
 import os
-from misc import run_env, objectview
+from robotarium_gym.utilities.misc import run_env, objectview
 import argparse
 
 
@@ -10,7 +10,7 @@ def main():
     parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
     args = parser.parse_args()
 
-    config_path = "config.npy"# os.path.join(module_dir, "scenarios", args.scenario, "config.npy")
+    config_path = os.path.join(module_dir, "scenarios", args.scenario, "config.yaml")
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     config = objectview(config)
