@@ -163,15 +163,11 @@ class simple(BaseEnv):
         for agent in self.agents: 
             observations[agent.index] = agent.get_observation(state_space)    
         
-        full_observations = []
-        for i, agent in enumerate(self.agents):
-            full_observations.append(observations[agent.index])
-            
-        return full_observations
+        return observations[0]
 
     def get_rewards(self, state_space):
         '''
-        
+
         '''
         agent_loc = state_space['poses']
         reward = 0

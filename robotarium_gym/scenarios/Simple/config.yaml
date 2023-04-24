@@ -28,7 +28,7 @@ predator: 1
 predator_radius: .45
 capture: 0
 capture_radius: .45
-show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 delta: 0.0 #If > 0, make sure that the agent can handle changing observation sizes
 num_neighbors: 0
