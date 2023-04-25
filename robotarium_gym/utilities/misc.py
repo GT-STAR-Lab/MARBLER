@@ -98,7 +98,10 @@ def run_env(config, module_dir):
                     obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
 
                 #Gets the q values and then the action from the q values
-                q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs.T))
+                if 'NS' in config.actor_class:
+                    q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs.T))
+                else:
+                    q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs))
                 actions = np.argmax(q_values.detach().numpy(), axis=1)
 
                 obs, reward, done, _ = env.step(actions)
