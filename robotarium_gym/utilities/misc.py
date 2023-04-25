@@ -78,6 +78,7 @@ def load_env_and_model(args, module_dir):
     env_class = getattr(env_module, args.env_class)
     env = env_class(args)
 
+    model_config.shared_reward = args.shared_reward
     return env, model, model_config
 
 
@@ -102,10 +103,15 @@ def run_env(config, module_dir):
                     q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs.T))
                 else:
                     q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs))
+                    
                 actions = np.argmax(q_values.detach().numpy(), axis=1)
 
                 obs, reward, done, _ = env.step(actions)
-                episodeReward += reward[0]
+                
+                if model_config.shared_reward:
+                    episodeReward += reward[0]
+                else:
+                    episodeReward += sum(reward)
                 if done[0]:
                     episodeSteps = j+1
                     break

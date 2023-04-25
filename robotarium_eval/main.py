@@ -7,10 +7,10 @@ import argparse
 def main():
     module_dir = os.path.dirname(__file__)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
+    parser.add_argument('--scenario', type=str, default='Warehouse', help='scenario name')
     args = parser.parse_args()
 
-    config_path = "config.npy"# os.path.join(module_dir, "scenarios", args.scenario, "config.npy")
+    config_path = f"{args.scenario}_config.npy"# os.path.join(module_dir, "scenarios", args.scenario, "config.npy")
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
     config = objectview(config)
