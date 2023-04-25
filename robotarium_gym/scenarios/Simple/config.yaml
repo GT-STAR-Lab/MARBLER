@@ -11,6 +11,7 @@ env_file: simple
 env_class: simple #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
 episodes: 10 #Number of episodes to run for
+n_agents: 1
 
 #Arguments needed by the environment
 LEFT: -1.45

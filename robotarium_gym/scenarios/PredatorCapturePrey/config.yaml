@@ -1,15 +1,16 @@
 #Arguments needed by main.py
 scenario: PredatorCapturePrey #name of the folder inside scenarios
 
-model_config_file: qmix.mat
-model_file: qmix.tiff
+model_config_file: qmix_ns.mat
+model_file: qmix_ns.tiff
 
-actor_file: rnn_agent
-actor_class: RNNAgent
+actor_file: rnn_ns_agent
+actor_class: RNNNSAgent
 
 env_file: pcpAgents
 env_class: pcpAgents #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
+n_agents: 4
 episodes: 10 #Number of episodes to run for
 
 #Arguments needed by the environment

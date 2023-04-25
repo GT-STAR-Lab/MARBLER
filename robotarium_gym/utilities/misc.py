@@ -70,6 +70,7 @@ def load_env_and_model(args, module_dir):
     actor = importlib.import_module(f'robotarium_gym.utilities.{args.actor_file}')
     actor = getattr(actor, args.actor_class)
     
+    model_config.n_agents = args.n_agents
     model = actor(input_dim, model_config)
     model.load_state_dict(model_weights)
 
@@ -97,7 +98,7 @@ def run_env(config, module_dir):
                     obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
 
                 #Gets the q values and then the action from the q values
-                q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs))
+                q_values, hs = model(torch.Tensor(obs), torch.Tensor(hs.T))
                 actions = np.argmax(q_values.detach().numpy(), axis=1)
 
                 obs, reward, done, _ = env.step(actions)

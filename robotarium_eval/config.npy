@@ -10,7 +10,8 @@ actor_class: RNNAgent
 env_file: pcpAgents
 env_class: pcpAgents #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-episodes: 10 #Number of episodes to run for
+n_agents: 4
+episodes: 8 #Number of episodes to run for
 
 #Arguments needed by the environment
 LEFT: -1.45
