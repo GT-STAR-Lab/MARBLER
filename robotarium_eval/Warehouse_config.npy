@@ -10,7 +10,7 @@ actor_class: RNNNSAgent
 env_file: warehouse
 env_class: Warehouse #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-episodes: 10 #Number of episodes to run for
+episodes: 8 #Number of episodes to run for
 n_agents: 6
 shared_reward: False
 
