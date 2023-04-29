@@ -8,11 +8,15 @@ import robotarium_gym.utilities.roboEnv
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
-    parser.add_argument('--out_dir', type=str, default = '')
+    parser.add_argument('--name', type=str, default = '', help="Name to append to robotarium_submission")
     args = parser.parse_args()
 
-    if args.out_dir == '':
+    file_conversions = {"th":"tiff", "json":"mat", "yaml":"npy"}
+
+    if args.name == '':
         args.out_dir = f"robotarium_submission{int(time.time())}"
+    else:
+        args.out_dir = f"robotarium_submission{args.name}"
     os.mkdir(args.out_dir)
 
     base_path = os.path.dirname(robotarium_gym.main.__file__)
@@ -45,9 +49,8 @@ def main():
     for f in models:
         shutil.copy(f'{base_path}/scenarios/{args.scenario}/models/{f}', args.out_dir)
 
-    files = os.listdir(args.out_dir)
-    files = [x for x in files if x.endswith('.py')]
-    print(files)
+    #Fix the imports
+    files = [f'{args.out_dir}/{x}' for x in os.listdir(args.out_dir) if x.endswith('.py')]
     for f in files:
         with open(f, 'r') as file:
             data = file.read()
