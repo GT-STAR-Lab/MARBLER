@@ -1,22 +1,22 @@
 #Arguments needed by main.py
 scenario: Warehouse #name of the folder inside scenarios
 
-model_config_file: warehouse_vdn_ns.mat
-model_file: warehouse_vdn_ns.tiff
+model_config_file: warehouse_vdn.mat
+model_file: warehouse_vdn.tiff
 
-actor_file: rnn_ns_agent
-actor_class: RNNNSAgent
+actor_file: rnn_agent
+actor_class: RNNAgent
 
 env_file: warehouse
 env_class: Warehouse #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-episodes: 8 #Number of episodes to run for
+episodes: 6 #Number of episodes to run for
 n_agents: 6
 shared_reward: False
 
 #Arguments needed by the environment
-LEFT: -1.45
-RIGHT: 1.45
+LEFT: -1.4
+RIGHT: 1.4
 UP: -0.9
 DOWN: 0.9
 MIN_DIST : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...

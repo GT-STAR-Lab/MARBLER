@@ -89,11 +89,17 @@ class Warehouse(BaseEnv):
         self.episode_steps += 1
 
         #Robotarium actions and updating agent_poses all happen here
-        self.env.step(actions_) 
+        #Robotarium actions and updating agent_poses all happen here
+        message = self.env.step(actions_) 
 
-        rewards = self.get_rewards()
         obs = self.get_observations()
-        terminated = self.episode_steps > self.args.max_episode_steps #For this environment, episode only ends after timing out
+        if message == '':
+            rewards = self.get_rewards()       
+            terminated = self.episode_steps > self.args.max_episode_steps #For this environment, episode only ends after timing out
+        else:
+            print("Ending due to", message)
+            rewards = [-5]*self.num_robots
+            terminated = True
         
         return obs, rewards, [terminated]*self.num_robots, {}
     

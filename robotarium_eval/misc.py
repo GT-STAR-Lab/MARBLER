@@ -123,6 +123,7 @@ def run_env(config, module_dir):
             totalReward.append(episodeReward)
             totalSteps.append(episodeSteps)
     except Exception as error:
+        print("Exception:")
         print(error)
     finally:
         print('\nTotal Reward:',totalReward, sum(totalReward))

@@ -1,7 +1,7 @@
 from rps.utilities.misc import *
 import matplotlib.patches as patches
 
-from robotarium_gym.scenarios.base import BaseVisualization
+from base import BaseVisualization
 
 class Visualize(BaseVisualization):
     def __init__(self,args):

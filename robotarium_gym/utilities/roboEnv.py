@@ -1,3 +1,4 @@
+import copy
 import rps.robotarium as robotarium
 import numpy as np
 import random
@@ -15,6 +16,7 @@ class roboEnv:
         self.controller = Controller()
         self.first_run = True 
         self.episodes = 0
+        self.errors = {"collision":0, "boundary":0}
 
         # Figure showing and visualizing
         self.visualizer = agents.visualizer
@@ -36,7 +38,7 @@ class roboEnv:
         Take a step into the environment given the action
         '''
         goals_ = self.agents._generate_step_goal_positions(actions_)
-
+        message = ''
         # Considering one step to be equivalent to update_frequency iterations
         for iterations in range(self.args.update_frequency):
             # Get the actual position of the agents
@@ -51,6 +53,17 @@ class roboEnv:
                 self.visualizer.update_markers(self.robotarium, self.agents)
 
             self.robotarium.step()
+            if 'collision' in self.robotarium._errors and ('collision' not in self.errors or self.robotarium._errors['collision'] > self.errors['collision']):
+                message = 'collision'  
+            if 'boundary' in self.robotarium._errors and ('boundary' not in self.errors or self.robotarium._errors['boundary'] > self.errors['boundary']):
+                    if message == '':
+                        message = 'boundary'
+                    else:
+                        message += "_boundary"
+            self.errors = copy.copy(self.robotarium._errors)
+            if message != '':
+                return message
+        return ""
     
     def _create_robotarium(self):
         '''
