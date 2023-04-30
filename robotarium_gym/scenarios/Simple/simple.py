@@ -13,19 +13,19 @@ from robotarium_gym.scenarios.Simple.agent import Agent
 
 # An extremely simple environment for debugging the policy. 
 # It consists of multiple agent who already knows the prey's location 
-# and will get dense rewards.
+# and will get dense rewards. 
 
 class simple(BaseEnv):
     def __init__(self, args):
         # Settings
         self.args = args
 
-        self.num_robots = self.num_robots  
+        self.num_robots = args.num_agent
         self.agent_poses = None # robotarium convention poses
         self.prey_loc = None
 
-        self.num_prey = 1
-        self.num_agent = self.num_agent 
+        self.num_prey = 1 # There is only a single prey 
+        self.num_agent = args.num_agent 
         self.terminated = False
         self.near_prey = [False]*self.num_agent # stores if agent_id has found the prey
         self.prey_captured = [False]*self.num_agent # stores if agent_id has captured the prey
@@ -48,8 +48,8 @@ class simple(BaseEnv):
         
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            obs_dim = 4
-            observations.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))
+            self.agent_obs_dim = 4
+            observations.append(spaces.Box(low=-1.5, high=3, shape=(self.agent_obs_dim,), dtype=np.float32))
         
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
@@ -70,7 +70,7 @@ class simple(BaseEnv):
     def _update_tracking_and_locations(self, agent_actions):
         
         '''
-        Updates the environment's state. 
+        Updates the environment's state after interaction
         '''
 
         prey_location = self.prey_loc
@@ -110,6 +110,8 @@ class simple(BaseEnv):
         '''
         self.episode_steps = 0
         
+        print("Inside reset")
+
         # Reset flags for agents
         for i in range(self.num_agent):
             self.near_prey[i] = False
@@ -133,7 +135,7 @@ class simple(BaseEnv):
         # Reset state space
         self.state_space = self._generate_state_space()
         self.env.reset()
-        return [[0]*(self.agent_obs_dim * self.num_agent)] * self.num_robots
+        return [[0]*(self.agent_obs_dim)] * self.num_robots
         
     def step(self, actions_):
         '''

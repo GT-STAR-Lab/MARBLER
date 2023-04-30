@@ -12,7 +12,7 @@ class Visualize(BaseVisualization):
     
     def initialize_markers(self, robotarium, agents):
         '''
-        Initializes the marker for 
+        Initializes the marker for agents
         '''
         marker_size_agent = determine_marker_size(robotarium, self.predator_marker_size_m)
         marker_size_goal = determine_marker_size(robotarium,self.goal_marker_size_m)          
@@ -31,20 +31,23 @@ class Visualize(BaseVisualization):
     
     def update_markers(self, robotarium, agents ):
 
-        # TODO: May need to fix the color after agent is sensed
+        '''
+        Update visualization for the agents and prey for each frame
+        '''
         
+
         for i in range(agents.agent_poses.shape[1]):
             self.robot_markers[i].set_offsets(agents.agent_poses[:2,i].T)
             # Next two lines updates the marker sizes if the figure window size is changed. 
             self.robot_markers[i].set_sizes([determine_marker_size(robotarium, \
-                (self.predator_marker_size_m))])
+                (self.predator_marker_size_m if i < agents.num_predators else self.capture_marker_size_m))])
         
         # update prey marker color if sensed, remove if captured
         for i in range(agents.num_prey):
             if not agents.prey_captured[i]:
                 self.prey_markers[i].set_sizes([determine_marker_size(robotarium, self.goal_marker_size_m)])
                 # change color if sensed
-                if agents.prey_sensed[i]:
+                if agents.near_prey[i]:
                     self.prey_markers[i].set_facecolor(self.CM(4))
             else:
                 self.prey_markers[i].set_sizes([0,0])
