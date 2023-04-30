@@ -106,27 +106,34 @@ class simple(BaseEnv):
     
     def reset(self):
         '''
-        Runs an episode of the simulation
-        Episode will end based on what is returned in get_actions
+        Resets the environment before running the episode
         '''
         self.episode_steps = 0
-        self.prey_locs = []
-        self.num_prey = self.args.num_prey      
         
+        # Reset flags for agents
+        for i in range(self.num_agent):
+            self.near_prey[i] = False
+            self.prey_captured[i] = False
+        
+        # Specify the area is which agent will be spawne
         width = self.args.ROBOT_INIT_RIGHT_THRESH - self.args.LEFT
         height = self.args.DOWN - self.args.UP
-        self.agent_poses = generate_initial_locations(self.num_robots, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.START_DIST)
+        # Agent pose 
+        self.agent_poses = generate_initial_locations(self.num_robots, width, height,\
+             self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.START_DIST)
         
-        # Prey locations and tracking
+        # Prey location generation
         width = self.args.RIGHT - self.args.PREY_INIT_LEFT_THRESH
-        self.prey_loc = generate_initial_locations(self.num_prey, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.MIN_DIST, spawn_left=False)
+        self.prey_loc = generate_initial_locations(self.num_prey, width, height,\
+             self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.MIN_DIST, spawn_left=False)
         self.prey_loc = self.prey_loc[:2].T
+        
+        # Reset episode flag
         self.terminated = False
-        self.prey_captured = [False] * self.num_prey
-        self.prey_sensed = [False] * self.num_prey
+        # Reset state space
         self.state_space = self._generate_state_space()
         self.env.reset()
-        return [[0]*(4)] * self.num_robots
+        return [[0]*(self.agent_obs_dim * self.num_agent)] * self.num_robots
         
     def step(self, actions_):
         '''
@@ -137,7 +144,7 @@ class simple(BaseEnv):
         
         # Steps into the environment and applies the action 
         # to get an updated state.
-        self.env.step(actions_)
+        return_msg = self.env.step(actions_)
         self._update_tracking_and_locations(actions_)
         updated_state = self._generate_state_space()
         
@@ -146,10 +153,11 @@ class simple(BaseEnv):
         rewards = self.get_rewards(updated_state)
         
         # condition for checking for the whether the episode is terminated
-        if self.episode_steps > self.args.max_episode_steps:
+        if self.episode_steps > self.args.max_episode_steps or \
+            sum(np.array(self.prey_captured)) == self.num_agent:
             self.terminated = True             
         
-        return obs, [rewards]*self.num_robots, [self.terminated]*self.num_robots, {} 
+        return obs, rewards, [self.terminated]*self.num_agent, {} 
 
     def get_action_space(self):
         return self.action_space
@@ -163,7 +171,7 @@ class simple(BaseEnv):
         '''
         full_observations = []
         for agent in self.agents: 
-            full_observations[agent.index] = agent.get_observation(state_space)    
+            full_observations.append(agent.get_observation(state_space))    
         
         return full_observations
 
