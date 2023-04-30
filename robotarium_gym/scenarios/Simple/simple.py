@@ -12,7 +12,7 @@ from robotarium_gym.scenarios.base import BaseEnv
 from robotarium_gym.scenarios.Simple.agent import Agent
 
 # An extremely simple environment for debugging the policy. 
-# It consists of one agent who already knows the prey's location 
+# It consists of multiple agent who already knows the prey's location 
 # and will get dense rewards.
 
 class simple(BaseEnv):
@@ -20,48 +20,47 @@ class simple(BaseEnv):
         # Settings
         self.args = args
 
-        self.num_robots = 1  
+        self.num_robots = self.num_robots  
         self.agent_poses = None # robotarium convention poses
         self.prey_loc = None
 
         self.num_prey = 1
-        self.num_agent = 1 
+        self.num_agent = self.num_agent 
         self.terminated = False
+        self.near_prey = [False]*self.num_agent # stores if agent_id has found the prey
+        self.prey_captured = [False]*self.num_agent # stores if agent_id has captured the prey
 
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
-        self._initialize_agents(args)
-        self._initialize_actions_observations()
+        self.visualizer = Visualize( self.args ) # visualizer
+        self.env = roboEnv(self, args) # robotarium Environment
 
-        self.visualizer = Visualize( self.args )
-        self.env = roboEnv(self, args)
-
-    
-    def _initialize_agents(self, args):
-        '''
-        Initializes one agent with the same and pushes them into a list - self.agents 
-        '''
+        # Initialize the agents
         self.agents = []
-        self.agents.append( Agent(0, args.predator_radius, args.predator_radius, self.action_id2w, self.action_w2id) ) 
-    
-    def _initialize_actions_observations(self):
-        '''
-        Initialize action & observation space for the agents.
-        '''
+        for agent_id in range(self.num_agent):
+            self.agents.append( Agent(agent_id, args.predator_radius, args.predator_radius,\
+                 self.action_id2w, self.action_w2id) ) 
+
+        # Declaring action and observation space
         actions = []
         observations = []
         
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            obs_dim = 4 
+            obs_dim = 4
             observations.append(spaces.Box(low=-1.5, high=3, shape=(obs_dim,), dtype=np.float32))
         
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
+
     
     def _generate_step_goal_positions(self, actions):
         
+        '''
+        Applies the actions on each agent.
+        '''
+
         goal = copy.deepcopy(self.agent_poses)
         for i, agent in enumerate(self.agents):
             goal[:,i] = agent.generate_goal(goal[:,i], actions[i], self.args)
@@ -70,29 +69,29 @@ class simple(BaseEnv):
     
     def _update_tracking_and_locations(self, agent_actions):
         
-        # TODO: Simplify this function.
+        '''
+        Updates the environment's state. 
+        '''
 
-        # iterate over all the prey
-        for i, prey_location in enumerate(self.prey_loc):
-            #check if the prey has not been sensed
-            if not self.prey_sensed[i]:
-                # check if any of the agents has sensed it in the current step
-                for agent in self.agents:
-                    # check if any robot has it within its sensing radius
-                    if np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location) <= agent.sensing_radius:
-                        self.prey_sensed[i] = True
-                        break
-
-            if self.prey_sensed[i]:
-                # iterate over the agent_actions determined for each agent 
-                for a, action in enumerate(agent_actions):
-                    # check if any robot has no_action and has the prey within its capture radius if it is sensed already
-                    if self.action_id2w[action]=='no_action'\
-                        and np.linalg.norm(self.agent_poses[:2, self.agents[a].index] - prey_location) <= self.agents[a].capture_radius:
+        prey_location = self.prey_loc
+        
+        # Iterate over all the agents and check if they are in the vicinity of the prey
+        for i, agent in enumerate(self.agents):
+            # Check if an agent is in the vicinity of the prey and if that is the case, 
+            if not self.near_prey[i] and \
+                np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location) <= agent.sensing_radius:
+                    self.near_prey[i] = True # agent can capture now 
+                    # Now check the action for the agent and if it's no action, set the capture flag
+                    if self.action_id2w[agent_actions[i]]:
                         self.prey_captured[i] = True
-                        self.terminated = True
-                        break
 
+            # Check if prey has already been sensed and agent has not captured the prey
+            elif self.near_prey[i] == True and self.prey_captured == False:
+                # Now check the action for the agent and if it's no action, set the capture flag
+                if self.action_id2w[agent_actions[i]]:
+                    self.prey_captured[i] = True
+
+        
     def _generate_state_space(self):
         '''
         Generates a dictionary describing the state space of the robotarium
