@@ -95,7 +95,8 @@ class simple(BaseEnv):
     def _generate_state_space(self):
         '''
         Generates a dictionary describing the state space of the robotarium
-        x: Poses of all the robots
+         - poses: Poses of all the robots
+         - prey: Location of the prey 
         '''
         state_space = {}
         state_space['poses'] = self.agent_poses
@@ -157,20 +158,26 @@ class simple(BaseEnv):
         return self.observation_space
 
     def get_observations(self, state_space):
-        
-        observations = {}
+        '''
+        Return's the full observation for the agents.
+        '''
+        full_observations = []
         for agent in self.agents: 
-            observations[agent.index] = agent.get_observation(state_space)    
+            full_observations[agent.index] = agent.get_observation(state_space)    
         
-        return observations[0]
+        return full_observations
 
     def get_rewards(self, state_space):
         '''
-
+        Returns dense rewards based on the negative of the distance between the current agent & prey
         '''
         agent_loc = state_space['poses']
-        reward = 0
-        reward += -(np.sum(np.square(agent_loc[:2].reshape(1,2) - self.prey_loc.reshape(1,2))))
+        reward = []
+
+        for agent_id, agent in enumerate(self.agents):
+            reward.append(-(np.sum\
+                (np.square(agent_loc[:2, agent_id].reshape(1,2) - self.prey_loc.reshape(1,2)))))
+        
         self.state_space = state_space
         return reward
     
