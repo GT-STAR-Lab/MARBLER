@@ -5,8 +5,8 @@ import random
 import time
 
 #This file should stay as is when copied to robotarium_eval but local imports must be changed to work with training!
-from .controller import *
-from .misc import *
+from robotarium_gym.utilities.controller import *
+from robotarium_gym.utilities.misc import *
 
 class roboEnv:
     def __init__(self, agents, args):

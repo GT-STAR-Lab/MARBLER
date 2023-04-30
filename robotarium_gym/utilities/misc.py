@@ -59,22 +59,34 @@ def load_env_and_model(args, module_dir):
     ''' 
     Helper function to load a model from a specified scenario in args
     '''
-    model_config = os.path.join(module_dir, "scenarios", args.scenario, "models", args.model_config_file)
+    if module_dir == "":
+        model_config =args.model_config_file
+    else:
+        model_config = os.path.join(module_dir, "scenarios", args.scenario, "models", args.model_config_file)
     model_config = objectview(json.load(open(model_config)))
     model_config.n_actions = args.n_actions
 
-    model_weights = torch.load( os.path.join(module_dir,  "scenarios", args.scenario, "models", args.model_file),\
+    if module_dir == "":
+        model_weights = torch.load( args.model_file, map_location=torch.device('cpu'))
+    else:
+        model_weights = torch.load( os.path.join(module_dir,  "scenarios", args.scenario, "models", args.model_file),\
                          map_location=torch.device('cpu'))
     input_dim = model_weights[list(model_weights.keys())[0]].shape[1]
 
-    actor = importlib.import_module(f'robotarium_gym.utilities.{args.actor_file}')
+    if module_dir == "":
+        actor = importlib.import_module(args.actor_file)
+    else:
+        actor = importlib.import_module(f'robotarium_gym.utilities.{args.actor_file}')
     actor = getattr(actor, args.actor_class)
     
     model_config.n_agents = args.n_agents
     model = actor(input_dim, model_config)
     model.load_state_dict(model_weights)
 
-    env_module = importlib.import_module(f'robotarium_gym.scenarios.{args.scenario}.{args.env_file}')
+    if module_dir == "":
+        env_module = importlib.import_module(args.env_file)
+    else:
+        env_module = importlib.import_module(f'robotarium_gym.scenarios.{args.scenario}.{args.env_file}')
     env_class = getattr(env_module, args.env_class)
     env = env_class(args)
 

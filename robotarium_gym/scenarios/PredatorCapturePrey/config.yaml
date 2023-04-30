@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: PredatorCapturePrey #name of the folder inside scenarios
 
-model_config_file: qmix_ns.mat
-model_file: qmix_ns.tiff
+model_config_file: qmix_ns.json
+model_file: qmix_ns.th
 
 actor_file: rnn_ns_agent
 actor_class: RNNNSAgent
