@@ -11,7 +11,7 @@ def main():
     parser.add_argument('--name', type=str, default = '', help="Name to append to robotarium_submission")
     args = parser.parse_args()
 
-    file_conversions = {"th":"tiff", "json":"mat", "yaml":"npy"}
+    file_conversions = {".th":".tiff", ".json":".mat", ".yaml":".npy"}
 
     if args.name == '':
         args.out_dir = f"robotarium_submission{int(time.time())}"
@@ -31,7 +31,10 @@ def main():
     utils = os.listdir(f'{base_path}/utilities')
     utils.remove("__pycache__")
     for f in utils:
-        shutil.copy(f'{base_path}/utilities/{f}', args.out_dir)
+        out = f
+        for k in file_conversions:
+            out = out.replace(k, file_conversions[k])
+        shutil.copy(f'{base_path}/utilities/{f}', f"{args.out_dir}/{out}")
         if '.py' in f:
             possible_imports.append(f"robotarium_gym.utilities.{f[:-3]}")
 
@@ -40,22 +43,32 @@ def main():
     scenarios.remove("__pycache__")
     scenarios.remove("models")
     for f in scenarios:
-        shutil.copy(f'{base_path}/scenarios/{args.scenario}/{f}', args.out_dir)
+        out = f
+        for k in file_conversions:
+            out = out.replace(k, file_conversions[k])
+        shutil.copy(f'{base_path}/scenarios/{args.scenario}/{f}', f"{args.out_dir}/{out}")
         if '.py' in f:
             possible_imports.append(f"robotarium_gym.scenarios.{args.scenario}.{f[:-3]}")
 
     #Copy Scenario models
     models = os.listdir(f'{base_path}/scenarios/{args.scenario}/models')
     for f in models:
-        shutil.copy(f'{base_path}/scenarios/{args.scenario}/models/{f}', args.out_dir)
+        out = f
+        for k in file_conversions:
+            out = out.replace(k, file_conversions[k])
+        shutil.copy(f'{base_path}/scenarios/{args.scenario}/models/{f}', f"{args.out_dir}/{out}")
 
     #Fix the imports
-    files = [f'{args.out_dir}/{x}' for x in os.listdir(args.out_dir) if x.endswith('.py')]
+    files = [f'{args.out_dir}/{x}' for x in os.listdir(args.out_dir) if x.endswith('py')]
     for f in files:
         with open(f, 'r') as file:
             data = file.read()
+        if "main.py" in f:
+            data = data.replace('PredatorCapturePrey', args.scenario)
         for p in possible_imports:
             data = data.replace(p, p.split(".")[-1])
+        for k in file_conversions:
+            data = data.replace(k, file_conversions[k])
         with open(f, 'w') as file:
             file.write(data)
 

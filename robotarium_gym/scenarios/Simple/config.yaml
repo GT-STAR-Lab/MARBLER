@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: Simple #name of the folder inside scenarios
 
-model_config_file: maddpg.mat
-model_file: maddpg.tiff
+model_config_file: maddpg.json
+model_file: maddpg.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
