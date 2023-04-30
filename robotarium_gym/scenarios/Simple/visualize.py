@@ -35,19 +35,12 @@ class Visualize(BaseVisualization):
         Update visualization for the agents and prey for each frame
         '''
         
-
         for i in range(agents.agent_poses.shape[1]):
             self.robot_markers[i].set_offsets(agents.agent_poses[:2,i].T)
             # Next two lines updates the marker sizes if the figure window size is changed. 
-            self.robot_markers[i].set_sizes([determine_marker_size(robotarium, \
-                (self.predator_marker_size_m if i < agents.num_predators else self.capture_marker_size_m))])
+            self.robot_markers[i].set_sizes([determine_marker_size(robotarium, self.predator_marker_size_m)])
+            
+        # remove the prey if found by all the agents
+        if sum(np.array(agents.prey_captured)) == agents.num_agent:
+            self.prey_markers[i].set_sizes([0,0])
         
-        # update prey marker color if sensed, remove if captured
-        for i in range(agents.num_prey):
-            if not agents.prey_captured[i]:
-                self.prey_markers[i].set_sizes([determine_marker_size(robotarium, self.goal_marker_size_m)])
-                # change color if sensed
-                if agents.near_prey[i]:
-                    self.prey_markers[i].set_facecolor(self.CM(4))
-            else:
-                self.prey_markers[i].set_sizes([0,0])

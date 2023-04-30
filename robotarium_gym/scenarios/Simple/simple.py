@@ -24,7 +24,7 @@ class simple(BaseEnv):
         self.agent_poses = None # robotarium convention poses
         self.prey_loc = None
 
-        self.num_prey = 1 # There is only a single prey 
+        self.num_prey = 1 # There is only one prey  
         self.num_agent = args.num_agent 
         self.terminated = False
         self.near_prey = [False]*self.num_agent # stores if agent_id has found the prey
@@ -86,7 +86,7 @@ class simple(BaseEnv):
                         self.prey_captured[i] = True
 
             # Check if prey has already been sensed and agent has not captured the prey
-            elif self.near_prey[i] == True and self.prey_captured == False:
+            elif self.near_prey[i] == True and self.prey_captured[i] == False:
                 # Now check the action for the agent and if it's no action, set the capture flag
                 if self.action_id2w[agent_actions[i]]:
                     self.prey_captured[i] = True
