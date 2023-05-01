@@ -9,10 +9,46 @@ from robotarium_gym.utilities.roboEnv import roboEnv
 from robotarium_gym.utilities.misc import *
 from robotarium_gym.scenarios.Simple.visualize import *
 from robotarium_gym.scenarios.base import BaseEnv
-from robotarium_gym.scenarios.Simple.agent import Agent
+
+class Agent:
+    '''
+    This is a helper class for Simple
+    Keeps track of information for each agent and creates functions needed by each agent. 
+    '''
+
+    def __init__(self, index, action_id_to_word, action_word_to_id):
+        self.index = index
+        self.action_id2w = action_id_to_word
+        self.action_w2id = action_word_to_id
+        
+
+    def get_observation( self, state_space):
+        '''
+        Returns: [agent_x_pos, agent_y_pos]
+        array of dimension [1, OBS_DIM] 
+        '''
+        agent_pose = np.array(state_space['poses'][:, self.index ][:2])
+        return agent_pose
+    
+    def generate_goal(self, goal_pose, action, args):
+        '''
+        Generates the final position for each time-step for the individual
+        agent.
+        '''
+
+        if self.action_id2w[action] == 'left':
+                goal_pose[0] = max( goal_pose[0] - args.MIN_DIST, args.LEFT)
+        elif self.action_id2w[action] == 'right':
+                goal_pose[0] = min( goal_pose[0] + args.MIN_DIST, args.RIGHT)
+        elif self.action_id2w[action] == 'up':
+                goal_pose[1] = max( goal_pose[1] - args.MIN_DIST, args.UP)
+        elif self.action_id2w[action] == 'down':
+                goal_pose[1] = min( goal_pose[1] + args.MIN_DIST, args.DOWN)
+        
+        return goal_pose
 
 # An extremely simple environment for debugging the policy. 
-# It consists of multiple agent who already knows the prey's location 
+# It consists of multiple agent who already knows the goal's location 
 # and will get dense rewards. 
 
 class simple(BaseEnv):
@@ -20,15 +56,13 @@ class simple(BaseEnv):
         # Settings
         self.args = args
 
-        self.num_robots = args.num_agent
         self.agent_poses = None # robotarium convention poses
-        self.prey_loc = None
+        self.goal_loc = None
 
-        self.num_prey = 1 # There is only one prey  
-        self.num_agent = args.num_agent 
+        self.num_goal = 1 # There is only one goal
+        self.num_agent = args.n_agents 
+        self.num_robots = args.n_agents
         self.terminated = False
-        self.near_prey = [False]*self.num_agent # stores if agent_id has found the prey
-        self.prey_captured = [False]*self.num_agent # stores if agent_id has captured the prey
 
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
@@ -39,8 +73,7 @@ class simple(BaseEnv):
         # Initialize the agents
         self.agents = []
         for agent_id in range(self.num_agent):
-            self.agents.append( Agent(agent_id, args.predator_radius, args.predator_radius,\
-                 self.action_id2w, self.action_w2id) ) 
+            self.agents.append( Agent(agent_id, self.action_id2w, self.action_w2id) ) 
 
         # Declaring action and observation space
         actions = []
@@ -48,8 +81,8 @@ class simple(BaseEnv):
         
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            self.agent_obs_dim = 4
-            observations.append(spaces.Box(low=-1.5, high=3, shape=(self.agent_obs_dim,), dtype=np.float32))
+            self.obs_dim = 2 * (self.num_agent + 1) # Total agents + goal locations
+            observations.append(spaces.Box(low=-1.5, high=3, shape=(self.obs_dim,), dtype=np.float32))
         
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
@@ -66,42 +99,17 @@ class simple(BaseEnv):
             goal[:,i] = agent.generate_goal(goal[:,i], actions[i], self.args)
         
         return goal
-    
-    def _update_tracking_and_locations(self, agent_actions):
-        
-        '''
-        Updates the environment's state after interaction
-        '''
-
-        prey_location = self.prey_loc
-        
-        # Iterate over all the agents and check if they are in the vicinity of the prey
-        for i, agent in enumerate(self.agents):
-            # Check if an agent is in the vicinity of the prey and if that is the case, 
-            if not self.near_prey[i] and \
-                np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location) <= agent.sensing_radius:
-                    self.near_prey[i] = True # agent can capture now 
-                    # Now check the action for the agent and if it's no action, set the capture flag
-                    if self.action_id2w[agent_actions[i]]:
-                        self.prey_captured[i] = True
-
-            # Check if prey has already been sensed and agent has not captured the prey
-            elif self.near_prey[i] == True and self.prey_captured[i] == False:
-                # Now check the action for the agent and if it's no action, set the capture flag
-                if self.action_id2w[agent_actions[i]]:
-                    self.prey_captured[i] = True
-
         
     def _generate_state_space(self):
         '''
         Generates a dictionary describing the state space of the robotarium
          - poses: Poses of all the robots
-         - prey: Location of the prey 
+         - goal: Location of the goal 
         '''
         state_space = {}
         state_space['poses'] = self.agent_poses
-        state_space['prey'] = []
-        state_space['prey'].append(np.array(self.prey_loc).reshape((2,1)))
+        state_space['goal'] = []
+        state_space['goal'].append(np.array(self.goal_loc).reshape((2,1)))
         return state_space
     
     def reset(self):
@@ -110,11 +118,6 @@ class simple(BaseEnv):
         '''
         self.episode_steps = 0
         
-        # Reset flags for agents
-        for i in range(self.num_agent):
-            self.near_prey[i] = False
-            self.prey_captured[i] = False
-        
         # Specify the area is which agent will be spawne
         width = self.args.ROBOT_INIT_RIGHT_THRESH - self.args.LEFT
         height = self.args.DOWN - self.args.UP
@@ -122,18 +125,18 @@ class simple(BaseEnv):
         self.agent_poses = generate_initial_locations(self.num_robots, width, height,\
              self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.START_DIST)
         
-        # Prey location generation
+        # Goal location generation
         width = self.args.RIGHT - self.args.PREY_INIT_LEFT_THRESH
-        self.prey_loc = generate_initial_locations(self.num_prey, width, height,\
+        self.goal_loc = generate_initial_locations(1, width, height,\
              self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.MIN_DIST, spawn_left=False)
-        self.prey_loc = self.prey_loc[:2].T
+        self.goal_loc = self.goal_loc[:2].T
         
         # Reset episode flag
         self.terminated = False
         # Reset state space
         self.state_space = self._generate_state_space()
         self.env.reset()
-        return [[0]*(self.agent_obs_dim)] * self.num_robots
+        return [[0]*(self.obs_dim)] * self.num_agent
         
     def step(self, actions_):
         '''
@@ -145,17 +148,17 @@ class simple(BaseEnv):
         # Steps into the environment and applies the action 
         # to get an updated state.
         return_msg = self.env.step(actions_)
-        self._update_tracking_and_locations(actions_)
-        updated_state = self._generate_state_space()
+
+        if return_msg == '':
+            updated_state = self._generate_state_space()
+            rewards = self.get_rewards(updated_state)
+            self.terminated = self.episode_steps > self.args.max_episode_steps 
+        else:
+            print("Ending due to", return_msg)
+            rewards = [-5000]*self.num_robots
+            self.terminated = True
         
-        # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
-        rewards = self.get_rewards(updated_state)
-        
-        # condition for checking for the whether the episode is terminated
-        if self.episode_steps > self.args.max_episode_steps or \
-            sum(np.array(self.prey_captured)) == self.num_agent:
-            self.terminated = True             
         
         return obs, rewards, [self.terminated]*self.num_agent, {} 
 
@@ -169,22 +172,31 @@ class simple(BaseEnv):
         '''
         Return's the full observation for the agents.
         '''
-        full_observations = []
+        full_obs = []
+        
         for agent in self.agents: 
-            full_observations.append(agent.get_observation(state_space))    
+            full_obs.extend(agent.get_observation(state_space))    
+        
+        full_obs = np.array(full_obs)
+        full_observations = []
+
+        for agent in self.agents:
+            goal_loc = state_space['goal'][0].reshape(1,-1)
+            obs = np.concatenate((full_obs.reshape(1,-1), goal_loc), axis = 1)
+            full_observations.append(obs[0])
         
         return full_observations
 
     def get_rewards(self, state_space):
         '''
-        Returns dense rewards based on the negative of the distance between the current agent & prey
+        Returns dense rewards based on the negative of the distance between the current agent & goal
         '''
         agent_loc = state_space['poses']
         reward = []
 
         for agent_id, agent in enumerate(self.agents):
             reward.append(-(np.sum\
-                (np.square(agent_loc[:2, agent_id].reshape(1,2) - self.prey_loc.reshape(1,2)))))
+                (np.square(agent_loc[:2, agent_id].reshape(1,2) - self.goal_loc.reshape(1,2)))))
         
         self.state_space = state_space
         return reward
