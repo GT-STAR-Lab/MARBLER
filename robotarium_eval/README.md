@@ -1,5 +1,5 @@
 # How to Run on the Robotarium
-The Robotarium only accepts files, not folders. Additionally, the file types it accepts is limited.
+The Robotarium only accepts files, not folders. Additionally, the file types it accepts is limited. <br>
 Therefore, the `generate_submission` script was created <br>
 
 ## Usage
