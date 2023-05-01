@@ -110,8 +110,6 @@ class simple(BaseEnv):
         '''
         self.episode_steps = 0
         
-        print("Inside reset")
-
         # Reset flags for agents
         for i in range(self.num_agent):
             self.near_prey[i] = False

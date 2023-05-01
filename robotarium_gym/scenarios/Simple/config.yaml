@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: Simple #name of the folder inside scenarios
 
-model_config_file: maddpg.json
-model_file: maddpg.th
+model_config_file: maddpg.mat
+model_file: maddpg1.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
@@ -11,8 +11,9 @@ env_file: simple
 env_class: simple #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
 episodes: 10 #Number of episodes to run for
-num_agent: 3
-shared_reward: True
+num_agent: 4
+n_agents: 4
+shared_reward: False
 
 #Arguments needed by the environment
 LEFT: -1.45
@@ -26,11 +27,9 @@ START_DIST: 0.3 #Minimum distance the agents start from each other
 time_penalty: -0.05
 sense_reward: 1 
 capture_reward: 5
-predator: 1
 predator_radius: .3
-capture: 0
 capture_radius: .3
-show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 delta: 0.0 #If > 0, make sure that the agent can handle changing observation sizes
 num_neighbors: 0
