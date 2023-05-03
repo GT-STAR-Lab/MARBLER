@@ -13,7 +13,7 @@
   "env_args": {
     "key": "robotarium_gym:PredatorCapturePrey-v0",
     "pretrained_wrapper": null,
-    "time_limit": 82
+    "time_limit": 200
   },
   "epsilon_anneal_time": 50000,
   "epsilon_finish": 0.05,
@@ -49,15 +49,15 @@
   "save_model": true,
   "save_model_interval": 50000,
   "save_replay": false,
-  "seed": 989271705,
+  "seed": 188171802,
   "standardise_returns": false,
   "standardise_rewards": true,
-  "t_max": 5000000,
+  "t_max": 3050000,
   "target_update_interval_or_tau": 200,
   "test_greedy": true,
   "test_interval": 50000,
   "test_nepisode": 100,
-  "use_cuda": false,
-  "use_rnn": true,
+  "use_cuda": true,
+  "use_rnn": false,
   "use_tensorboard": false
 }

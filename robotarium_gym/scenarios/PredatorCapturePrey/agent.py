@@ -3,9 +3,9 @@ import numpy as np
 
 class Agent:
     '''
-    This is a helper class for pcpAgents
+    This is a helper class for PredatorCapturePrey
     Keeps track of information for each agent and creates functions needed by each agent
-    This could optionally all be done in pcpAgents
+    This could optionally all be done in PredatorCapturePrey
     '''
 
     def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, action_word_to_id):
@@ -39,19 +39,36 @@ class Agent:
         if closest_prey == -1:
             prey_loc = [-5,-5]
         
-        observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
+        observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc])
         return observation
     
     def generate_goal(self, goal_pose, action, args):
+        '''
+        Sets the agent's goal to step_dist in the direction of choice
+        Bounds the agent by args.LEFT, args.RIGHT, args.UP and args.DOWN
+        '''
         
         if self.action_id2w[action] == 'left':
-                goal_pose[0] = max( goal_pose[0] - args.MIN_DIST, args.LEFT)
+                goal_pose[0] = max( goal_pose[0] - args.step_dist, args.LEFT)
+                goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         elif self.action_id2w[action] == 'right':
-                goal_pose[0] = min( goal_pose[0] + args.MIN_DIST, args.RIGHT)
+                goal_pose[0] = min( goal_pose[0] + args.step_dist, args.RIGHT)
+                goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         elif self.action_id2w[action] == 'up':
-                goal_pose[1] = max( goal_pose[1] - args.MIN_DIST, args.UP)
+                goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
+                goal_pose[1] = max( goal_pose[1] - args.step_dist, args.UP)
         elif self.action_id2w[action] == 'down':
-                goal_pose[1] = min( goal_pose[1] + args.MIN_DIST, args.DOWN)
+                goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
+                goal_pose[1] = min( goal_pose[1] + args.step_dist, args.DOWN)
+        else:
+             goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
+             goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         
         return goal_pose
                 

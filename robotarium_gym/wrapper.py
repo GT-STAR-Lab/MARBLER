@@ -1,5 +1,5 @@
 from gym import spaces, Env
-from .scenarios.PredatorCapturePrey.pcpAgents import pcpAgents
+from .scenarios.PredatorCapturePrey.PredatorCapturePrey import PredatorCapturePrey
 from .scenarios.Warehouse.warehouse import Warehouse
 from .scenarios.Simple.simple import simple
 #Add other scenario imports here
@@ -7,17 +7,17 @@ from robotarium_gym.utilities.misc import objectview
 import os
 import yaml
 
-env_dict = {'PredatorCapturePrey': pcpAgents,
+env_dict = {'PredatorCapturePrey': PredatorCapturePrey,
             'Warehouse': Warehouse,
             'Simple': simple}
 
 
 class Wrapper(Env):
     def __init__(self, env_name, config_path):
-        """Creates a Gym Wrapper for PCPAgents
+        """Creates tje Gym Wrappers
 
         Args:
-            env (PCPAgents): A PCPAgents object to wrap in a gym env
+            env (PredatorCapturePrey): A PredatorCapturePrey object to wrap in a gym env
         """
         super().__init__()
         with open(config_path, 'r') as f:

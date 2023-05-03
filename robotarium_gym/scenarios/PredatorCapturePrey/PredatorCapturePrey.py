@@ -11,7 +11,7 @@ from robotarium_gym.scenarios.PredatorCapturePrey.visualize import *
 from robotarium_gym.scenarios.base import BaseEnv
 from robotarium_gym.scenarios.PredatorCapturePrey.agent import Agent
 
-class pcpAgents(BaseEnv):
+class PredatorCapturePrey(BaseEnv):
     def __init__(self, args):
         # Settings
         self.args = args
@@ -41,8 +41,8 @@ class pcpAgents(BaseEnv):
         observations = []      
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            #Each agent's observation is a tuple of size 6
-            obs_dim = 6 * (self.args.num_neighbors + 1)
+            #Each agent's observation is a tuple of size 4
+            obs_dim = 4 * (self.args.num_neighbors + 1)
             #The lowest any observation will be is -5 (prey loc when can't see one), the highest is 3 (largest reasonable radius an agent will have)
             observations.append(spaces.Box(low=-5, high=3, shape=(obs_dim,), dtype=np.float32))        
         self.action_space = spaces.Tuple(tuple(actions))
@@ -61,7 +61,6 @@ class pcpAgents(BaseEnv):
         goal = copy.deepcopy(self.agent_poses)
         for i, agent in enumerate(self.agents):
             goal[:,i] = agent.generate_goal(goal[:,i], actions[i], self.args)
-        
         return goal
 
     def _update_tracking_and_locations(self, agent_actions):
@@ -117,11 +116,11 @@ class pcpAgents(BaseEnv):
         # Agent locations
         width = self.args.ROBOT_INIT_RIGHT_THRESH - self.args.LEFT
         height = self.args.DOWN - self.args.UP
-        self.agent_poses = generate_initial_locations(self.num_robots, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.START_DIST)
+        self.agent_poses = generate_initial_locations(self.num_robots, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.start_dist)
         
         # Prey locations and tracking
         width = self.args.RIGHT - self.args.PREY_INIT_LEFT_THRESH
-        self.prey_loc = generate_initial_locations(self.num_prey, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.MIN_DIST, spawn_left=False)
+        self.prey_loc = generate_initial_locations(self.num_prey, width, height, self.args.ROBOT_INIT_RIGHT_THRESH, start_dist=self.args.step_dist, spawn_left=False)
         self.prey_loc = self.prey_loc[:2].T
         self.prey_captured = [False] * self.num_prey
         self.prey_sensed = [False] * self.num_prey
@@ -129,7 +128,7 @@ class pcpAgents(BaseEnv):
         self.state_space = self._generate_state_space()
         self.env.reset()
         # TODO: clean the empty observation returning
-        return [[0]*(6 * (self.args.num_neighbors + 1))] * self.num_robots
+        return [[0]*(4 * (self.args.num_neighbors + 1))] * self.num_robots
         
     def step(self, actions_):
         '''

@@ -6,13 +6,13 @@
   "batch_size_run": 1,
   "buffer_cpu_only": true,
   "buffer_size": 50000,
-  "checkpoint_path": "",
+  "checkpoint_path": "results/models/maddpg_seed233453883_robotarium_gym:PredatorCapturePrey-v0_2023-05-02 19:01:19.231290",
   "critic_type": "maddpg_critic",
   "env": "gymma",
   "env_args": {
-    "key": "robotarium_gym:RoboPCPGrid-v0",
+    "key": "robotarium_gym:PredatorCapturePrey-v0",
     "pretrained_wrapper": null,
-    "time_limit": 152
+    "time_limit": 200
   },
   "evaluate": false,
   "gamma": 0.99,
@@ -41,15 +41,15 @@
   "save_model": true,
   "save_model_interval": 50000,
   "save_replay": false,
-  "seed": 268189666,
+  "seed": 468400086,
   "standardise_returns": false,
   "standardise_rewards": true,
-  "t_max": 2050000,
+  "t_max": 3050000,
   "target_update_interval_or_tau": 200,
   "test_greedy": true,
   "test_interval": 50000,
   "test_nepisode": 100,
-  "use_cuda": false,
+  "use_cuda": true,
   "use_rnn": true,
   "use_tensorboard": false
 }

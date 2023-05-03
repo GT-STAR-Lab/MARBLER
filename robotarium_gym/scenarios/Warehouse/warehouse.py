@@ -22,14 +22,24 @@ class Agent:
         updates the goal_pose based on the agent's actions
         '''   
         if self.action_id2w[action] == 'left':
-                goal_pose[0] = max( goal_pose[0] - args.MIN_DIST, args.LEFT)
+                goal_pose[0] = max( goal_pose[0] - args.step_dist, args.LEFT)
         elif self.action_id2w[action] == 'right':
-                goal_pose[0] = min( goal_pose[0] + args.MIN_DIST, args.RIGHT)
+                goal_pose[0] = min( goal_pose[0] + args.step_dist, args.RIGHT)
         elif self.action_id2w[action] == 'up':
-                goal_pose[1] = max( goal_pose[1] - args.MIN_DIST, args.UP)
+                goal_pose[1] = max( goal_pose[1] - args.step_dist, args.UP)
         elif self.action_id2w[action] == 'down':
-                goal_pose[1] = min( goal_pose[1] + args.MIN_DIST, args.DOWN)
+                goal_pose[1] = min( goal_pose[1] + args.step_dist, args.DOWN)
         
+        #This is to handle some edge cases
+        if goal_pose[0] < args.LEFT:
+             goal_pose[0] = args.LEFT
+        if goal_pose[0] > args.RIGHT:
+             goal_pose[0] = args.RIGHT
+        if goal_pose[1] < args.UP:
+             goal_pose[1] = args.UP
+        if goal_pose[1] > args.DOWN:
+             goal_pose[1] = args.DOWN
+
         return goal_pose
 
 class Warehouse(BaseEnv):
@@ -76,7 +86,7 @@ class Warehouse(BaseEnv):
         width = self.args.RIGHT - self.args.LEFT
         height = self.args.DOWN - self.args.UP
         #Agents can spawn anywhere in the Robotarium between UP, DOWN, LEFT and RIGHT for this scenario
-        self.agent_poses = generate_initial_conditions(self.num_robots, spacing=self.args.START_DIST, width=width, height=height)
+        self.agent_poses = generate_initial_conditions(self.num_robots, spacing=self.args.start_dist, width=width, height=height)
         #Adjusts the poses based on the config
         self.agent_poses[0] += (1.5 + self.args.LEFT)/2
         self.agent_poses[0] -= (1.5 - self.args.RIGHT)/2

@@ -1,14 +1,14 @@
 #Arguments needed by main.py
 scenario: PredatorCapturePrey #name of the folder inside scenarios
 
-model_config_file: qmix_ns.json
-model_file: qmix_ns.th
+model_config_file: maddpg.json
+model_file: maddpg.th
 
-actor_file: rnn_ns_agent
-actor_class: RNNNSAgent
+actor_file: rnn_agent
+actor_class: RNNAgent
 
-env_file: pcpAgents
-env_class: pcpAgents #This needs to have all of the functionalities of a gym to work
+env_file: PredatorCapturePrey
+env_class: PredatorCapturePrey #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
 n_agents: 4
 episodes: 10 #Number of episodes to run for
@@ -16,14 +16,14 @@ shared_reward: True
 
 #Arguments needed by the environment
 #The follow four arguments are the boundaries in the Robotarium that the robots are allowed to traverse to
-LEFT: -1.35
-RIGHT: 1.35
-UP: -0.85
-DOWN: .85
+LEFT: -1.4
+RIGHT: 1.4
+UP: -0.9
+DOWN: .9
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
-MIN_DIST : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
-START_DIST: 0.3 #Minimum distance the agents start from each other
+step_dist : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
+start_dist: 0.3 #Minimum distance the agents start from each other
 time_penalty: -0.05
 sense_reward: 1 
 capture_reward: 5

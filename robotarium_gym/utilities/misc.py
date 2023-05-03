@@ -35,6 +35,7 @@ def convert_to_robotarium_poses(locations):
     poses = np.array(locations)
     N = poses.shape[0]
     return np.vstack((poses.T, np.zeros(N)))
+
 class objectview(object):
     def __init__(self, d):
         self.__dict__ = d

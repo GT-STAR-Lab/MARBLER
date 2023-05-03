@@ -6,7 +6,11 @@ Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 - Note that python 3.8 is only chosen to ensure compatitbility with EPyMARL.
 2. Download and Install the [Robotarium Python Simulator](https://github.com/robotarium/robotarium_python_simulator)
 3. Install our environment by running `pip insatll -e .` in this directory
-4. To test successfull installation run `python3 -m robotarium_gym.main` to run a pretrained model
+4. To test successfull installation, run `python3 -m robotarium_gym.main` to run a pretrained model
+
+## Usage
+* To look at current scenarios or create new ones, look at the README in robotarium_gym
+* To upload the agents to the Robotarium, look at the README in robotarium_eval
 
 ## Training with EPyMARL
 1. Download and Install [EPyMARL](https://github.com/uoe-agents/epymarl)
@@ -15,6 +19,11 @@ Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 - For example: `python3 src/main.py --config=qmix --env-config=gymma with env_args.time_limit=1000 env_args.key="robotarium_gym:PredatorCapturePrey-v0")`
 - To train faster, ensure `robotarium` is False, `real_time` is False, and `show_figure_frequency` is large or -1 in the environment's `config.yaml`
 - Known error: if `env_args.time_limit<max_episode_steps`, EPyMARL will crash after the first episode
+3. Copy the trained weights to the models folder for the scenario that was trained
+- Requires the agent.th file (location should be printed in the cout of the terminal the model was trained in, typically in EPyMARL/results/models/...)
+- Requires the config.json file (typically in EPyMARL/results/algorithm_name/gym:scenario/...)
+4. Update the scenario's config.yaml to use the newly trained agents
+
 
 ## Citations
 * Entire backend of the code comes from: 
