@@ -44,3 +44,7 @@ class Wrapper(Env):
     
     def get_observation_space(self):
         return self.env.get_observation_space()
+        
+    def get_adj_matrix(self):
+        """Returns the adjacency matrix of the environment """
+        return self.env.get_adj_matrix()

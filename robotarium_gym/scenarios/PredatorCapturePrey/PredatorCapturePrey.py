@@ -50,6 +50,7 @@ class PredatorCapturePrey(BaseEnv):
 
         self.visualizer = Visualize( self.args )
         self.env = roboEnv(self, args)
+        self.adj_matrix = 1-np.identity(self.num_robots, dtype=int)
              
 
     def _generate_step_goal_positions(self, actions):

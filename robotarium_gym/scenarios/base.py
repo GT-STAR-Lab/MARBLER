@@ -24,6 +24,9 @@ class BaseEnv(object):
     def render(self, mode='human'):
         #This isn't really used in our environments
         pass
+       
+    def get_adj_matrix(self):
+        return self.adj_matrix
     
     def _generate_step_goal_positions(self, actions):
         #Must return goal locations for each agent
