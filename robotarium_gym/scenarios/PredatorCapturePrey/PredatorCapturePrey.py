@@ -154,7 +154,7 @@ class PredatorCapturePrey(BaseEnv):
         if return_message != '':
             print("Ending due to",return_message)
             terminated =  True
-            rewards = -30
+            rewards = -5
         else:    
             rewards = self.get_rewards(updated_state)
             

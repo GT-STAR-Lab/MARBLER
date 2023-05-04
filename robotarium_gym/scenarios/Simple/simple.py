@@ -38,23 +38,26 @@ class Agent:
 
         if self.action_id2w[action] == 'left':
                 goal_pose[0] = max( goal_pose[0] - args.step_dist, args.LEFT)
+                goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         elif self.action_id2w[action] == 'right':
                 goal_pose[0] = min( goal_pose[0] + args.step_dist, args.RIGHT)
+                goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         elif self.action_id2w[action] == 'up':
+                goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
                 goal_pose[1] = max( goal_pose[1] - args.step_dist, args.UP)
         elif self.action_id2w[action] == 'down':
+                goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
                 goal_pose[1] = min( goal_pose[1] + args.step_dist, args.DOWN)
+        else:
+             goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
+             goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         
-        #This is to handle some edge cases
-        if goal_pose[0] < args.LEFT:
-             goal_pose[0] = args.LEFT
-        if goal_pose[0] > args.RIGHT:
-             goal_pose[0] = args.RIGHT
-        if goal_pose[1] < args.UP:
-             goal_pose[1] = args.UP
-        if goal_pose[1] > args.DOWN:
-             goal_pose[1] = args.DOWN
-
         return goal_pose
 
 # An extremely simple environment for debugging the policy. 
