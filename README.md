@@ -16,7 +16,7 @@ Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 1. Download and Install [EPyMARL](https://github.com/uoe-agents/epymarl)
 - In EPyMARL's `requirements.txt`, line 15 may need to be changed from `protobuf==3.6.1` to `protobuf`
 2. Train agents normally using our gym keys
-- For example: `python3 src/main.py --config=qmix --env-config=gymma with env_args.time_limit=1000 env_args.key="robotarium_gym:PredatorCapturePrey-v0")`
+- For example: `python3 src/main.py with alg_yaml=qmix env-yaml=gymma env_args.time_limit=1000 env_args.key="robotarium_gym:PredatorCapturePrey-v0"`
 - To train faster, ensure `robotarium` is False, `real_time` is False, and `show_figure_frequency` is large or -1 in the environment's `config.yaml`
 - Known error: if `env_args.time_limit<max_episode_steps`, EPyMARL will crash after the first episode
 3. Copy the trained weights to the models folder for the scenario that was trained
