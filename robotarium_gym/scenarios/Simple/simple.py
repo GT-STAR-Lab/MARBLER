@@ -158,18 +158,17 @@ class simple(BaseEnv):
         # Steps into the environment and applies the action 
         # to get an updated state.
         return_msg = self.env.step(actions_)
+        updated_state = self._generate_state_space()
+        obs     = self.get_observations(updated_state)
 
         if return_msg == '':
-            updated_state = self._generate_state_space()
             rewards = self.get_rewards(updated_state)
             self.terminated = self.episode_steps > self.args.max_episode_steps 
         else:
             print("Ending due to", return_msg)
             rewards = [-5000]*self.num_robots
             self.terminated = True
-        
-        obs     = self.get_observations(updated_state)
-        
+                
         return obs, rewards, [self.terminated]*self.num_agent, {} 
 
     def get_action_space(self):
