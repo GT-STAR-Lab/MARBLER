@@ -89,7 +89,7 @@ class ArcticTransport(BaseEnv):
         self.messages[1] = actions_[1] % 4
 
         obs = self.get_observations()
-        if message == '':
+        if self.args.penalize_violations and message == '':
             reward = self.get_reward()       
             terminated = self.episode_steps > self.args.max_episode_steps
             if not terminated:
@@ -129,7 +129,7 @@ class ArcticTransport(BaseEnv):
     def get_cell_from_pose(self,pose):
         cell = [-int((pose[1] - 1) / .25), int((pose[0] + 1.5) / .25)]
         cell[0] = 0 if cell[0] < 0 else 7 if cell[0] > 7 else cell[0]
-        cell[1] = 0 if cell[1] < 0 else 11 if cell[0] > 11 else cell[1]
+        cell[1] = 0 if cell[1] < 0 else 11 if cell[1] > 11 else cell[1]
         return cell
 
     def _generate_step_goal_positions(self, actions):

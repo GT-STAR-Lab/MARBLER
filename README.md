@@ -5,7 +5,7 @@ Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 1. Create new Conda Environment: `conda create -n MARBLER python=3.8 && conda activate MARBLER`. 
 - Note that python 3.8 is only chosen to ensure compatitbility with EPyMARL.
 2. Download and Install the [Robotarium Python Simulator](https://github.com/robotarium/robotarium_python_simulator)
-3. Install our environment by running `pip insatll -e .` in this directory
+3. Install our environment by running `pip install -e .` in this directory
 4. To test successfull installation, run `python3 -m robotarium_gym.main` to run a pretrained model
 
 ## Usage

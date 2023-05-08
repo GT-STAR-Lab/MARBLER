@@ -151,7 +151,7 @@ class PredatorCapturePrey(BaseEnv):
         
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
-        if return_message != '':
+        if self.args.penalize_violations and return_message != '':
             print("Ending due to",return_message)
             terminated =  True
             rewards = -5

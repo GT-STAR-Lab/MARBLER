@@ -88,7 +88,7 @@ class Agent:
             elif self.pixel_type == 1:
                 step_dist = args.fast_step
             elif self.pixel_type == 2:
-                step_dist = args.normal_step
+                step_dist = args.slow_step
             else:
                 step_dist = args.normal_step
 

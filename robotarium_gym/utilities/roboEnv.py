@@ -12,8 +12,11 @@ class roboEnv:
     def __init__(self, agents, args):
         self.args = args
         self.agents = agents
-
-        self.controller = Controller()
+        print(self.args)
+        if "barrier_certificate" in self.args.__dict__.keys():
+            self.controller = Controller(self.args.barrier_certificate)
+        else:
+            self.controller = Controller()
         self.first_run = True 
         self.episodes = 0
         self.errors = {"collision":0, "boundary":0}
