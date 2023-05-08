@@ -89,7 +89,7 @@ class ArcticTransport(BaseEnv):
         self.messages[1] = actions_[1] % 4
 
         obs = self.get_observations()
-        if self.args.penalize_violations and message == '':
+        if not self.args.penalize_violations or message == '':
             reward = self.get_reward()       
             terminated = self.episode_steps > self.args.max_episode_steps
             if not terminated:

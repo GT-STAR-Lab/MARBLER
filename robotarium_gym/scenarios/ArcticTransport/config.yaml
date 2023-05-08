@@ -22,7 +22,7 @@ max_episode_steps: 60
 update_frequency: 39
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
 barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
-penalize_violations: True #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
+penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
 
 #Arguments needed by this scenario
 LEFT: -1.40
