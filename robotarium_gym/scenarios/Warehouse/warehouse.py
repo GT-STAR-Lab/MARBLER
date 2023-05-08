@@ -23,29 +23,32 @@ class Agent:
         '''   
         if self.action_id2w[action] == 'left':
                 goal_pose[0] = max( goal_pose[0] - args.step_dist, args.LEFT)
+                goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         elif self.action_id2w[action] == 'right':
                 goal_pose[0] = min( goal_pose[0] + args.step_dist, args.RIGHT)
+                goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         elif self.action_id2w[action] == 'up':
+                goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
                 goal_pose[1] = max( goal_pose[1] - args.step_dist, args.UP)
         elif self.action_id2w[action] == 'down':
+                goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
                 goal_pose[1] = min( goal_pose[1] + args.step_dist, args.DOWN)
+        else:
+             goal_pose[0] = args.LEFT if goal_pose[0] < args.LEFT else \
+                      args.RIGHT if goal_pose[0] > args.RIGHT else goal_pose[0]
+             goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
+                      args.DOWN if goal_pose[1] > args.DOWN else goal_pose[1]
         
-        #This is to handle some edge cases
-        if goal_pose[0] < args.LEFT:
-             goal_pose[0] = args.LEFT
-        if goal_pose[0] > args.RIGHT:
-             goal_pose[0] = args.RIGHT
-        if goal_pose[1] < args.UP:
-             goal_pose[1] = args.UP
-        if goal_pose[1] > args.DOWN:
-             goal_pose[1] = args.DOWN
-
         return goal_pose
 
 class Warehouse(BaseEnv):
     def __init__(self, args):
         self.args = args
-        self.num_robots = self.args.num_robots
+        self.num_robots = self.args.n_agents
         self.agent_poses = None
 
         #Agent agent's observation is [pos_x,pos_y,loaded] where loaded is a bool
@@ -74,7 +77,7 @@ class Warehouse(BaseEnv):
         
         self.visualizer = Visualize(self.args) #needed for Robotarium renderings
         #Env impliments the robotarium backend
-        #It expects to have access to agent_poses, visualizer, num_agents and _generate_step_goal_positions
+        #It expects to have access to agent_poses, visualizer, num_robots and _generate_step_goal_positions
         self.env = roboEnv(self, args)  
         self.adj_matrix = 1-np.identity(self.num_robots, dtype=int)
 
@@ -103,7 +106,7 @@ class Warehouse(BaseEnv):
         message = self.env.step(actions_) 
 
         obs = self.get_observations()
-        if message == '':
+        if message == '' or not self.args.penalize_violations:
             rewards = self.get_rewards()       
             terminated = self.episode_steps > self.args.max_episode_steps #For this environment, episode only ends after timing out
         else:
