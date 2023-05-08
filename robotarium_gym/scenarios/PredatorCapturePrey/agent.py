@@ -8,12 +8,13 @@ class Agent:
     This could optionally all be done in PredatorCapturePrey
     '''
 
-    def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, action_word_to_id):
+    def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, action_word_to_id, capability_aware):
         self.index = index
         self.sensing_radius = sensing_radius
         self.capture_radius = capture_radius
         self.action_id2w = action_id_to_word
         self.action_w2id = action_word_to_id
+        self.capability_aware = capability_aware
         
 
     def get_observation( self, state_space, agents):
@@ -39,7 +40,10 @@ class Agent:
         if closest_prey == -1:
             prey_loc = [-5,-5]
         
-        observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc])
+        if self.capability_aware:
+            observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
+        else:
+            observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc])
         return observation
     
     def generate_goal(self, goal_pose, action, args):
@@ -47,7 +51,7 @@ class Agent:
         Sets the agent's goal to step_dist in the direction of choice
         Bounds the agent by args.LEFT, args.RIGHT, args.UP and args.DOWN
         '''
-        
+
         if self.action_id2w[action] == 'left':
                 goal_pose[0] = max( goal_pose[0] - args.step_dist, args.LEFT)
                 goal_pose[1] = args.UP if goal_pose[1] < args.UP else \

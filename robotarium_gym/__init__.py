@@ -4,7 +4,8 @@ import os
 _particles = {
     "PredatorCapturePrey": "PredatorCapturePrey-v0",
     "Warehouse": "Warehouse-v0",
-    "Simple": "Simple-v0"
+    "Simple": "Simple-v0",
+    "ArcticTransport": "ArcticTransport-v0"
 }
 
 for scenario_name, gymkey in _particles.items():

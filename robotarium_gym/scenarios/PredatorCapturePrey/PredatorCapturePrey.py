@@ -27,22 +27,27 @@ class PredatorCapturePrey(BaseEnv):
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
+        if self.args.capability_aware:
+            self.agent_obs_dim = 6
+        else:
+            self.agent_obs_dim = 4
+
         #Initializes the agents
         self.agents = []
         # Initialize predator agents
         for i in range(self.num_predators):
-            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.action_w2id) )
+            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.action_w2id, self.args.capability_aware) )
         # Initialize capture agents
         for i in range(self.num_capture):
-            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.action_w2id) )
+            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.action_w2id, self.args.capability_aware) )
 
         #initializes the actions and observation spaces
         actions = []
         observations = []      
         for agent in self.agents:
             actions.append(spaces.Discrete(5))
-            #Each agent's observation is a tuple of size 4
-            obs_dim = 4 * (self.args.num_neighbors + 1)
+            #Each agent's observation is a tuple of size self.agent_obs_dim
+            obs_dim = self.agent_obs_dim * (self.args.num_neighbors + 1)
             #The lowest any observation will be is -5 (prey loc when can't see one), the highest is 3 (largest reasonable radius an agent will have)
             observations.append(spaces.Box(low=-5, high=3, shape=(obs_dim,), dtype=np.float32))        
         self.action_space = spaces.Tuple(tuple(actions))
@@ -128,7 +133,7 @@ class PredatorCapturePrey(BaseEnv):
         self.state_space = self._generate_state_space()
         self.env.reset()
         # TODO: clean the empty observation returning
-        return [[0]*(4 * (self.args.num_neighbors + 1))] * self.num_robots
+        return [[0]*(self.agent_obs_dim * (self.args.num_neighbors + 1))] * self.num_robots
         
     def step(self, actions_):
         '''
@@ -146,10 +151,10 @@ class PredatorCapturePrey(BaseEnv):
         
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
-        if return_message != '':
+        if self.args.penalize_violations and return_message != '':
             print("Ending due to",return_message)
             terminated =  True
-            rewards = -30
+            rewards = -5
         else:    
             rewards = self.get_rewards(updated_state)
             
