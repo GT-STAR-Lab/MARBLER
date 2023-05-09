@@ -105,7 +105,7 @@ class Warehouse(BaseEnv):
         message = self.env.step(actions_) 
 
         obs = self.get_observations()
-        if message == '' or not self.args.penalize_violations:
+        if message == '':
             rewards = self.get_rewards()       
             terminated = self.episode_steps > self.args.max_episode_steps #For this environment, episode only ends after timing out
         else:

@@ -164,7 +164,7 @@ class simple(BaseEnv):
         updated_state = self._generate_state_space()
         obs     = self.get_observations(updated_state)
 
-        if return_msg == '' or not self.args.penalize_violations:
+        if return_msg == '':
             rewards = self.get_rewards(updated_state)
             self.terminated = self.episode_steps > self.args.max_episode_steps 
         else:
