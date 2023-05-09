@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: Simple #name of the folder inside scenarios
 
-model_config_file: maddpg.json
-model_file: maddpg.th
+model_config_file: qmix.json
+model_file: qmix.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
@@ -21,7 +21,7 @@ UP: -0.9
 DOWN: .9
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
-step_dist : 0.5 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
+step_dist : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
 start_dist: 0.3 #Minimum distance the agents start from each other
 reward_scaler: 0.1
 show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
