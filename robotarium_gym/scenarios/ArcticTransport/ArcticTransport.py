@@ -50,6 +50,7 @@ class ArcticTransport(BaseEnv):
         #Env impliments the robotarium backend
         #It expects to have access to agent_poses, visualizer, num_robots and _generate_step_goal_positions
         self.env = roboEnv(self, args)  
+        self.adj_matrix = 1-np.identity(self.num_robots, dtype=int)
 
     def reset(self):
         self.episode_steps = 0
