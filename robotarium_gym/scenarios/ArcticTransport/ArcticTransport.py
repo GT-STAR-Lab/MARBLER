@@ -95,7 +95,7 @@ class ArcticTransport(BaseEnv):
             if not terminated:
                 terminated = True
                 for a in self.agents:
-                    if a.type != 'drone' and a.pixel_type != 3:
+                    if a.type != 'drone' and not a.reached_goal:
                         terminated = False
                         break
         else:
