@@ -169,7 +169,7 @@ class simple(BaseEnv):
             self.terminated = self.episode_steps > self.args.max_episode_steps 
         else:
             print("Ending due to", return_msg)
-            rewards = [-50]*self.num_robots
+            rewards = [-5]*self.num_robots
             self.terminated = True
                 
         return obs, rewards, [self.terminated]*self.num_agent, {} 
