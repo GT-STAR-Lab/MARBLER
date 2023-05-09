@@ -3,6 +3,7 @@ import os
 
 _particles = {
     "PredatorCapturePrey": "PredatorCapturePrey-v0",
+    "PredatorCapturePreyGNN": "PredatorCapturePreyGNN-v0",
     "Warehouse": "Warehouse-v0",
     "Simple": "Simple-v0",
     "ArcticTransport": "ArcticTransport-v0"
