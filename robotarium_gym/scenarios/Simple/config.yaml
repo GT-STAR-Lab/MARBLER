@@ -31,4 +31,4 @@ num_neighbors: 0
 max_episode_steps: 80
 update_frequency: 34
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
-penalize_violations: False
+penalize_violations: True

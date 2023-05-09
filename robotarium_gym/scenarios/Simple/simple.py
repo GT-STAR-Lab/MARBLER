@@ -79,7 +79,7 @@ class simple(BaseEnv):
 
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
-
+        
         self.visualizer = Visualize( self.args ) # visualizer
         self.env = roboEnv(self, args) # robotarium Environment
 
@@ -164,7 +164,7 @@ class simple(BaseEnv):
         updated_state = self._generate_state_space()
         obs     = self.get_observations(updated_state)
 
-        if return_msg == '':
+        if return_msg == '' or not self.args.penalize_violations:
             rewards = self.get_rewards(updated_state)
             self.terminated = self.episode_steps > self.args.max_episode_steps 
         else:
