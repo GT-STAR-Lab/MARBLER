@@ -60,7 +60,7 @@ class roboEnv:
             #   Check if there has been a violation ever and then check if the number of times that violation has occurred has increased since the last timestep
             if self.args.penalize_violations:
                 
-                if 'collision' in self.robotarium._errors and ('collision' not in self.errors or self.robotarium._errors['collision'] > self.errors['collision']):
+                if 'collision' in self.robotarium._errors and ('collision' not in self.errors or sum(self.robotarium._errors['collision'].values()) > sum(self.errors['collision'].values())):
                     message = 'collision'  
                 if 'boundary' in self.robotarium._errors and ('boundary' not in self.errors or sum(self.robotarium._errors['boundary'].values()) > sum(self.errors['boundary'].values())):
                         if message == '':
