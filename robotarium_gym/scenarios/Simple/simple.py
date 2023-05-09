@@ -79,7 +79,7 @@ class simple(BaseEnv):
 
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
-
+        
         self.visualizer = Visualize( self.args ) # visualizer
         self.env = roboEnv(self, args) # robotarium Environment
 
@@ -170,7 +170,7 @@ class simple(BaseEnv):
             self.terminated = self.episode_steps > self.args.max_episode_steps 
         else:
             print("Ending due to", return_msg)
-            rewards = [-5000]*self.num_robots
+            rewards = [-5]*self.num_robots
             self.terminated = True
                 
         return obs, rewards, [self.terminated]*self.num_agent, {} 
@@ -185,19 +185,21 @@ class simple(BaseEnv):
         '''
         Return's the full observation for the agents.
         '''
-        full_obs = []
+        observations = []
         
         for agent in self.agents: 
-            full_obs.extend(agent.get_observation(state_space))    
-        
-        full_obs = np.array(full_obs)
-        full_observations = []
+            observations.append(agent.get_observation(state_space))    
 
-        for agent in self.agents:
-            goal_loc = state_space['goal'][0].reshape(1,-1)
-            obs = np.concatenate((full_obs.reshape(1,-1), goal_loc), axis = 1)
-            full_observations.append(obs[0])
-        
+        full_observations = []
+        for i, agent in enumerate(self.agents):
+            full_observations.append(observations[i])
+            nbr_indices = [j for j in range(self.num_agent) if j != agent.index]
+            for nbr_index in nbr_indices:
+                full_observations[i] = np.concatenate( (full_observations[i],observations[nbr_index]) )
+            
+            goal_loc = state_space['goal'][0].reshape(-1)
+            full_observations[i] = np.concatenate((full_observations[i], goal_loc))
+         
         return full_observations
 
     def get_rewards(self, state_space):
@@ -205,14 +207,16 @@ class simple(BaseEnv):
         Returns dense rewards based on the negative of the distance between the current agent & goal
         '''
         agent_loc = state_space['poses']
-        reward = []
+        rewards = []
 
         for agent_id, agent in enumerate(self.agents):
-            reward.append(-(np.sum\
-                (np.square(agent_loc[:2, agent_id].reshape(1,2) - self.goal_loc.reshape(1,2)))))
+            reward = -(np.sum\
+                (np.square(agent_loc[:2, agent_id].reshape(1,2) - self.goal_loc.reshape(1,2))))
+            reward *= self.args.reward_scaler
+            rewards.append(reward)
         
         self.state_space = state_space
-        return reward
+        return rewards
     
     def render(self, mode='human'):
         # Render your environment

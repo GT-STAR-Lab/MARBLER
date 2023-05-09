@@ -90,13 +90,13 @@ class ArcticTransport(BaseEnv):
         self.messages[1] = actions_[1] % 4
 
         obs = self.get_observations()
-        if not self.args.penalize_violations or message == '':
+        if message == '':
             reward = self.get_reward()       
             terminated = self.episode_steps > self.args.max_episode_steps
             if not terminated:
                 terminated = True
                 for a in self.agents:
-                    if a.type != 'drone' and a.pixel_type != 3:
+                    if a.type != 'drone' and not a.reached_goal:
                         terminated = False
                         break
         else:
