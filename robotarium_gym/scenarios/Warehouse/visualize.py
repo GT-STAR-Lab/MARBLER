@@ -6,8 +6,8 @@ from robotarium_gym.scenarios.base import BaseVisualization
 class Visualize(BaseVisualization):
     def __init__(self,args):
         self.args = args
-        self.agent_marker_size_m = .2
-        self.line_width = 1
+        self.agent_marker_size_m = .15
+        self.line_width = 3
         self.CM = plt.cm.get_cmap('hsv', 10) # Agent/goal color scheme
         self.show_figure = True
 

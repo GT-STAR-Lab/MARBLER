@@ -1,6 +1,7 @@
 from gym import spaces, Env
 from .scenarios.PredatorCapturePrey.PredatorCapturePrey import PredatorCapturePrey
 from .scenarios.Warehouse.warehouse import Warehouse
+from .scenarios.MaterialTransport.MaterialTransport import MaterialTransport
 from .scenarios.Simple.simple import simple
 from .scenarios.ArcticTransport.ArcticTransport import ArcticTransport
 #Add other scenario imports here
@@ -10,6 +11,7 @@ import yaml
 
 env_dict = {'PredatorCapturePrey': PredatorCapturePrey,
             'Warehouse': Warehouse,
+            'MaterialTransport': MaterialTransport,
             'Simple': simple,
             'ArcticTransport': ArcticTransport}
 

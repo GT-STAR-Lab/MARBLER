@@ -5,7 +5,8 @@ _particles = {
     "PredatorCapturePrey": "PredatorCapturePrey-v0",
     "Warehouse": "Warehouse-v0",
     "Simple": "Simple-v0",
-    "ArcticTransport": "ArcticTransport-v0"
+    "ArcticTransport": "ArcticTransport-v0",
+    "MaterialTransport": "MaterialTransport-v0"
 }
 
 for scenario_name, gymkey in _particles.items():
