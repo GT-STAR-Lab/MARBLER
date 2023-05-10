@@ -9,7 +9,7 @@ Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 4. To test successfull installation, run `python3 -m robotarium_gym.main` to run a pretrained model
 
 ## Usage
-* To look at current scenarios or create new ones, look at the README in robotarium_gym
+* To look at current scenarios or create new ones or to evaluate trained models, look at the README in robotarium_gym
 * To upload the agents to the Robotarium, look at the README in robotarium_eval
 
 ## Training with EPyMARL

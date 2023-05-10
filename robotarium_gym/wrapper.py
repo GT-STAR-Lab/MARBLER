@@ -16,7 +16,7 @@ env_dict = {'PredatorCapturePrey': PredatorCapturePrey,
 
 class Wrapper(Env):
     def __init__(self, env_name, config_path):
-        """Creates tje Gym Wrappers
+        """Creates the Gym Wrappers
 
         Args:
             env (PredatorCapturePrey): A PredatorCapturePrey object to wrap in a gym env

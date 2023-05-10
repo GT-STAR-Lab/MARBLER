@@ -1,5 +1,15 @@
+## Evaluating Trained Models
+1. Ensure that the trained weights are in the models folder for the scenario the model was trained in
+- Requires the agent.th file (location should be printed in the cout of the terminal the model was trained in, typically in EPyMARL/results/models/...)
+- Requires the config.json file (typically in EPyMARL/results/algorithm_name/gym:scenario/...)
+2. Update the scenario's config.yaml to point to the new model
+- This will require updating `model_config_file` and `model_file` and possibly `actor_file` and `actor_class`
+3. Run `python robotarium_gym.main --scenario <SCENARIO_NAME>`
+- If visualizations are desired, set show_figure_frequency in config.yaml to 1
+
 ## Creating Scenarios
 ### Scenario Code Structure
+First, create a new folder in `robotarium_gym/scenarios` with your new scenario's name. Then create the following:
 #### Main Class
 Should inherit from `base.BaseEnv`<br>
 Must include the following methods:
@@ -22,10 +32,15 @@ Must include the following methods:
 And the following class variables:
 * `show_figure`: boolean, whether or not to display anything
 
+#### Config
+All scenarios must have a `config.yaml` in their folder <br>
+An example of a good config is in the `robotarium_gym/scenarios/Warehouse/config.yaml`
+
 ### Wrapping and Importing
 Once the scenario is created, to use it for training you must:
 1. update particles in `robotarium_gym/__init__.py`
 2. update the file imports and `env_dict` in `robotarium_gym/wrapper.py`
+
 
 ## File Structure
 ```
@@ -39,7 +54,6 @@ Once the scenario is created, to use it for training you must:
 │   └── utilities.py
 └── scenarios
     └── Warehouse          # scenario user creates. Warehouse is probably the best template scenario
-        ├── README.md
         ├── __init__.py
         ├── config.yaml  # Environment specific config file
         ├── models       # pretrained models for this scenario

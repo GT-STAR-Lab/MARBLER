@@ -132,7 +132,6 @@ class PredatorCapturePrey(BaseEnv):
         
         self.state_space = self._generate_state_space()
         self.env.reset()
-        # TODO: clean the empty observation returning
         return [[0]*(self.agent_obs_dim * (self.args.num_neighbors + 1))] * self.num_robots
         
     def step(self, actions_):
@@ -165,21 +164,12 @@ class PredatorCapturePrey(BaseEnv):
         
         return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
 
-    def get_action_space(self):
-        return self.action_space
-    
-    def get_observation_space(self):
-        return self.observation_space
-
     def get_observations(self, state_space):
         '''
         Input: Takes in the current state space of the environment
         Outputs:
             an array with [agent_x_pos, agent_y_pos, sensed_prey_x_pose, sensed_prey_y_pose, sensing_radius, capture_radius]
             concatenated with the same array for the nearest neighbors based on args.delta or args.num_neighbors
-
-            Also returns a global critic observations which is a list that starts with the true position for every prey agent which is then
-            concatenated with the list of observations of each agent
         '''
         if self.prey_locs == []:
             for p in state_space['prey']:
@@ -194,10 +184,7 @@ class PredatorCapturePrey(BaseEnv):
         for i, agent in enumerate(self.agents):
             full_observations.append(observations[agent.index])
             
-            # For getting neighbors in delta radius. Not being used right now to avoid inconsistent observation dimensions
-            if self.args.delta > 0:
-                nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
-            elif self.args.num_neighbors >= self.num_robots-1:
+            if self.args.num_neighbors >= self.num_robots-1:
                 nbr_indices = [i for i in range(self.num_robots) if i != agent.index]
             else:
                 nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
@@ -216,3 +203,9 @@ class PredatorCapturePrey(BaseEnv):
         reward += self.args.time_penalty
         self.state_space = state_space
         return reward
+    
+    def get_action_space(self):
+        return self.action_space
+    
+    def get_observation_space(self):
+        return self.observation_space
