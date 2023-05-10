@@ -15,14 +15,13 @@ episodes: 10 #Number of episodes to run for
 shared_reward: True
 
 #Arguments needed by the environment
-show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
 real_time: False
-num_neighbors: 3
 seed: 100
 barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
 penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
-delta: 0.0 #Used to determine the adjacency matrix
+delta: -1 #Used to determine the adjacency matrix, set to -1 for full communication
 max_episode_steps: 80
 update_frequency: 34
 step_dist : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...

@@ -10,6 +10,7 @@ from robotarium_gym.utilities.misc import *
 from robotarium_gym.scenarios.PredatorCapturePreyGNN.visualize import *
 from robotarium_gym.scenarios.base import BaseEnv
 from robotarium_gym.scenarios.PredatorCapturePreyGNN.agent import Agent
+from rps.utilities.graph import *
 
 class PredatorCapturePreyGNN(BaseEnv):
     def __init__(self, args):
@@ -196,27 +197,18 @@ class PredatorCapturePreyGNN(BaseEnv):
         # iterate over all agents and store the observations for each in a dictionary
         # dictionary uses agent index as key
         observations = []
+        neighbors = [] #Stores the neighbors of each agent if delta > -1
         for agent in self.agents: 
-            observations.append(agent.get_observation(state_space, self.agents))
+            observations.append(agent.get_observation(state_space, self.agents))    
+            if self.args.delta > -1:
+                neighbors.append(delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta))
         
-        '''
-        full_observations = []
-        for i, agent in enumerate(self.agents):
-            full_observations.append(observations[agent.index])
-            
-            # For getting neighbors in delta radius. Not being used right now to avoid inconsistent observation dimensions
-            if self.args.delta > 0:
-                nbr_indices = delta_disk_neighbors(state_space['poses'],agent.index,self.args.delta)
-            elif self.args.num_neighbors >= self.num_robots-1:
-                nbr_indices = [i for i in range(self.num_robots) if i != agent.index]
-            else:
-                nbr_indices = get_nearest_neighbors(state_space['poses'], agent.index, self.args.num_neighbors)
-            
-            # full_observation[i] is of dimension [NUM_NBRS, OBS_DIM]
-            for nbr_index in nbr_indices:
-                full_observations[i] = np.concatenate( (full_observations[i],observations[nbr_index]) )
-        # dimension [NUM_AGENTS, NUM_NBRS, OBS_DIM]
-        '''
+        #Updates the adjacency matrix
+        if self.args.delta > -1:
+            self.adj_matrix = np.zeros((self.num_robots, self.num_robots))
+            for agents, ns in enumerate(neighbors):
+                self.adj_matrix[agents, ns] = 1
+
         return observations
 
     def get_rewards(self, state_space):

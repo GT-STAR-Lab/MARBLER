@@ -12,11 +12,8 @@ class Visualize(BaseVisualization):
         self.predator_marker_sizes = []
         self.capture_marker_sizes = []
         for agent in agents.agents:
-            print(agent.capture_radius, agent.sensing_radius)
             self.capture_marker_sizes.append(determine_marker_size(robotarium, agent.capture_radius))
-            self.predator_marker_sizes.append(determine_marker_size(robotarium, agent.sensing_radius))
-        
-
+            self.predator_marker_sizes.append(determine_marker_size(robotarium, agent.sensing_radius))       
         marker_size_goal = determine_marker_size(robotarium,self.goal_marker_size_m)          
 
         self.robot_markers = [ robotarium.axes.scatter( \
