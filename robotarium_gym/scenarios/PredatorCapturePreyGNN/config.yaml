@@ -1,5 +1,5 @@
 #Arguments needed by main.py
-scenario: PredatorCapturePrey #name of the folder inside scenarios
+scenario: PredatorCapturePreyGNN #name of the folder inside scenarios
 
 model_config_file: qmix.json
 model_file: qmix.th
@@ -7,14 +7,27 @@ model_file: qmix.th
 actor_file: rnn_agent
 actor_class: RNNAgent
 
-env_file: PredatorCapturePrey
-env_class: PredatorCapturePrey #This needs to have all of the functionalities of a gym to work
+env_file: PredatorCapturePreyGNN
+env_class: PredatorCapturePreyGNN #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-n_agents: 4
+n_agents: 5
 episodes: 10 #Number of episodes to run for
 shared_reward: True
 
 #Arguments needed by the environment
+show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
+real_time: False
+num_neighbors: 3
+seed: 100
+barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
+penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
+delta: 0.0 #Used to determine the adjacency matrix
+max_episode_steps: 80
+update_frequency: 34
+step_dist : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
+start_dist: 0.3 #Minimum distance the agents start from each other
+
 #The follow four arguments are the boundaries in the Robotarium that the robots are allowed to traverse to
 LEFT: -1.4
 RIGHT: 1.4
@@ -22,23 +35,23 @@ UP: -0.9
 DOWN: .9
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
-step_dist : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
-start_dist: 0.3 #Minimum distance the agents start from each other
-barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
 time_penalty: -0.05
 sense_reward: 1
 capture_reward: 5
-predator: 2
-predator_radius: .45
-capture: 2
-capture_radius: .225
-capability_aware: False #If true, the agents know their capture/sensing radius. Probably shouldn't use ids if true. Make sure this argument matches how the models were trained
-penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
-show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
-real_time: False
-delta: 0.0 #If > 0, make sure that the agent can handle changing observation sizes
-num_neighbors: 3
-max_episode_steps: 80
-update_frequency: 34
-num_prey: 6
-robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
+num_prey: 5
+test: False #Set this to change the agents that are being selected from
+
+#Information needed to generate the predefined agents
+n_capture_agents: 25
+n_predator_agents: 25
+n_test_capture_agents: 5
+n_test_predator_agents: 5
+traits:
+  predator:
+    distribution: 'normal'
+    loc: .4
+    scale: .1
+  capture:
+    distribution: 'normal'
+    loc: .25
+    scale: .05

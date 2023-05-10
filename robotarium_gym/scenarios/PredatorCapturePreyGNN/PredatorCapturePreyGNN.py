@@ -16,40 +16,28 @@ class PredatorCapturePreyGNN(BaseEnv):
         # Settings
         self.args = args
 
-        self.num_robots = args.predator + args.capture
+        module_dir = os.path.dirname(__file__)
+        with open(f'{module_dir}/predefined_agents.yaml', 'r') as stream:
+            self.predefined_agents = yaml.safe_load(stream)
+        np.random.seed(self.args.seed)
+
+        self.num_robots = args.n_agents
         self.agent_poses = None # robotarium convention poses
         self.prey_loc = None
-
         self.num_prey = args.num_prey
-        self.num_predators = args.predator
-        self.num_capture = args.capture
         
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
-        if self.args.capability_aware:
-            self.agent_obs_dim = 6
-        else:
-            self.agent_obs_dim = 4
-
-        #Initializes the agents
-        self.agents = []
-        # Initialize predator agents
-        for i in range(self.num_predators):
-            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.action_w2id, self.args.capability_aware) )
-        # Initialize capture agents
-        for i in range(self.num_capture):
-            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.action_w2id, self.args.capability_aware) )
+        self.agent_obs_dim = 6
 
         #initializes the actions and observation spaces
         actions = []
         observations = []      
-        for agent in self.agents:
+        for i in range(self.num_robots):
             actions.append(spaces.Discrete(5))
-            #Each agent's observation is a tuple of size self.agent_obs_dim
-            obs_dim = self.agent_obs_dim * (self.args.num_neighbors + 1)
             #The lowest any observation will be is -5 (prey loc when can't see one), the highest is 3 (largest reasonable radius an agent will have)
-            observations.append(spaces.Box(low=-5, high=3, shape=(obs_dim,), dtype=np.float32))        
+            observations.append(spaces.Box(low=-5, high=3, shape=(self.agent_obs_dim,), dtype=np.float32))        
         self.action_space = spaces.Tuple(tuple(actions))
         self.observation_space = spaces.Tuple(tuple(observations))
 
@@ -115,6 +103,34 @@ class PredatorCapturePreyGNN(BaseEnv):
         '''
         Resets the simulation
         '''
+        #Initializes the agents
+        num_capture_agents = np.random.randint(4) + 1
+        num_predator_agents = 5 - num_capture_agents
+        self.agents = []
+        
+        # Initialize predator agents
+        index = 0
+        predator_idxs = np.random.randint(self.args.n_predator_agents, size=num_predator_agents)
+        if self.args.test:
+            agent_type = 'test_predator'
+        else:
+            agent_type = 'predator'
+        for i in predator_idxs:
+            self.agents.append( Agent(index, self.predefined_agents[agent_type][i]['sensing_radius'],\
+                                      0, self.action_id2w, self.action_w2id) )
+            index += 1
+
+        # Initialize capture agents
+        capture_idxs = np.random.randint(self.args.n_capture_agents, size=num_capture_agents)
+        if self.args.test:
+            agent_type = 'test_capture'
+        else:
+            agent_type = 'capture'
+        for i in capture_idxs:
+            self.agents.append( Agent(index, 0, self.predefined_agents[agent_type][i]['capture_radius'],\
+                                       self.action_id2w, self.action_w2id) )
+            index += 1
+
         self.episode_steps = 0
         self.prey_locs = []
         self.num_prey = self.args.num_prey      
@@ -133,8 +149,7 @@ class PredatorCapturePreyGNN(BaseEnv):
         
         self.state_space = self._generate_state_space()
         self.env.reset()
-        # TODO: clean the empty observation returning
-        return [[0]*(self.agent_obs_dim * (self.args.num_neighbors + 1))] * self.num_robots
+        return [[0]*self.agent_obs_dim] * self.num_robots
         
     def step(self, actions_):
         '''
@@ -169,31 +184,22 @@ class PredatorCapturePreyGNN(BaseEnv):
         
         return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
 
-    def get_action_space(self):
-        return self.action_space
-    
-    def get_observation_space(self):
-        return self.observation_space
-
     def get_observations(self, state_space):
         '''
         Input: Takes in the current state space of the environment
         Outputs:
             an array with [agent_x_pos, agent_y_pos, sensed_prey_x_pose, sensed_prey_y_pose, sensing_radius, capture_radius]
-            concatenated with the same array for the nearest neighbors based on args.delta or args.num_neighbors
-
-            Also returns a global critic observations which is a list that starts with the true position for every prey agent which is then
-            concatenated with the list of observations of each agent
         '''
         if self.prey_locs == []:
             for p in state_space['prey']:
                 self.prey_locs = np.concatenate((self.prey_locs, p.reshape((1,2))[0]))
         # iterate over all agents and store the observations for each in a dictionary
         # dictionary uses agent index as key
-        observations = {}
+        observations = []
         for agent in self.agents: 
-            observations[agent.index] = agent.get_observation(state_space, self.agents)    
+            observations.append(agent.get_observation(state_space, self.agents))
         
+        '''
         full_observations = []
         for i, agent in enumerate(self.agents):
             full_observations.append(observations[agent.index])
@@ -210,7 +216,8 @@ class PredatorCapturePreyGNN(BaseEnv):
             for nbr_index in nbr_indices:
                 full_observations[i] = np.concatenate( (full_observations[i],observations[nbr_index]) )
         # dimension [NUM_AGENTS, NUM_NBRS, OBS_DIM]
-        return full_observations
+        '''
+        return observations
 
     def get_rewards(self, state_space):
         # Fully shared reward, this is a collaborative environment.
@@ -220,3 +227,9 @@ class PredatorCapturePreyGNN(BaseEnv):
         reward += self.args.time_penalty
         self.state_space = state_space
         return reward
+    
+    def get_action_space(self):
+        return self.action_space
+    
+    def get_observation_space(self):
+        return self.observation_space
