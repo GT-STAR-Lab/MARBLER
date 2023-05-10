@@ -5,12 +5,7 @@ import shutil
 import robotarium_gym.main
 import robotarium_gym.utilities.roboEnv
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
-    parser.add_argument('--name', type=str, default = '', help="Name to append to robotarium_submission")
-    args = parser.parse_args()
-
+def main(args):
     file_conversions = {".th":".tiff", ".json":".mat", ".yaml":".npy"}
 
     if args.name == '':
@@ -74,4 +69,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
+    parser.add_argument('--name', type=str, default = '', help="Name to append to robotarium_submission")
+    args = parser.parse_args()
+    main(args)

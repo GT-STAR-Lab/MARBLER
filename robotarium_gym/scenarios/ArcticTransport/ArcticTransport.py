@@ -16,8 +16,8 @@ class ArcticTransport(BaseEnv):
         self.num_robots = self.args.n_agents
         self.agent_poses = None
 
-        self.agent_obs_dim = 21
-        self.agent_action_dim = 20
+        self.agent_obs_dim = 30
+        self.agent_action_dim = 5
 
         #This isn't really needed but makes a bunch of stuff clearer
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
@@ -85,9 +85,6 @@ class ArcticTransport(BaseEnv):
         #Robotarium actions and updating agent_poses all happen here
         message = self.env.step(actions_)
 
-        self.messages[0] = actions_[0] % 4
-        self.messages[1] = actions_[1] % 4
-
         obs = self.get_observations()
         if message == '':
             reward = self.get_reward()       
@@ -107,9 +104,7 @@ class ArcticTransport(BaseEnv):
     def get_observations(self):
         observations = []
         for a in self.agents:
-            cell = self.get_cell_from_pose(self.agent_poses[:2, a.index])
-            observations.append(a.get_observation(self.grid, self.get_cell_from_pose(self.agent_poses[:2, a.index]),\
-                                                   self.get_pose_from_cell(self.goal_loc), self.agent_poses, self.messages))
+            observations.append(a.get_observation(self))
         return observations
 
     def get_reward(self):

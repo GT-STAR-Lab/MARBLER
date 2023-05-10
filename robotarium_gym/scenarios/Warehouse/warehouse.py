@@ -126,10 +126,7 @@ class Warehouse(BaseEnv):
         for i, agent in enumerate(self.agents):
             full_observations.append(observations[agent.index])
             
-            # For getting neighbors in delta radius. Not being used right now to avoid inconsistent observation dimensions
-            if self.args.delta > 0:
-                nbr_indices = delta_disk_neighbors(self.agent_poses,agent.index,self.args.delta)
-            elif self.args.num_neighbors >= self.num_robots-1:
+            if self.args.num_neighbors >= self.num_robots-1:
                 nbr_indices = [i for i in range(self.num_robots) if i != agent.index]
             else:
                 nbr_indices = get_nearest_neighbors(self.agent_poses, agent.index, self.args.num_neighbors)
