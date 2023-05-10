@@ -12,55 +12,78 @@ class Agent:
         self.pixel_type = 0
         self.reached_goal = False
 
-    def get_observation(self, grid, cell, goal_loc, poses, messages):
+    def get_observation(self, env):
         '''
-        Cell is the location of the grid cell the agent is currently occupying
+        The agent's observation is the following:
+        [agent_x, agent_y, agent_pixel, a2_x, a2_y, a2_pixel, a3_x, a3_y, a3_pixel, a4_x, a4_y, a4_pixel,
+            goal_x, goal_y, the 8 pixels surrounding drone 1, the 8 pixels surrounding drone 2]
+        Where agent is this specific agent and
+        if this agent is not a drone:
+            agent 2 is the other agent that isn't a drone,
+            agent 3 is drone 1
+            agent 4 is drone 2
+        if this agent is a drone:
+            agent 2 is the other drone,
+            agent 3 is the ice robot
+            agent 4 is the water robot
         '''
+        poses = env.agent_poses
+        cells = []
+        for i in range(env.num_robots):
+            cells.append(env.get_cell_from_pose(env.agent_poses[:2, i]))
+        goal_loc = env.get_pose_from_cell(env.goal_loc)
 
-        #Appends the locations of the agents
+        #Appends the locations of the agents and their pixel type
         observation = np.array(poses[:, self.index][:2])
-        if self.index == 0:
-            observation = np.append(observation, poses[:, 1][:2])
-            observation = np.append(observation, poses[:, 2][:2])
-            observation = np.append(observation, poses[:, 3][:2])
-        elif self.index == 1:
-            observation = np.append(observation, poses[:, 0][:2])
-            observation = np.append(observation, poses[:, 2][:2])
-            observation = np.append(observation, poses[:, 3][:2])
-        elif self.index == 2:
-            observation = np.append(observation, poses[:, 3][:2])
-            observation = np.append(observation, poses[:, 0][:2])
-            observation = np.append(observation, poses[:, 1][:2])
-        elif self.index == 3:
-            observation = np.append(observation, poses[:, 2][:2])
-            observation = np.append(observation, poses[:, 0][:2])
-            observation = np.append(observation, poses[:, 1][:2])
-
-        observation = np.append(observation, messages) #Appends the messages
-        observation = np.append(observation, goal_loc) #Appends the goal
-        
-        pixel_type = grid[cell[0], cell[1]]
-        observation = np.append(observation, pixel_type)
-        self.pixel_type = pixel_type
+        self.pixel_type = env.grid[cells[self.index][0], cells[self.index][1]]
         if self.pixel_type == 3:
             self.reached_goal = True
 
-        if self.type == 'drone':   
-            left = cell[1] - 1 if cell[1] > 0 else cell[1]
-            right = cell[1] + 1 if cell[1] < 11 else cell[1]
-            up = cell[0] - 1 if cell[0] > 0 else cell[0]
-            down = cell[0] + 1 if cell[0] < 7 else cell[0]
-            observation = np.append(observation,grid[up, left])
-            observation = np.append(observation,grid[cell[0], left])    
-            observation = np.append(observation,grid[down, left])    
-            observation = np.append(observation,grid[up, cell[1]])
-            observation = np.append(observation,grid[down, cell[1]])
-            observation = np.append(observation,grid[up, right])
-            observation = np.append(observation,grid[cell[0], right])    
-            observation = np.append(observation,grid[down, right])
-        else:
-            for i in range(8):
-                observation = np.append(observation,-1)
+        observation = np.append(observation, self.pixel_type)
+        if self.index == 0:
+            observation = np.append(observation, poses[:, 1][:2])
+            observation = np.append(observation, env.grid[cells[1][0], cells[1][1]])
+            observation = np.append(observation, poses[:, 2][:2])
+            observation = np.append(observation, env.grid[cells[2][0], cells[2][1]])
+            observation = np.append(observation, poses[:, 3][:2])
+            observation = np.append(observation, env.grid[cells[3][0], cells[3][1]])
+        elif self.index == 1:
+            observation = np.append(observation, poses[:, 0][:2])
+            observation = np.append(observation, env.grid[cells[0][0], cells[0][1]])
+            observation = np.append(observation, poses[:, 2][:2])
+            observation = np.append(observation, env.grid[cells[2][0], cells[2][1]])
+            observation = np.append(observation, poses[:, 3][:2])
+            observation = np.append(observation, env.grid[cells[3][0], cells[3][1]])
+        elif self.index == 2:
+            observation = np.append(observation, poses[:, 3][:2])
+            observation = np.append(observation, env.grid[cells[3][0], cells[3][1]])
+            observation = np.append(observation, poses[:, 0][:2])
+            observation = np.append(observation, env.grid[cells[0][0], cells[0][1]])
+            observation = np.append(observation, poses[:, 1][:2])
+            observation = np.append(observation, env.grid[cells[1][0], cells[1][1]])
+        elif self.index == 3:
+            observation = np.append(observation, poses[:, 2][:2])
+            observation = np.append(observation, env.grid[cells[2][0], cells[2][1]])
+            observation = np.append(observation, poses[:, 0][:2])
+            observation = np.append(observation, env.grid[cells[0][0], cells[0][1]])
+            observation = np.append(observation, poses[:, 1][:2])
+            observation = np.append(observation, env.grid[cells[1][0], cells[1][1]])
+
+        observation = np.append(observation, goal_loc) #Appends the goal        
+
+        for i in range(1):   #Appends the cells surrounding the drones
+            left = cells[i][1] - 1 if cells[i][1] > 0 else cells[i][1]
+            right = cells[i][1] + 1 if cells[i][1] < 11 else cells[i][1]
+            up = cells[i][0] - 1 if cells[i][0] > 0 else cells[i][0]
+            down = cells[i][0] + 1 if cells[i][0] < 7 else cells[i][0]
+            observation = np.append(observation,env.grid[up, left])
+            observation = np.append(observation,env.grid[cells[i][0], left])    
+            observation = np.append(observation,env.grid[down, left])    
+            observation = np.append(observation,env.grid[up, cells[i][1]])
+            observation = np.append(observation,env.grid[down, cells[i][1]])
+            observation = np.append(observation,env.grid[up, right])
+            observation = np.append(observation,env.grid[cells[i][0], right])    
+            observation = np.append(observation,env.grid[down, right])
 
         return observation
 
@@ -69,8 +92,6 @@ class Agent:
         updates the goal_pose based on the agent's:
             actions, type, and pixel it is on
         '''
-        action = action // 5 #This is because the agent's action size is 20 to accomodate communication
-
         if self.type == 'drone':
             step_dist = args.fast_step
         elif self.type == 'water':
