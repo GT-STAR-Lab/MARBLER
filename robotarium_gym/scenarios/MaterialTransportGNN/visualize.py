@@ -10,6 +10,7 @@ class Visualize(BaseVisualization):
         self.zone1_marker_size_m = args.zone1_radius
         self.line_width = 3
         self.CM = plt.cm.get_cmap('Spectral', 5) # Agent/goal color scheme
+        self.CM2 = plt.cm.get_cmap('bone', 18)
         self.show_figure = True
 
     def initialize_markers(self, robotarium, agents):
@@ -19,12 +20,12 @@ class Visualize(BaseVisualization):
         self.goals = []
         w = self.args.end_goal_width
         self.goals.append(robotarium.axes.add_patch(patches.Rectangle([-1.5,-1], w,2, color=self.CM(4), zorder=-1)))
-        self.goals.append(robotarium.axes.add_patch(patches.Rectangle([1.5-w,-1], w,2, color=self.CM(2), zorder=-1)))
+        self.goals.append(robotarium.axes.add_patch(patches.Rectangle([1.5-w,-1], w,2, color=self.CM(3), zorder=-1)))
 
         self.robot_markers = [ robotarium.axes.scatter( \
                 agents.agent_poses[0,ii], agents.agent_poses[1,ii],
                 s=agent_marker_size, marker='o', facecolors='none',\
-                edgecolors = (self.CM(0) if ii<agents.args.n_fast_agents else self.CM(1)), linewidth=self.line_width )\
+                edgecolors = (self.CM2(int(22-agents.agents[ii].torque))), linewidth=self.line_width )\
                 for ii in range(agents.num_robots) ]
 
         self.zone1 = robotarium.axes.scatter( \

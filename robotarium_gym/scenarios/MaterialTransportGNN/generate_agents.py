@@ -19,14 +19,14 @@ def main():
     for i in range(config['n_train_agents']):
         agents['train'][i] = {}
         agents['train'][i]['id'] = format(candidate, '#0'+str(idx_size + 2)+'b').replace('0b', '')
-        val = getattr(np.random, config['traits']['torque']['distribution'])(**func_args)
+        val = round(getattr(np.random, config['traits']['torque']['distribution'])(**func_args))
         agents['train'][i]['torque'] = float(val)
         candidate += 1
  
     for i in range(config['n_test_agents']):
         agents['test'][i] = {}
         agents['test'][i]['id'] = format(candidate, '#0'+str(idx_size + 2)+'b').replace('0b', '')
-        val = getattr(np.random, config['traits']['torque']['distribution'])(**func_args)
+        val = round(getattr(np.random, config['traits']['torque']['distribution'])(**func_args))
         agents['test'][i]['torque'] = float(val)
         candidate += 1
 

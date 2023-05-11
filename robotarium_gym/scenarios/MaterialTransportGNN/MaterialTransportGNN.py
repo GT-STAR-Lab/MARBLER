@@ -4,7 +4,7 @@ import numpy as np
 import copy
 from robotarium_gym.scenarios.base import BaseEnv
 from robotarium_gym.utilities.misc import *
-from robotarium_gym.scenarios.MaterialTransport.visualize import Visualize
+from robotarium_gym.scenarios.MaterialTransportGNN.visualize import Visualize
 from robotarium_gym.utilities.roboEnv import roboEnv
 from rps.utilities.graph import *
 
@@ -71,6 +71,18 @@ class MaterialTransportGNN(BaseEnv):
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
+        self.agents = []
+        if self.args.test:
+            agent_type='test'
+            idxs = np.random.randint(self.args.n_test_agents, size=self.num_robots)
+        else:
+            agent_type='train'
+            idxs = np.random.randint(self.args.n_train_agents, size=self.num_robots)
+        for i, idx in enumerate(idxs):
+            torque = self.predefined_agents[agent_type][idx]['torque']
+            speed = self.args.power / self.predefined_agents[agent_type][idx]['torque']
+            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, torque, speed))
+
         #Initializes the action and observation spaces
         actions = []
         observations = []
@@ -96,17 +108,18 @@ class MaterialTransportGNN(BaseEnv):
         self.zone1_load = int(getattr(np.random, self.args.zone1['distribution'])(**self.zone1_args))
         self.zone2_load = int(getattr(np.random, self.args.zone2['distribution'])(**self.zone2_args))
         
-        self.agents = []
-        if self.args.test:
-            agent_type='test'
-            idxs = np.random.randint(self.args.n_test_agents, size=self.num_robots)
-        else:
-            agent_type='train'
-            idxs = np.random.randint(self.args.n_train_agents, size=self.num_robots)
-        for i, idx in enumerate(idxs):
-            torque = self.predefined_agents[agent_type][idx]['torque']
-            speed = self.args.power / self.predefined_agents[agent_type][idx]['torque']
-            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, torque, speed))
+        if self.args.resample:
+            self.agents = []
+            if self.args.test:
+                agent_type='test'
+                idxs = np.random.randint(self.args.n_test_agents, size=self.num_robots)
+            else:
+                agent_type='train'
+                idxs = np.random.randint(self.args.n_train_agents, size=self.num_robots)
+            for i, idx in enumerate(idxs):
+                torque = self.predefined_agents[agent_type][idx]['torque']
+                speed = self.args.power / self.predefined_agents[agent_type][idx]['torque']
+                self.agents.append(Agent(i, self.action_id2w, self.action_w2id, torque, speed))
 
         #Generate the agent locations based on the config
         width = self.args.end_goal_width
@@ -138,6 +151,11 @@ class MaterialTransportGNN(BaseEnv):
             print("Ending due to", return_message)
             reward = -6
             terminated = True
+        if terminated:
+            print('Zone 1:', self.zone1_load, '\tZone 2:', self.zone2_load)
+            for a in self.agents:
+                print(f'Agent {a.index}: {a.load}', end='\t')
+            print()
         
         return obs, [reward] * self.num_robots, [terminated]*self.num_robots, {}
     

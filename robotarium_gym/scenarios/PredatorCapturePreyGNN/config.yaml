@@ -19,7 +19,7 @@ show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when sub
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
 real_time: False
 seed: 100
-barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
+barrier_certificate: default #Can be safe or default for strong or weak barrier certificates
 penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
 delta: -1 #Used to determine the adjacency matrix, set to -1 for full communication
 max_episode_steps: 80
@@ -54,3 +54,4 @@ traits:
     distribution: 'normal'
     loc: .25
     scale: .05
+resample: True #Set to true to resample the agents every episode
