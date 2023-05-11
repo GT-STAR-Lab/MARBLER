@@ -208,7 +208,7 @@ class PredatorCapturePreyGNN(BaseEnv):
             self.adj_matrix = np.zeros((self.num_robots, self.num_robots))
             for agents, ns in enumerate(neighbors):
                 self.adj_matrix[agents, ns] = 1
-
+        
         return observations
 
     def get_rewards(self, state_space):

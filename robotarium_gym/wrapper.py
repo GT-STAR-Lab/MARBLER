@@ -3,6 +3,7 @@ from .scenarios.PredatorCapturePrey.PredatorCapturePrey import PredatorCapturePr
 from .scenarios.PredatorCapturePreyGNN.PredatorCapturePreyGNN import PredatorCapturePreyGNN
 from .scenarios.Warehouse.warehouse import Warehouse
 from .scenarios.MaterialTransport.MaterialTransport import MaterialTransport
+from .scenarios.MaterialTransportGNN.MaterialTransportGNN import MaterialTransportGNN
 from .scenarios.Simple.simple import simple
 from .scenarios.ArcticTransport.ArcticTransport import ArcticTransport
 #Add other scenario imports here
@@ -14,6 +15,7 @@ env_dict = {'PredatorCapturePrey': PredatorCapturePrey,
             "PredatorCapturePreyGNN": PredatorCapturePreyGNN,
             'Warehouse': Warehouse,
             'MaterialTransport': MaterialTransport,
+            "MaterialTransportGNN": MaterialTransportGNN,
             'Simple': simple,
             'ArcticTransport': ArcticTransport}
 
