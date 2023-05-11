@@ -32,8 +32,8 @@ n_fast_agents: 2
 n_slow_agents: 2
 fast_step: .45
 slow_step: .15
-large_capacity: 15
-small_capacity: 5
+large_torque: 15
+small_torque: 5
 unload_multiplier: .075
 load_multiplier: .025
 end_goal_width: .5
