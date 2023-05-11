@@ -133,7 +133,6 @@ class MaterialTransport(BaseEnv):
             print("Ending due to", return_message)
             reward = -6
             terminated = True
-        
         return obs, [reward] * self.num_robots, [terminated]*self.num_robots, {}
     
     def get_observations(self):
