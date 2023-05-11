@@ -1,3 +1,4 @@
+import yaml
 from gym import spaces
 import numpy as np
 import copy
@@ -5,13 +6,13 @@ from robotarium_gym.scenarios.base import BaseEnv
 from robotarium_gym.utilities.misc import *
 from robotarium_gym.scenarios.MaterialTransport.visualize import Visualize
 from robotarium_gym.utilities.roboEnv import roboEnv
-
+from rps.utilities.graph import *
 
 class Agent:
     #These agents are specifically implimented for the warehouse scenario
-    def __init__(self, index, action_id_to_word, action_word_to_id, capacity, speed):
+    def __init__(self, index, action_id_to_word, action_word_to_id, torque, speed):
         self.index = index
-        self.capacity = capacity
+        self.torque = torque
         self.speed = speed
         self.load = 0
         self.action_id2w = action_id_to_word
@@ -21,7 +22,7 @@ class Agent:
         '''
         updates the goal_pose based on the agent's actions
         '''   
-        action = action // 4 #This is to account for the messages
+        action = action
         if self.action_id2w[action] == 'left':
                 goal_pose[0] = max( goal_pose[0] - self.speed, args.LEFT)
                 goal_pose[1] = args.UP if goal_pose[1] < args.UP else \
@@ -46,18 +47,20 @@ class Agent:
         
         return goal_pose
 
-class MaterialTransport(BaseEnv):
+class MaterialTransportGNN(BaseEnv):
     def __init__(self, args):
         self.args = args
+
+        module_dir = os.path.dirname(__file__)
+        with open(f'{module_dir}/predefined_agents.yaml', 'r') as stream:
+            self.predefined_agents = yaml.safe_load(stream)
+        np.random.seed(self.args.seed)
+
         self.num_robots = self.args.n_agents
         self.agent_poses = None
 
-        #Agent agent's observation is [pos_x,pos_y,load, zone1_load, zone2_load, a1_message, a2_message, a3_message, a4_message, speed, capacity] 
-        #   where speed and capacity are only included if capability_aware is true
-        if self.args.capability_aware:
-            self.agent_obs_dim = 11
-        else:
-            self.agent_obs_dim = 9
+        #Agent agent's observation is [pos_x, pos_y, load, zone1_load, zone2_load, speed, torque] 
+        self.agent_obs_dim = 7
 
         self.zone1_args = copy.deepcopy(self.args.zone1)
         del self.zone1_args['distribution']   
@@ -67,18 +70,12 @@ class MaterialTransport(BaseEnv):
         #This isn't really needed but makes a bunch of stuff clearer
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
-        
-        self.agents = []
-        for i in range(self.args.n_fast_agents):
-            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.small_capacity, self.args.fast_step))
-        for i in range(self.args.n_fast_agents, self.args.n_fast_agents+self.args.n_slow_agents):
-            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.large_capacity, self.args.slow_step))
 
         #Initializes the action and observation spaces
         actions = []
         observations = []
-        for a in self.agents:
-            actions.append(spaces.Discrete(20))
+        for i in range(self.num_robots):
+            actions.append(spaces.Discrete(5))
             #each agent's observation is a tuple of size 3
             #the minimum observation is the left corner of the robotarium, the maximum is the righ corner
             observations.append(spaces.Box(low=-1.5, high=1.5, shape=(self.agent_obs_dim,), dtype=np.float32))
@@ -99,9 +96,18 @@ class MaterialTransport(BaseEnv):
         self.zone1_load = int(getattr(np.random, self.args.zone1['distribution'])(**self.zone1_args))
         self.zone2_load = int(getattr(np.random, self.args.zone2['distribution'])(**self.zone2_args))
         
-        for a in self.agents:
-            a.load=0
-        
+        self.agents = []
+        if self.args.test:
+            agent_type='test'
+            idxs = np.random.randint(self.args.n_test_agents, size=self.num_robots)
+        else:
+            agent_type='train'
+            idxs = np.random.randint(self.args.n_train_agents, size=self.num_robots)
+        for i, idx in enumerate(idxs):
+            torque = self.predefined_agents[agent_type][idx]['torque']
+            speed = self.args.power / self.predefined_agents[agent_type][idx]['torque']
+            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, torque, speed))
+
         #Generate the agent locations based on the config
         width = self.args.end_goal_width
         height = self.args.DOWN - self.args.UP
@@ -115,8 +121,6 @@ class MaterialTransport(BaseEnv):
 
         #Robotarium actions and updating agent_poses all happen here
         return_message = self.env.step(actions_)
-        for i in range(len(self.messages)):
-            self.messages[i] = actions_[i] % 4
 
         obs = self.get_observations()
         if return_message == '':
@@ -139,13 +143,19 @@ class MaterialTransport(BaseEnv):
     
     def get_observations(self):
         observations = [] #Each agent's individual observation
+        neighbors = [] #Stores the neighbors of each agent if delta > -1
         for a in self.agents:
-            if self.args.capability_aware:
-                observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
-                                     self.zone1_load, self.zone2_load, *self.messages, a.capacity, a.speed])
-            else:
-                observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
-                                     self.zone1_load, self.zone2_load, *self.messages])
+            observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
+                                     self.zone1_load, self.zone2_load, a.torque, a.speed])
+            if self.args.delta > -1:
+                neighbors.append(delta_disk_neighbors(self.agent_poses,a.index,self.args.delta))
+           
+        #Updates the adjacency matrix
+        if self.args.delta > -1:
+            self.adj_matrix = np.zeros((self.num_robots, self.num_robots))
+            for agents, ns in enumerate(neighbors):
+                self.adj_matrix[agents, ns] = 1
+
         return observations
 
     def get_reward(self):
@@ -161,17 +171,17 @@ class MaterialTransport(BaseEnv):
                     a.load = 0
             else:
                 if pos[0] > 1.5 - self.args.end_goal_width:
-                    if self.zone2_load > a.capacity:              
-                        a.load = a.capacity
-                        self.zone2_load -= a.capacity
+                    if self.zone2_load > a.torque:              
+                        a.load = a.torque
+                        self.zone2_load -= a.torque
                     else:
                         a.load = self.zone2_load
                         self.zone2_load = 0
                     reward += a.load * self.args.load_multiplier
                 elif np.linalg.norm(self.agent_poses[:2, a.index] - [0, 0]) <= self.args.zone1_radius:
-                    if self.zone1_load > a.capacity:              
-                        a.load = a.capacity
-                        self.zone1_load -= a.capacity
+                    if self.zone1_load > a.torque:              
+                        a.load = a.torque
+                        self.zone1_load -= a.torque
                     else:
                         a.load = self.zone1_load
                         self.zone1_load = 0

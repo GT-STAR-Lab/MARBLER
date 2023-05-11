@@ -26,19 +26,14 @@ LEFT: -1.40 #Minimum x coordinate the robots are allowed to navigate to and star
 RIGHT: 1.40 #Maxiumum x coordinate the robots are allowed to navigate to and start at
 UP: -0.9 #Minimum y coordinate the robots are allowed to navigate to and start at
 DOWN: 0.9 #Maxiumum y coordinate the robots are allowed to navigate to and start at
+delta: -1 #Used to determine the adjacency matrix, set to -1 for full communication
+seed: 100
 
 #Arguments needed by this scenario
-n_fast_agents: 2
-n_slow_agents: 2
-fast_step: .3
-slow_step: .1
-large_capacity: 15
-small_capacity: 5
+end_goal_width: .5
 unload_multiplier: .075
 load_multiplier: .025
-end_goal_width: .5
 time_penalty: -0.1
-capability_aware: False #Whether or not the agents know their own capabilities. Should probably not use ids if this is true
 zone1_radius: .35
 zone1:
   distribution: 'normal'
@@ -48,3 +43,12 @@ zone2:
   distribution: 'normal'
   loc: 20
   scale: 4
+power: 1.5
+traits:
+  torque: #Torque = capacity here
+    distribution: 'uniform'
+    low: 5
+    high: 20
+n_train_agents: 100
+n_test_agents: 10
+test: False
