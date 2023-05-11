@@ -121,9 +121,17 @@ class MaterialTransport(BaseEnv):
         if return_message == '':
             reward = self.get_reward()       
             terminated = self.episode_steps > self.args.max_episode_steps #For this environment, episode only ends after timing out
+            #Terminates when all agent loads are 0 and the goal zone loads are 0
+            if not terminated:
+                terminated = self.zone1_load == 0 and self.zone2_load == 0
+                if terminated:
+                    for a in self.agents:
+                        if a.load != 0:
+                            terminated = False
+                            break
         else:
             print("Ending due to", return_message)
-            reward = -5
+            reward = -6
             terminated = True
         
         return obs, [reward] * self.num_robots, [terminated]*self.num_robots, {}
@@ -158,13 +166,15 @@ class MaterialTransport(BaseEnv):
                     else:
                         a.load = self.zone2_load
                         self.zone2_load = 0
-                elif np.linalg.norm(self.agent_poses[:2, a.index] - [-.5, 0]) <= self.args.zone1_radius:
+                    reward += a.load * self.args.load_multiplier
+                elif np.linalg.norm(self.agent_poses[:2, a.index] - [0, 0]) <= self.args.zone1_radius:
                     if self.zone1_load > a.capacity:              
                         a.load = a.capacity
                         self.zone1_load -= a.capacity
                     else:
                         a.load = self.zone1_load
                         self.zone1_load = 0
+                    reward += a.load * self.args.load_multiplier
         return reward
 
     def _generate_step_goal_positions(self, actions):

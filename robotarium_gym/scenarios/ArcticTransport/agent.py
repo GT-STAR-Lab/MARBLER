@@ -71,7 +71,7 @@ class Agent:
 
         observation = np.append(observation, goal_loc) #Appends the goal        
 
-        for i in range(1):   #Appends the cells surrounding the drones
+        for i in range(2):   #Appends the cells surrounding the drones
             left = cells[i][1] - 1 if cells[i][1] > 0 else cells[i][1]
             right = cells[i][1] + 1 if cells[i][1] < 11 else cells[i][1]
             up = cells[i][0] - 1 if cells[i][0] > 0 else cells[i][0]

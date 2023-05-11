@@ -28,9 +28,9 @@ class Visualize(BaseVisualization):
                 for ii in range(agents.num_robots) ]
 
         self.zone1 = robotarium.axes.scatter( \
-                -.5, 0, s=marker_size_zone1, marker='o', facecolors='none', 
+                0, 0, s=marker_size_zone1, marker='o', facecolors='none', 
                 edgecolors=self.CM(3), linewidth=self.line_width, zorder=-2) 
-        self.zone1_text = robotarium.axes.text(-.5,0, agents.zone1_load,\
+        self.zone1_text = robotarium.axes.text(0,0, agents.zone1_load,\
                                                verticalalignment='center', horizontalalignment='center')
         self.zone2_text = robotarium.axes.text(1.5 - w/2,0, agents.zone2_load,\
                                                verticalalignment='center', horizontalalignment='center')

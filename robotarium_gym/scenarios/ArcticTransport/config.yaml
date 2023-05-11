@@ -1,15 +1,15 @@
 #Arguments needed by main.py
 scenario: ArcticTransport #name of the folder inside scenarios
 
-model_config_file: mappo_curric.json
-model_file: mappo_curric.th
+model_config_file: mappo_default.json
+model_file: mappo_default.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
 
 env_file: ArcticTransport
 env_class: ArcticTransport #This needs to have all of the functionalities of a gym to work
-n_actions: 20 #The number of actions available for the agent
+n_actions: 5 #The number of actions available for the agent
 episodes: 10 #Number of episodes to run for
 n_agents: 4
 shared_reward: True
