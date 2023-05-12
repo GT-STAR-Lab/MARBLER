@@ -19,7 +19,7 @@ class Visualize(BaseVisualization):
         self.goals = []
         w = self.args.end_goal_width
         self.goals.append(robotarium.axes.add_patch(patches.Rectangle([-1.5,-1], w,2, color=self.CM(4), zorder=-1)))
-        self.goals.append(robotarium.axes.add_patch(patches.Rectangle([1.5-w,-1], w,2, color=self.CM(2), zorder=-1)))
+        self.goals.append(robotarium.axes.add_patch(patches.Rectangle([1.5-w,-1], w,2, color=self.CM(3), zorder=-1)))
 
         self.robot_markers = [ robotarium.axes.scatter( \
                 agents.agent_poses[0,ii], agents.agent_poses[1,ii],
