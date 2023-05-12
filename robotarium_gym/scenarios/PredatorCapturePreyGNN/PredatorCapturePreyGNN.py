@@ -45,7 +45,7 @@ class PredatorCapturePreyGNN(BaseEnv):
             predator_idxs = np.random.randint(self.args.n_test_predator_agents, size=num_predator_agents)
         for i in predator_idxs:
             self.agents.append( Agent(index, self.predefined_agents[agent_type][i]['sensing_radius'],\
-                                      0, self.action_id2w, self.action_w2id) )
+                                      0, self.action_id2w, self.action_w2id, self.args.capability_aware) )
             index += 1
 
         # Initialize capture agents
@@ -57,7 +57,7 @@ class PredatorCapturePreyGNN(BaseEnv):
             capture_idxs = np.random.randint(self.args.n_capture_agents, size=num_capture_agents)
         for i in capture_idxs:
             self.agents.append( Agent(index, 0, self.predefined_agents[agent_type][i]['capture_radius'],\
-                                       self.action_id2w, self.action_w2id) )
+                                       self.action_id2w, self.action_w2id, self.args.capability_aware) )
             index += 1
 
         self.agent_obs_dim = 6
@@ -99,7 +99,6 @@ class PredatorCapturePreyGNN(BaseEnv):
                 # check if any of the agents has sensed it in the current step
                 for agent in self.agents:
                     # check if any robot has it within its sensing radius
-                    # print(self.agents.agent_poses[:2, agent.index], prey_location, np.linalg.norm(self.agents.agent_poses[:2, agent.index] - prey_location))
                     if np.linalg.norm(self.agent_poses[:2, agent.index] - prey_location) <= agent.sensing_radius:
                         self.prey_sensed[i] = True
                         break
@@ -150,7 +149,7 @@ class PredatorCapturePreyGNN(BaseEnv):
                 predator_idxs = np.random.randint(self.args.n_test_predator_agents, size=num_predator_agents)
             for i in predator_idxs:
                 self.agents.append( Agent(index, self.predefined_agents[agent_type][i]['sensing_radius'],\
-                                        0, self.action_id2w, self.action_w2id) )
+                                        0, self.action_id2w, self.action_w2id, self.args.capability_aware) )
                 index += 1
 
             # Initialize capture agents
@@ -162,11 +161,8 @@ class PredatorCapturePreyGNN(BaseEnv):
                 capture_idxs = np.random.randint(self.args.n_capture_agents, size=num_capture_agents)
             for i in capture_idxs:
                 self.agents.append( Agent(index, 0, self.predefined_agents[agent_type][i]['capture_radius'],\
-                                        self.action_id2w, self.action_w2id) )
+                                        self.action_id2w, self.action_w2id, self.args.capability_aware) )
                 index += 1
-        for a in self.agents:
-            print(a.sensing_radius, a.capture_radius, end="\t")
-        print()
 
         self.episode_steps = 0
         self.prey_locs = []

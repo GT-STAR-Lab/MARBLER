@@ -39,6 +39,7 @@ sense_reward: 1
 capture_reward: 5
 num_prey: 5
 test: False #Set this to change the agents that are being selected from
+capability_aware: True #Either the agent know what class they're in or their capabilities. Make sure this matches training
 
 #Information needed to generate the predefined agents
 n_capture_agents: 25
