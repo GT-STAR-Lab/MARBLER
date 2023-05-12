@@ -45,7 +45,7 @@ class PredatorCapturePreyGNN(BaseEnv):
             predator_idxs = np.random.randint(self.args.n_test_predator_agents, size=num_predator_agents)
         for i in predator_idxs:
             self.agents.append( Agent(index, self.predefined_agents[agent_type][i]['sensing_radius'],\
-                                      0, self.action_id2w, self.action_w2id, self.args.capability_aware) )
+                                      0, self.action_id2w, self.action_w2id, self.args) )
             index += 1
 
         # Initialize capture agents
@@ -57,7 +57,7 @@ class PredatorCapturePreyGNN(BaseEnv):
             capture_idxs = np.random.randint(self.args.n_capture_agents, size=num_capture_agents)
         for i in capture_idxs:
             self.agents.append( Agent(index, 0, self.predefined_agents[agent_type][i]['capture_radius'],\
-                                       self.action_id2w, self.action_w2id, self.args.capability_aware) )
+                                       self.action_id2w, self.action_w2id, self.args) )
             index += 1
 
         self.agent_obs_dim = 6
@@ -149,7 +149,7 @@ class PredatorCapturePreyGNN(BaseEnv):
                 predator_idxs = np.random.randint(self.args.n_test_predator_agents, size=num_predator_agents)
             for i in predator_idxs:
                 self.agents.append( Agent(index, self.predefined_agents[agent_type][i]['sensing_radius'],\
-                                        0, self.action_id2w, self.action_w2id, self.args.capability_aware) )
+                                        0, self.action_id2w, self.action_w2id, self.args) )
                 index += 1
 
             # Initialize capture agents
@@ -161,7 +161,7 @@ class PredatorCapturePreyGNN(BaseEnv):
                 capture_idxs = np.random.randint(self.args.n_capture_agents, size=num_capture_agents)
             for i in capture_idxs:
                 self.agents.append( Agent(index, 0, self.predefined_agents[agent_type][i]['capture_radius'],\
-                                        self.action_id2w, self.action_w2id, self.args.capability_aware) )
+                                        self.action_id2w, self.action_w2id, self.args) )
                 index += 1
 
         self.episode_steps = 0

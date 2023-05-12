@@ -8,13 +8,13 @@ class Agent:
     This could optionally all be done in PredatorCapturePrey
     '''
 
-    def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, action_word_to_id, capability_aware):
+    def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, action_word_to_id, args):
         self.index = index
         self.sensing_radius = sensing_radius
         self.capture_radius = capture_radius
         self.action_id2w = action_id_to_word
         self.action_w2id = action_word_to_id
-        self.capability_aware = capability_aware
+        self.args = args
         
 
     def get_observation( self, state_space, agents):
@@ -40,13 +40,16 @@ class Agent:
         if closest_prey == -1:
             prey_loc = [-5,-5]
         
-        if self.capability_aware:
+        if self.args.capability_aware:
             observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, self.sensing_radius, self.capture_radius])
-        else:
+        elif self.args.class_id:
             if self.sensing_radius > 1:
                 observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, 1, 0])             
             else:
                 observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc, 0, 1])
+        else:
+            observation = np.array([*state_space['poses'][:, self.index ][:2], *prey_loc])
+
 
 
         return observation

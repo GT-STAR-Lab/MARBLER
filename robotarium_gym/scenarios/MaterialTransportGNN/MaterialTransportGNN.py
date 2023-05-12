@@ -163,8 +163,12 @@ class MaterialTransportGNN(BaseEnv):
         observations = [] #Each agent's individual observation
         neighbors = [] #Stores the neighbors of each agent if delta > -1
         for a in self.agents:
-            observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
+            if self.args.capability_aware:
+                observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
                                      self.zone1_load, self.zone2_load, a.torque, a.speed])
+            else:
+                observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
+                                     self.zone1_load, self.zone2_load])
             if self.args.delta > -1:
                 neighbors.append(delta_disk_neighbors(self.agent_poses,a.index,self.args.delta))
            

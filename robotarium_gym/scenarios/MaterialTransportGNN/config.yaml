@@ -28,6 +28,7 @@ UP: -0.9 #Minimum y coordinate the robots are allowed to navigate to and start a
 DOWN: 0.9 #Maxiumum y coordinate the robots are allowed to navigate to and start at
 delta: -1 #Used to determine the adjacency matrix, set to -1 for full communication
 seed: 100
+capability_aware: True #Whether or not to append the agent's capabilities. Make sure this matches training. If False, resample needs to be False
 
 #Arguments needed by this scenario
 end_goal_width: .5
