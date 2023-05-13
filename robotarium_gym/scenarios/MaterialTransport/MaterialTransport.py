@@ -9,9 +9,9 @@ from robotarium_gym.utilities.roboEnv import roboEnv
 
 class Agent:
     #These agents are specifically implimented for the warehouse scenario
-    def __init__(self, index, action_id_to_word, action_word_to_id, capacity, speed):
+    def __init__(self, index, action_id_to_word, action_word_to_id, torque, speed):
         self.index = index
-        self.capacity = capacity
+        self.torque = torque
         self.speed = speed
         self.load = 0
         self.action_id2w = action_id_to_word
@@ -52,8 +52,8 @@ class MaterialTransport(BaseEnv):
         self.num_robots = self.args.n_agents
         self.agent_poses = None
 
-        #Agent agent's observation is [pos_x,pos_y,load, zone1_load, zone2_load, a1_message, a2_message, a3_message, a4_message, speed, capacity] 
-        #   where speed and capacity are only included if capability_aware is true
+        #Agent agent's observation is [pos_x,pos_y,load, zone1_load, zone2_load, a1_message, a2_message, a3_message, a4_message, speed, torque] 
+        #   where speed and torque are only included if capability_aware is true
         if self.args.capability_aware:
             self.agent_obs_dim = 11
         else:
@@ -70,9 +70,9 @@ class MaterialTransport(BaseEnv):
         
         self.agents = []
         for i in range(self.args.n_fast_agents):
-            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.small_capacity, self.args.fast_step))
+            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.small_torque, self.args.fast_step))
         for i in range(self.args.n_fast_agents, self.args.n_fast_agents+self.args.n_slow_agents):
-            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.large_capacity, self.args.slow_step))
+            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.large_torque, self.args.slow_step))
 
         #Initializes the action and observation spaces
         actions = []
@@ -140,7 +140,7 @@ class MaterialTransport(BaseEnv):
         for a in self.agents:
             if self.args.capability_aware:
                 observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
-                                     self.zone1_load, self.zone2_load, *self.messages, a.capacity, a.speed])
+                                     self.zone1_load, self.zone2_load, *self.messages, a.torque, a.speed])
             else:
                 observations.append([*self.agent_poses[:, a.index ][:2], a.load, \
                                      self.zone1_load, self.zone2_load, *self.messages])
@@ -159,17 +159,17 @@ class MaterialTransport(BaseEnv):
                     a.load = 0
             else:
                 if pos[0] > 1.5 - self.args.end_goal_width:
-                    if self.zone2_load > a.capacity:              
-                        a.load = a.capacity
-                        self.zone2_load -= a.capacity
+                    if self.zone2_load > a.torque:              
+                        a.load = a.torque
+                        self.zone2_load -= a.torque
                     else:
                         a.load = self.zone2_load
                         self.zone2_load = 0
                     reward += a.load * self.args.load_multiplier
                 elif np.linalg.norm(self.agent_poses[:2, a.index] - [0, 0]) <= self.args.zone1_radius:
-                    if self.zone1_load > a.capacity:              
-                        a.load = a.capacity
-                        self.zone1_load -= a.capacity
+                    if self.zone1_load > a.torque:              
+                        a.load = a.torque
+                        self.zone1_load -= a.torque
                     else:
                         a.load = self.zone1_load
                         self.zone1_load = 0
