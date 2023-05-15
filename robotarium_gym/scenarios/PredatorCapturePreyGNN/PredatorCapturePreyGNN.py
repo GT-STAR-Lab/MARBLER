@@ -16,6 +16,7 @@ class PredatorCapturePreyGNN(BaseEnv):
     def __init__(self, args):
         # Settings
         self.args = args
+        # print(f"\033[0;32m{args.__dict__}\033[00m")
 
         module_dir = os.path.dirname(__file__)
         with open(f'{module_dir}/predefined_agents.yaml', 'r') as stream:
@@ -60,7 +61,10 @@ class PredatorCapturePreyGNN(BaseEnv):
                                        self.action_id2w, self.action_w2id, self.args) )
             index += 1
 
-        self.agent_obs_dim = 6
+        if self.args.capability_aware:
+            self.agent_obs_dim = 6
+        else:
+            self.agent_obs_dim = 4
 
         #initializes the actions and observation spaces
         actions = []
@@ -187,7 +191,7 @@ class PredatorCapturePreyGNN(BaseEnv):
     def step(self, actions_):
         '''
         Step into the environment
-        Returns observation, reward, done, info (empty dictionary for now)
+        Returns observation, reward, done, info
         '''
         terminated = False
         self.episode_steps += 1
@@ -213,9 +217,21 @@ class PredatorCapturePreyGNN(BaseEnv):
                 terminated = True    
 
         if terminated:
-            print('Remaining Prey:', self.state_space['num_prey'])                     
+            pass
+
+            # for logging
+            # print(self.episode_steps)
+            # print("latest % of prey successfully captured")
+            # print(sum(self.prey_captured) / self.num_prey)
+
+            # print('Remaining Prey:', self.state_space['num_prey'])                     
+        info = {
+                "pct_captured_prey": sum(self.prey_captured) / self.num_prey,
+                "total_prey": self.num_prey,
+                "num_prey_captured": sum(self.prey_captured),
+                } 
         
-        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
+        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, info
 
     def get_observations(self, state_space):
         '''
