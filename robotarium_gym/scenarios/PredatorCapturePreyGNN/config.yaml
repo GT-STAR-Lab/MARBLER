@@ -20,7 +20,8 @@ robotarium: False #Should be False during training to speed up robots, needs to 
 real_time: False
 seed: 100
 barrier_certificate: default #Can be safe or default for strong or weak barrier certificates
-penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
+penalize_violations: True # violation=robot collision w/ each other or boundary, does not terminate early
+violation_reward: -5
 delta: -1 #Used to determine the adjacency matrix, set to -1 for full communication
 max_episode_steps: 80
 update_frequency: 34

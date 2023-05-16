@@ -204,31 +204,26 @@ class PredatorCapturePreyGNN(BaseEnv):
         
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
-        if return_message != '':
-            print("Ending due to",return_message)
-            terminated =  True
-            rewards = -5
-        else:    
-            rewards = self.get_rewards(updated_state)
-            
-            # condition for checking for the whether the episode is terminated
-            if self.episode_steps > self.args.max_episode_steps or \
-                updated_state['num_prey'] == 0:
-                terminated = True    
+        rewards = self.get_rewards(updated_state)
 
-        if terminated:
-            pass
+        # penalize for collisions, record in info
+        violation_occurred = 0
+        if self.args.penalize_violations:
+            if return_message != '':
+                violation_occurred += 1
+                # print("violation: ", return_message)
+                rewards += self.args.violation_reward
+        
+        # terminate if needed
+        if self.episode_steps > self.args.max_episode_steps or \
+            updated_state['num_prey'] == 0:
+            terminated = True    
 
-            # for logging
-            # print(self.episode_steps)
-            # print("latest % of prey successfully captured")
-            # print(sum(self.prey_captured) / self.num_prey)
-
-            # print('Remaining Prey:', self.state_space['num_prey'])                     
         info = {
                 "pct_captured_prey": sum(self.prey_captured) / self.num_prey,
                 "total_prey": self.num_prey,
                 "num_prey_captured": sum(self.prey_captured),
+                "violation_occurred": violation_occurred, # not a true count, just binary for if ANY violation occurred
                 } 
         
         return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, info
