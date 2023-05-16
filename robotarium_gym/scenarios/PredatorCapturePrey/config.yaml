@@ -33,7 +33,7 @@ predator_radius: .45
 capture: 2
 capture_radius: .225
 capability_aware: False #If true, the agents know their capture/sensing radius. Probably shouldn't use ids if true. Make sure this argument matches how the models were trained
-violations_penalty: -0.15 #How much the agents are penalyzed for for going out of bounds or colliding
+violations_penalty: -0.05 #How much the agents are penalyzed for for going out of bounds or colliding
 show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 num_neighbors: 3

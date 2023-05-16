@@ -145,14 +145,17 @@ class PredatorCapturePrey(BaseEnv):
         # call the environment step function and get the updated state
         num_errors = self.env.step(actions_)
         if num_errors > 0:
-            print(num_errors, end='\t')
+            error_penalty = np.log(num_errors+1) * self.args.violations_penalty
+            print(error_penalty)
+        else:
+            error_penalty = 0
         
         self._update_tracking_and_locations(actions_)
         updated_state = self._generate_state_space()
         
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
-        rewards = self.get_rewards(updated_state) - num_errors * self.args.violations_penalty
+        rewards = self.get_rewards(updated_state) + error_penalty
             
         # condition for checking for the whether the episode is terminated
         if self.episode_steps > self.args.max_episode_steps or \
