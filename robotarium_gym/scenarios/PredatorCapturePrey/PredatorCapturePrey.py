@@ -143,24 +143,21 @@ class PredatorCapturePrey(BaseEnv):
         self.episode_steps += 1
 
         # call the environment step function and get the updated state
-        return_message = self.env.step(actions_)
+        num_errors = self.env.step(actions_)
+        if num_errors > 0:
+            print(num_errors, end='\t')
         
         self._update_tracking_and_locations(actions_)
         updated_state = self._generate_state_space()
         
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
-        if return_message != '':
-            print("Ending due to",return_message)
-            terminated =  True
-            rewards = -5
-        else:    
-            rewards = self.get_rewards(updated_state)
+        rewards = self.get_rewards(updated_state) - num_errors * self.args.violations_penalty
             
-            # condition for checking for the whether the episode is terminated
-            if self.episode_steps > self.args.max_episode_steps or \
-                updated_state['num_prey'] == 0:
-                terminated = True                         
+        # condition for checking for the whether the episode is terminated
+        if self.episode_steps > self.args.max_episode_steps or \
+            updated_state['num_prey'] == 0:
+            terminated = True                         
         
         return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
 

@@ -14,12 +14,12 @@ shared_reward: True #Purely for evaluation information
 
 #Arguments neeeded for most scenarios
 n_agents: 4 #Number of agents to run
-show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False #Set to true for debugging only
 max_episode_steps: 60 #maximum number of steps an episode can take
 update_frequency: 69 #How often new actions are given to the robotarium
 start_dist: .3 #Minimum distance the agents start from each other
-robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
+robotarium: True #Should be False during training to speed up robots, needs to be true when submitting
 barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
 penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
 LEFT: -1.40 #Minimum x coordinate the robots are allowed to navigate to and start at
