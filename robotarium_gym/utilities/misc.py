@@ -102,12 +102,13 @@ def run_env(config, module_dir):
 
     totalReward = []
     totalSteps = []
+    remainingPrey = []
     try:
         for i in range(config.episodes):
             episodeReward = 0
             episodeSteps = 0
             hs = np.array([np.zeros((model_config.hidden_dim, )) for i in range(n_agents)])
-            for j in range(config.max_episode_steps):      
+            for j in range(config.max_episode_steps+1):      
                 if model_config.obs_agent_id: #Appends the agent id if obs_agent_id is true. TODO: support obs_last_action too
                     obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
 
@@ -130,14 +131,16 @@ def run_env(config, module_dir):
                     break
             if episodeSteps == 0:
                 episodeSteps = config.max_episode_steps
+            remainingPrey.append(env.state_space['num_prey'])
             obs = np.array(env.reset())
             print('Episode', i+1)
             print('Episode reward:', episodeReward)
             print('Episode steps:', episodeSteps)
             totalReward.append(episodeReward)
-            totalSteps.append(episodeSteps)
+            totalSteps.append(episodeSteps)           
     except Exception as error:
         print(error)
     finally:
-        print('\nTotal Reward:',totalReward, sum(totalReward))
-        print('Total Steps:', totalSteps, sum(totalSteps))
+        print(f'\nReward: {totalReward}, Mean: {np.mean(totalReward)}, Standard Deviation: {np.std(totalReward)}')
+        print(f'Steps: {totalSteps}, Mean: {np.mean(totalSteps)}, Standard Deviation: {np.std(totalSteps)}')
+        print(f'Prey: {remainingPrey}, Mean: {np.mean(remainingPrey)}, Standard Deviation: {np.std(remainingPrey)}')

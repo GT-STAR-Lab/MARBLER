@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: PredatorCapturePrey #name of the folder inside scenarios
 
-model_config_file: test.json
-model_file: test.th
+model_config_file: qmix_test.json
+model_file: qmix_end.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
@@ -11,7 +11,7 @@ env_file: PredatorCapturePrey
 env_class: PredatorCapturePrey #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
 n_agents: 4
-episodes: 10 #Number of episodes to run for
+episodes: 30 #Number of episodes to run for
 shared_reward: True
 
 #Arguments needed by the environment
@@ -40,4 +40,4 @@ num_neighbors: 3
 max_episode_steps: 80
 update_frequency: 34
 num_prey: 6
-robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
+robotarium: True #Should be False during training to speed up robots, needs to be true when submitting

@@ -146,7 +146,6 @@ class PredatorCapturePrey(BaseEnv):
         num_errors = self.env.step(actions_)
         if num_errors > 0:
             error_penalty = np.log(num_errors+1) * self.args.violations_penalty
-            print(error_penalty)
         else:
             error_penalty = 0
         
@@ -160,7 +159,8 @@ class PredatorCapturePrey(BaseEnv):
         # condition for checking for the whether the episode is terminated
         if self.episode_steps > self.args.max_episode_steps or \
             updated_state['num_prey'] == 0:
-            terminated = True                         
+            terminated = True     
+            print(f'Remaining prey: {self.state_space["num_prey"]}')                    
         
         return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
 
