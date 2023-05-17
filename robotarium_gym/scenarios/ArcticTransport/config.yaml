@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: ArcticTransport #name of the folder inside scenarios
 
-model_config_file: mappo_default.json
-model_file: mappo_default.th
+model_config_file: mappo_full.json
+model_file: mappo_full.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
@@ -10,7 +10,7 @@ actor_class: RNNAgent
 env_file: ArcticTransport
 env_class: ArcticTransport #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-episodes: 10 #Number of episodes to run for
+episodes: 30 #Number of episodes to run for
 n_agents: 4
 shared_reward: True
 
@@ -18,9 +18,9 @@ show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when sub
 real_time: False
 max_episode_steps: 60
 update_frequency: 39
-robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
-barrier_certificate: default #Can be safe or default for strong or weak barrier certificates
-penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
+robotarium: True #Should be False during training to speed up robots, needs to be true when submitting
+barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
+penalize_violations: True #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
 
 #Arguments needed by this scenario
 LEFT: -1.40

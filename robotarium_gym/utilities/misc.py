@@ -139,5 +139,5 @@ def run_env(config, module_dir):
     except Exception as error:
         print(error)
     finally:
-        print('\nTotal Reward:',totalReward, sum(totalReward))
-        print('Total Steps:', totalSteps, sum(totalSteps))
+        print(f'\nReward: {totalReward}, Mean: {np.mean(totalReward)}, Standard Deviation: {np.std(totalReward)}')
+        print(f'Steps: {totalSteps}, Mean: {np.mean(totalSteps)}, Standard Deviation: {np.std(totalSteps)}')
