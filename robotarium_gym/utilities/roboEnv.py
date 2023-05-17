@@ -41,6 +41,7 @@ class roboEnv:
         '''
         goals_ = self.agents._generate_step_goal_positions(actions_)
         message = ''
+        num_errors = 0
         # Considering one step to be equivalent to update_frequency iterations
         for iterations in range(self.args.update_frequency):
             # Get the actual position of the agents
@@ -58,18 +59,33 @@ class roboEnv:
 
             #If checking for violations (boundary and collision) then
             #   Check if there has been a violation ever and then check if the number of times that violation has occurred has increased since the last timestep
+            
             if self.args.penalize_violations:
-                
-                if 'collision' in self.robotarium._errors and ('collision' not in self.errors or sum(self.robotarium._errors['collision'].values()) > sum(self.errors['collision'].values())):
-                    message = 'collision'  
-                if 'boundary' in self.robotarium._errors and ('boundary' not in self.errors or sum(self.robotarium._errors['boundary'].values()) > sum(self.errors['boundary'].values())):
-                        if message == '':
-                            message = 'boundary'
-                        else:
-                            message += "_boundary"
-                self.errors = copy.deepcopy(self.robotarium._errors)
-                if message != '':
-                    return message
+                if 'end_episode' in self.args.__dict__.keys() and not self.args.end_episode:
+                    if 'collision' in self.robotarium._errors:
+                        if 'collision' not in self.errors:
+                            num_errors += sum(self.robotarium._errors['collision'].values())
+                        elif sum(self.robotarium._errors['collision'].values()) > sum(self.errors['collision'].values()):
+                            num_errors += sum(self.robotarium._errors['collision'].values()) - sum(self.errors['collision'].values())
+                    if 'boundary' in self.robotarium._errors: 
+                        if 'boundary' not in self.errors:
+                            num_errors += sum(self.robotarium._errors['boundary'].values())
+                        elif sum(self.robotarium._errors['boundary'].values()) > sum(self.errors['boundary'].values()):
+                            num_errors += sum(self.robotarium._errors['boundary'].values()) - sum(self.errors['boundary'].values())
+                    self.errors = copy.deepcopy(self.robotarium._errors)
+                else:
+                    if 'collision' in self.robotarium._errors and ('collision' not in self.errors or sum(self.robotarium._errors['collision'].values()) > sum(self.errors['collision'].values())):
+                        message = 'collision'  
+                    if 'boundary' in self.robotarium._errors and ('boundary' not in self.errors or sum(self.robotarium._errors['boundary'].values()) > sum(self.errors['boundary'].values())):
+                            if message == '':
+                                message = 'boundary'
+                            else:
+                                message += "_boundary"
+                    self.errors = copy.deepcopy(self.robotarium._errors)
+                    if message != '':
+                        return message
+        if 'end_episode' in self.args.__dict__.keys() and not self.args.end_episode:
+            return num_errors
         return ""
     
     def _create_robotarium(self):
