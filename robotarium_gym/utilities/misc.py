@@ -107,7 +107,7 @@ def run_env(config, module_dir):
             episodeReward = 0
             episodeSteps = 0
             hs = np.array([np.zeros((model_config.hidden_dim, )) for i in range(n_agents)])
-            for j in range(config.max_episode_steps):      
+            for j in range(config.max_episode_steps+1):      
                 if model_config.obs_agent_id: #Appends the agent id if obs_agent_id is true. TODO: support obs_last_action too
                     obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
 

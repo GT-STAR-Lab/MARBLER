@@ -27,6 +27,6 @@ reward_scaler: 0.1
 show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 max_episode_steps: 50
-update_frequency: 34
+update_frequency: 29
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
 penalize_violations: True

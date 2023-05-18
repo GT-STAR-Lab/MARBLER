@@ -47,7 +47,7 @@ class roboEnv:
             self.agents.agent_poses = self.robotarium.get_poses()
             # Uses the robotarium commands to get the velocities of each robot   
             # Only does this once every 10 steps because otherwise training is really slow 
-            if iterations % 10 == 0 or self.args.robotarium:                    
+            if iterations % 15 == 0 or self.args.robotarium:                    
                 velocities = self.controller.set_velocities(self.agents.agent_poses, goals_)
                 self.robotarium.set_velocities(np.arange(self.agents.num_robots), velocities)
             
