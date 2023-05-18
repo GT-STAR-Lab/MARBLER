@@ -61,7 +61,7 @@ class roboEnv:
             #   Check if there has been a violation ever and then check if the number of times that violation has occurred has increased since the last timestep
             
             if self.args.penalize_violations:
-                if 'end_episode' in self.args.__dict__.keys() and not self.args.end_episode:
+                if 'end_ep_on_violation' in self.args.__dict__.keys() and not self.args.end_ep_on_violation:
                     if 'collision' in self.robotarium._errors:
                         if 'collision' not in self.errors:
                             num_errors += sum(self.robotarium._errors['collision'].values())
@@ -84,7 +84,7 @@ class roboEnv:
                     self.errors = copy.deepcopy(self.robotarium._errors)
                     if message != '':
                         return message
-        if 'end_episode' in self.args.__dict__.keys() and not self.args.end_episode:
+        if 'end_ep_on_violation' in self.args.__dict__.keys() and not self.args.end_ep_on_violation:
             return num_errors
         return ""
     

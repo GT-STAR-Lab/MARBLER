@@ -209,11 +209,11 @@ class PredatorCapturePreyGNN(BaseEnv):
         # penalize for collisions, record in info
         violation_occurred = 0
         if self.args.penalize_violations:
-            if self.args.end_episode and return_message != '':
+            if self.args.end_ep_on_violation and return_message != '':
                 violation_occurred += 1
                 # print("violation: ", return_message)
                 rewards += self.args.violation_penalty
-            elif not self.args.end_episode:
+            elif not self.args.end_ep_on_violation:
                 violation_occurred = return_message
                 rewards +=  np.log(return_message+1) * self.args.violation_penalty #Taking the log because this can get out of control otherwise
         
