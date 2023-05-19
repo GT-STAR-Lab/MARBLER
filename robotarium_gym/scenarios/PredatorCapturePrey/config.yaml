@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: PredatorCapturePrey #name of the folder inside scenarios
 
-model_config_file: test.json
-model_file: test.th
+model_config_file: qmix.json
+model_file: qmix.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
@@ -31,13 +31,13 @@ capture_reward: 5
 predator: 2
 predator_radius: .45
 capture: 2
-capture_radius: .225
+capture_radius: .25
 capability_aware: False #If true, the agents know their capture/sensing radius. Probably shouldn't use ids if true. Make sure this argument matches how the models were trained
 penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
-show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 num_neighbors: 3
 max_episode_steps: 80
-update_frequency: 34
+update_frequency: 29
 num_prey: 6
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting

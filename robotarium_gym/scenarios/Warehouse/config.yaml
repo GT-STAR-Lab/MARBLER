@@ -18,7 +18,7 @@ show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when sub
 real_time: False #Set to true for debugging only
 num_neighbors: 5 #Number of neighbors to communicate with
 max_episode_steps: 100 #maximum number of steps an episode can take
-update_frequency: 34 #How often new actions are given to the robotarium
+update_frequency: 29 #How often new actions are given to the robotarium
 step_dist : 0.2 #The amount of distance the robots move per time step assuming time allows
 start_dist: .6 #Minimum distance the agents start from each other
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
