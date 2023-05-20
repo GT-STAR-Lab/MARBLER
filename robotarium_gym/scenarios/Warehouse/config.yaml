@@ -12,6 +12,8 @@ n_actions: 5 #The number of actions available for the agent
 episodes: 10 #Number of episodes to run for
 shared_reward: False #Purely for evaluation information
 
+seed: -1 #sets the seed. Set to -1 to use a random seed.
+
 #Arguments neeeded for most scenarios
 n_agents: 6 #Number of agents to run
 show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium

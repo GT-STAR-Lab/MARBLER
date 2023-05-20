@@ -23,6 +23,9 @@ class PredatorCapturePrey(BaseEnv):
         self.num_prey = args.num_prey
         self.num_predators = args.predator
         self.num_capture = args.capture
+
+        if self.args.seed != -1:
+             np.random.seed(self.args.seed)
         
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}

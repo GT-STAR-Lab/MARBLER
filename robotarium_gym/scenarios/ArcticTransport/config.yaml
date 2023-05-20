@@ -14,6 +14,8 @@ episodes: 30 #Number of episodes to run for
 n_agents: 4
 shared_reward: True
 
+seed: -1 #sets the seed. Set to -1 to use a random seed.
+
 show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 max_episode_steps: 60

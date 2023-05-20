@@ -33,6 +33,9 @@ class ArcticTransport(BaseEnv):
         start_z = [math.pi/2]*self.num_robots
         self.start_poses = np.array([start_x, start_y, start_z])
 
+        if self.args.seed != -1:
+             np.random.seed(self.args.seed)
+
         #Initializes the action and observation spaces
         actions = []
         observations = []

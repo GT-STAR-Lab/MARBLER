@@ -13,6 +13,7 @@ n_actions: 5 #The number of actions available for the agent
 n_agents: 4
 episodes: 10 #Number of episodes to run for
 shared_reward: True
+seed: -1 #sets the seed. Set to -1 to use a random seed.
 
 #Arguments needed by the environment
 #The follow four arguments are the boundaries in the Robotarium that the robots are allowed to traverse to
@@ -33,7 +34,7 @@ predator_radius: .45
 capture: 2
 capture_radius: .25
 capability_aware: False #If true, the agents know their capture/sensing radius. Probably shouldn't use ids if true. Make sure this argument matches how the models were trained
-penalize_violations: False #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
+penalize_violations: True #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
 show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 num_neighbors: 3
