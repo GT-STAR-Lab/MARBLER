@@ -133,9 +133,13 @@ class MaterialTransport(BaseEnv):
                             terminated = False
                             break
         else:
-            print("Ending due to", return_message)
+            #print("Ending due to", return_message)
             reward = -6
             terminated = True
+        
+        if terminated:
+            print(f'Remaining: {self.zone1_load + self.zone2_load + sum(a.load for a in self.agents)} {return_message}')        
+ 
         return obs, [reward] * self.num_robots, [terminated]*self.num_robots, {}
     
     def get_observations(self):

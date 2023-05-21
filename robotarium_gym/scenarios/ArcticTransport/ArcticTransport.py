@@ -99,9 +99,16 @@ class ArcticTransport(BaseEnv):
                         terminated = False
                         break
         else:
-            print("Ending due to", message)
+            #print("Ending due to", message)
             reward = -30
             terminated = True
+
+        if terminated:
+            if message == '':
+                print(self.episode_steps)
+            else:
+                print((self.args.max_episode_steps+1), message)
+        
         return obs, [reward]*self.num_robots, [terminated]*self.num_robots, {}
 
     def get_observations(self):

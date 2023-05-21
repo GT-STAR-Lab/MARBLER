@@ -154,7 +154,7 @@ class PredatorCapturePrey(BaseEnv):
         # get the observation and reward from the updated state
         obs     = self.get_observations(updated_state)
         if return_message != '':
-            print("Ending due to",return_message)
+            #print("Ending due to",return_message)
             terminated =  True
             rewards = -5
         else:    
@@ -163,7 +163,10 @@ class PredatorCapturePrey(BaseEnv):
             # condition for checking for the whether the episode is terminated
             if self.episode_steps > self.args.max_episode_steps or \
                 updated_state['num_prey'] == 0:
-                terminated = True                         
+                terminated = True              
+
+        if terminated:
+            print(f"Remaining prey: {updated_state['num_prey']} {return_message}")   
         
         return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
 
