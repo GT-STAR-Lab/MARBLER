@@ -32,8 +32,8 @@ class PredatorCapturePreyGNN(BaseEnv):
         self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
         #Initializes the agents
-        num_capture_agents = np.random.randint(4) + 1
-        num_predator_agents = 5 - num_capture_agents
+        num_capture_agents = np.random.randint(self.num_robots-1) + 1
+        num_predator_agents = self.num_robots - num_capture_agents
         self.agents = []
 
         # Initialize predator agents
@@ -139,8 +139,8 @@ class PredatorCapturePreyGNN(BaseEnv):
         '''
         if self.args.resample:
             #Initializes the agents
-            num_capture_agents = np.random.randint(4) + 1
-            num_predator_agents = 5 - num_capture_agents
+            num_capture_agents = np.random.randint(self.num_robots - 1) + 1
+            num_predator_agents = self.num_robots - num_capture_agents
             self.agents = []
         
             # Initialize predator agents
