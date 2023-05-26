@@ -8,12 +8,11 @@ class Agent:
     This could optionally all be done in PredatorCapturePrey
     '''
 
-    def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, action_word_to_id, capability_aware):
+    def __init__(self, index, sensing_radius, capture_radius, action_id_to_word, capability_aware):
         self.index = index
         self.sensing_radius = sensing_radius
         self.capture_radius = capture_radius
         self.action_id2w = action_id_to_word
-        self.action_w2id = action_word_to_id
         self.capability_aware = capability_aware
         
 

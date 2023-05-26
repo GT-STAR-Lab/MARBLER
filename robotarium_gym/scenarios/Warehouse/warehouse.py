@@ -9,12 +9,11 @@ from robotarium_gym.utilities.roboEnv import roboEnv
 
 class Agent:
     #These agents are specifically implimented for the warehouse scenario
-    def __init__(self, index, action_id_to_word, action_word_to_id, goal='Red'):
+    def __init__(self, index, action_id_to_word, goal='Red'):
         self.index = index
         self.goal = goal
         self.loaded = False
         self.action_id2w = action_id_to_word
-        self.action_w2id = action_word_to_id
 
     
     def generate_goal(self, goal_pose, action, args):    
@@ -56,12 +55,11 @@ class Warehouse(BaseEnv):
         
         #This isn't really needed but makes a bunch of stuff clearer
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
         if self.args.seed != -1:
              np.random.seed(self.args.seed)
         
-        self.agents = [Agent(i, self.action_id2w, self.action_w2id) for i in range(self.num_robots)]
+        self.agents = [Agent(i, self.action_id2w) for i in range(self.num_robots)]
         for i, a in enumerate(self.agents):
             if i % 2 == 0: #Even numbered agents are assigned the green zone
                 a.goal = 'Green'

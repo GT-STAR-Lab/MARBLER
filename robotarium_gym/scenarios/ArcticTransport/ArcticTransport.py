@@ -21,9 +21,8 @@ class ArcticTransport(BaseEnv):
 
         #This isn't really needed but makes a bunch of stuff clearer
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
-        self.agents = [Agent(i, self.action_id2w, self.action_w2id) for i in range(self.num_robots)]
+        self.agents = [Agent(i, self.action_id2w) for i in range(self.num_robots)]
         self.agents[2].type = 'ice'
         self.agents[3].type = 'water'
 

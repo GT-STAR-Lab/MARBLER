@@ -1,13 +1,12 @@
 import numpy as np
 
 class Agent:
-    def __init__(self, index, action_id_to_word, action_word_to_id, type='drone'):
+    def __init__(self, index, action_id_to_word, type='drone'):
         '''
         Type can be: "ice", "drone", or "water"
         '''
         self.index = index
         self.action_id2w = action_id_to_word
-        self.action_w2id = action_word_to_id
         self.type=type
         self.pixel_type = 0
         self.reached_goal = False
