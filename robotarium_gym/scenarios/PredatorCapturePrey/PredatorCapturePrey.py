@@ -28,7 +28,6 @@ class PredatorCapturePrey(BaseEnv):
              np.random.seed(self.args.seed)
         
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
 
         if self.args.capability_aware:
             self.agent_obs_dim = 6
@@ -39,10 +38,10 @@ class PredatorCapturePrey(BaseEnv):
         self.agents = []
         # Initialize predator agents
         for i in range(self.num_predators):
-            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.action_w2id, self.args.capability_aware) )
+            self.agents.append( Agent(i, args.predator_radius, 0, self.action_id2w, self.args.capability_aware) )
         # Initialize capture agents
         for i in range(self.num_capture):
-            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.action_w2id, self.args.capability_aware) )
+            self.agents.append( Agent(i + self.args.predator, 0, args.capture_radius, self.action_id2w, self.args.capability_aware) )
 
         #initializes the actions and observation spaces
         actions = []

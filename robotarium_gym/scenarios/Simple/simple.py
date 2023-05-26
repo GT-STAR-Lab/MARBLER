@@ -16,10 +16,9 @@ class Agent:
     Keeps track of information for each agent and creates functions needed by each agent. 
     '''
 
-    def __init__(self, index, action_id_to_word, action_word_to_id):
+    def __init__(self, index, action_id_to_word):
         self.index = index
         self.action_id2w = action_id_to_word
-        self.action_w2id = action_word_to_id
         
 
     def get_observation( self, state_space):
@@ -81,7 +80,6 @@ class simple(BaseEnv):
              np.random.seed(self.args.seed)
 
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
         
         self.visualizer = Visualize( self.args ) # visualizer
         self.env = roboEnv(self, args) # robotarium Environment
@@ -89,7 +87,7 @@ class simple(BaseEnv):
         # Initialize the agents
         self.agents = []
         for agent_id in range(self.num_agent):
-            self.agents.append( Agent(agent_id, self.action_id2w, self.action_w2id) ) 
+            self.agents.append( Agent(agent_id, self.action_id2w) ) 
 
         # Declaring action and observation space
         actions = []

@@ -9,13 +9,12 @@ from robotarium_gym.utilities.roboEnv import roboEnv
 
 class Agent:
     #These agents are specifically implimented for the warehouse scenario
-    def __init__(self, index, action_id_to_word, action_word_to_id, torque, speed):
+    def __init__(self, index, action_id_to_word, torque, speed):
         self.index = index
         self.torque = torque
         self.speed = speed
         self.load = 0
         self.action_id2w = action_id_to_word
-        self.action_w2id = action_word_to_id
    
     def generate_goal(self, goal_pose, action, args):    
         '''
@@ -69,13 +68,12 @@ class MaterialTransport(BaseEnv):
         
         #This isn't really needed but makes a bunch of stuff clearer
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
-        self.action_w2id = {v:k for k,v in self.action_id2w.items()}
         
         self.agents = []
         for i in range(self.args.n_fast_agents):
-            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.small_torque, self.args.fast_step))
+            self.agents.append(Agent(i, self.action_id2w, self.args.small_torque, self.args.fast_step))
         for i in range(self.args.n_fast_agents, self.args.n_fast_agents+self.args.n_slow_agents):
-            self.agents.append(Agent(i, self.action_id2w, self.action_w2id, self.args.large_torque, self.args.slow_step))
+            self.agents.append(Agent(i, self.action_id2w, self.args.large_torque, self.args.slow_step))
 
         #Initializes the action and observation spaces
         actions = []

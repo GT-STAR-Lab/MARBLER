@@ -66,6 +66,7 @@ def main(args):
             data = data.replace(k, file_conversions[k])
         with open(f, 'w') as file:
             file.write(data)
+    print('Created submission in', args.out_dir)
 
 
 if __name__ == '__main__':

@@ -1,15 +1,15 @@
 #Arguments needed to create proper paths to everything
 scenario: Warehouse #name of the folder inside scenarios
-model_config_file: vdn_ns.json #The config file from sacred for the model
-model_file: vdn_ns.th #The saved model weights
-actor_file: rnn_ns_agent #The file the actor model architecture lives in
-actor_class: RNNNSAgent #The class the actor model architecture is in
+model_config_file: qmix.json #The config file from sacred for the model
+model_file: qmix.th #The saved model weights
+actor_file: rnn_agent #The file the actor model architecture lives in
+actor_class: RNNAgent #The class the actor model architecture is in
 env_file: warehouse #The .py file this environment is in
 env_class: Warehouse #This needs to have all of the functionalities of a gym to work
 
 #Arguments needed by main, will not affect training
 n_actions: 5 #The number of actions available for the agent
-episodes: 10 #Number of episodes to run for
+episodes: 5 #Number of episodes to run for
 shared_reward: False #Purely for evaluation information
 
 seed: -1 #sets the seed. Set to -1 to use a random seed.

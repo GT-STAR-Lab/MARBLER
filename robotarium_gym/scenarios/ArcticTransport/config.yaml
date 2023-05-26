@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: ArcticTransport #name of the folder inside scenarios
 
-model_config_file: mappo_full.json
-model_file: mappo_full.th
+model_config_file: qmix.json
+model_file: qmix.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
@@ -10,7 +10,7 @@ actor_class: RNNAgent
 env_file: ArcticTransport
 env_class: ArcticTransport #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-episodes: 30 #Number of episodes to run for
+episodes: 5 #Number of episodes to run for
 n_agents: 4
 shared_reward: True
 
