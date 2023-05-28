@@ -66,7 +66,7 @@ def main(args):
             data = data.replace(k, file_conversions[k])
         with open(f, 'w') as file:
             file.write(data)
-
+    print('Files written to', args.out_dir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

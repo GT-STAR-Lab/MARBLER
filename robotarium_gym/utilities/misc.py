@@ -132,12 +132,12 @@ def run_env(config, module_dir, save_dir=None):
                     break
             if episodeSteps == 0:
                 episodeSteps = config.max_episode_steps
-            obs = np.array(env.reset())
             print('Episode', i+1)
             print('Episode reward:', episodeReward)
             print('Episode steps:', episodeSteps)
             totalReward.append(episodeReward)
             totalSteps.append(episodeSteps)
+            obs = np.array(env.reset())
     except Exception as error:
         print(error)
     finally:
