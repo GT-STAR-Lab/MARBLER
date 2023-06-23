@@ -6,6 +6,10 @@ import json
 import torch
 from rps.utilities.misc import *
 
+# imports needed for logging
+import tensorflow as tf
+import datetime
+
 def is_close( agent_poses, agent_index, prey_loc, sensing_radius):
     agent_pose = agent_poses[:2, agent_index]
     prey_loc = prey_loc.reshape((1,2))[0]
@@ -92,6 +96,23 @@ def load_env_and_model(args, module_dir):
     env = env_class(args)
 
     model_config.shared_reward = args.shared_reward
+
+    if args.enable_logging:
+        current_folder = os.getcwd()
+        log_path = os.path.join(current_folder, 'logs')
+        if not os.path.exists(log_path):
+            os.makedirs(log_path)
+        
+        # Initialize logging folders if it is enabled
+        log_path = os.path.join(log_path, args.scenario)
+        if not os.path.exists(log_path):
+            os.makedirs(log_path)
+        
+        current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        log_path = os.path.join(log_path, current_time)
+        model_config.log_path = log_path
+
+
     return env, model, model_config
 
 
@@ -100,12 +121,18 @@ def run_env(config, module_dir, save_dir=None):
     obs = np.array(env.reset())
     n_agents = len(obs)
 
+    if config.enable_logging:
+        with tf.device(config.device):
+            summarywriter = tf.summary.create_file_writer(model_config.log_path)
+
     totalReward = []
     totalSteps = []
+    totalDists = np.zeros((config.episodes, n_agents))
     try:
         for i in range(config.episodes):
             episodeReward = 0
             episodeSteps = 0
+            episodeDistTravelled = np.zeros((n_agents))
             hs = np.array([np.zeros((model_config.hidden_dim, )) for i in range(n_agents)])
             for j in range(config.max_episode_steps+1):      
                 if env.env.visualizer.show_figure and save_dir: 
@@ -121,8 +148,10 @@ def run_env(config, module_dir, save_dir=None):
                     
                 actions = np.argmax(q_values.detach().numpy(), axis=1)
 
-                obs, reward, done, _ = env.step(actions)
+                obs, reward, done, info = env.step(actions)
                 
+                episodeDistTravelled += info['dist_travelled']
+
                 if model_config.shared_reward:
                     episodeReward += reward[0]
                 else:
@@ -135,11 +164,25 @@ def run_env(config, module_dir, save_dir=None):
             print('Episode', i+1)
             print('Episode reward:', episodeReward)
             print('Episode steps:', episodeSteps)
+            print('Episode distance travelled:', episodeDistTravelled)
+            
+            if config.enable_logging:
+                with summarywriter.as_default():
+                    tf.summary.scalar("reward", episodeReward, i)
+                    tf.summary.scalar("episode_steps", episodeSteps, i+1)
+                    for agent in range(n_agents):
+                        tf.summary.scalar(f'dist_travelled_{agent+1}',\
+                                        episodeDistTravelled[agent], i+1)
+            
             totalReward.append(episodeReward)
             totalSteps.append(episodeSteps)
+            totalDists[i,:] = episodeDistTravelled
+
             obs = np.array(env.reset())
     except Exception as error:
         print(error)
     finally:
         print(f'\nReward: {totalReward}, Mean: {np.mean(totalReward)}, Standard Deviation: {np.std(totalReward)}')
         print(f'Steps: {totalSteps}, Mean: {np.mean(totalSteps)}, Standard Deviation: {np.std(totalSteps)}')
+        print(f'Distance Travelled: {totalDists}, Mean: {np.mean(totalDists, axis=0)}, Standard Deviation: {np.std(totalDists)}')
+        

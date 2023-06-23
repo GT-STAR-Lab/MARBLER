@@ -57,7 +57,6 @@ class PredatorCapturePrey(BaseEnv):
 
         self.visualizer = Visualize( self.args )
         self.env = roboEnv(self, args)
-             
 
     def _generate_step_goal_positions(self, actions):
         '''
@@ -142,10 +141,11 @@ class PredatorCapturePrey(BaseEnv):
         Returns observation, reward, done, info (empty dictionary for now)
         '''
         terminated = False
+        info = {}
         self.episode_steps += 1
 
         # call the environment step function and get the updated state
-        return_message = self.env.step(actions_)
+        return_message, dist = self.env.step(actions_)
         
         self._update_tracking_and_locations(actions_)
         updated_state = self._generate_state_space()
@@ -164,10 +164,11 @@ class PredatorCapturePrey(BaseEnv):
                 updated_state['num_prey'] == 0:
                 terminated = True              
 
+        info['dist_travelled'] = dist
         if terminated:
             print(f"Remaining prey: {updated_state['num_prey']} {return_message}")   
         
-        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, {} 
+        return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, info
 
     def get_observations(self, state_space):
         '''

@@ -41,10 +41,18 @@ class roboEnv:
         '''
         goals_ = self.agents._generate_step_goal_positions(actions_)
         message = ''
+        dist_travelled = np.zeros((self.agents.num_robots))
+
         # Considering one step to be equivalent to update_frequency iterations
         for iterations in range(self.args.update_frequency):
             # Get the actual position of the agents
             self.agents.agent_poses = self.robotarium.get_poses()
+            if self.previous_pose is not None:
+                dist_travelled += np.linalg.norm(self.agents.agent_poses[:2, :] - self.previous_pose[:2, :], axis=0)
+            
+            # Saving the pose from the previous iteration
+            self.previous_pose = copy.deepcopy(self.agents.agent_poses)
+
             # Uses the robotarium commands to get the velocities of each robot   
             # Only does this once every 10 steps because otherwise training is really slow 
             if iterations % 15 == 0 or self.args.robotarium:                    
@@ -69,8 +77,10 @@ class roboEnv:
                             message += "_boundary"
                 self.errors = copy.deepcopy(self.robotarium._errors)
                 if message != '':
-                    return message
-        return ""
+                    dist_travelled += np.linalg.norm(self.agents.agent_poses[:2, :] - self.previous_pose[:2, :], axis=0)
+                    return message, dist_travelled
+        
+        return "", dist_travelled
     
     def _create_robotarium(self):
         '''
@@ -90,6 +100,8 @@ class roboEnv:
 
         if self.visualizer.show_figure:
             self.visualizer.initialize_markers(self.robotarium, self.agents)
+        
+        self.previous_pose = None
 
     def __del__(self):
         self.robotarium.call_at_scripts_end()
