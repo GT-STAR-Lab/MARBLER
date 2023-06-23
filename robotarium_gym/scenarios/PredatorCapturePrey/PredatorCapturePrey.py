@@ -162,6 +162,7 @@ class PredatorCapturePrey(BaseEnv):
             # condition for checking for the whether the episode is terminated
             if self.episode_steps > self.args.max_episode_steps or \
                 updated_state['num_prey'] == 0:
+                info['remaining'] = updated_state['num_prey']
                 terminated = True              
 
         info['dist_travelled'] = dist

@@ -28,6 +28,8 @@ LEFT: -1.40 #Minimum x coordinate the robots are allowed to navigate to and star
 RIGHT: 1.40 #Maxiumum x coordinate the robots are allowed to navigate to and start at
 UP: -0.9 #Minimum y coordinate the robots are allowed to navigate to and start at
 DOWN: 0.9 #Maxiumum y coordinate the robots are allowed to navigate to and start at
+enable_logging: True # Uses tensorflow summary writer to log results
+device: "/cpu:0" # Specify the device for logger
 
 #Arguments needed by this scenario
 n_fast_agents: 2

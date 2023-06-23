@@ -168,11 +168,13 @@ def run_env(config, module_dir, save_dir=None):
             
             if config.enable_logging:
                 with summarywriter.as_default():
-                    tf.summary.scalar("reward", episodeReward, i)
+                    tf.summary.scalar("reward", episodeReward, i+1)
                     tf.summary.scalar("episode_steps", episodeSteps, i+1)
                     for agent in range(n_agents):
                         tf.summary.scalar(f'dist_travelled_{agent+1}',\
                                         episodeDistTravelled[agent], i+1)
+                    if "remaining" in info.keys():
+                        tf.summary.scalar("remaining", info['remaining'], i+1)
             
             totalReward.append(episodeReward)
             totalSteps.append(episodeSteps)
