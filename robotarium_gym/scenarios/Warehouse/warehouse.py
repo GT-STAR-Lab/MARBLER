@@ -101,9 +101,10 @@ class Warehouse(BaseEnv):
     
     def step(self, actions_):
         self.episode_steps += 1
+        info = {}
 
         #Robotarium actions and updating agent_poses all happen here
-        message = self.env.step(actions_) 
+        message, dist = self.env.step(actions_) 
 
         obs = self.get_observations()
         if message == '':
@@ -114,7 +115,8 @@ class Warehouse(BaseEnv):
             rewards = [-5]*self.num_robots
             terminated = True
         
-        return obs, rewards, [terminated]*self.num_robots, {}
+        info['dist_travelled'] = dist
+        return obs, rewards, [terminated]*self.num_robots, info
     
     def get_observations(self):
         observations = [] #Each agent's individual observation

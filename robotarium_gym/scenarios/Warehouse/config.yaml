@@ -1,9 +1,9 @@
 #Arguments needed to create proper paths to everything
 scenario: Warehouse #name of the folder inside scenarios
-model_config_file: vdn_ns.json #The config file from sacred for the model
-model_file: vdn_ns.th #The saved model weights
-actor_file: rnn_ns_agent #The file the actor model architecture lives in
-actor_class: RNNNSAgent #The class the actor model architecture is in
+model_config_file: vdn.json #The config file from sacred for the model
+model_file: vdn.th #The saved model weights
+actor_file: rnn_agent #The file the actor model architecture lives in
+actor_class: RNNAgent #The class the actor model architecture is in
 env_file: warehouse #The .py file this environment is in
 env_class: Warehouse #This needs to have all of the functionalities of a gym to work
 
@@ -30,6 +30,8 @@ LEFT: -1.40 #Minimum x coordinate the robots are allowed to navigate to and star
 RIGHT: 1.40 #Maxiumum x coordinate the robots are allowed to navigate to and start at
 UP: -0.9 #Minimum y coordinate the robots are allowed to navigate to and start at
 DOWN: 0.9 #Maxiumum y coordinate the robots are allowed to navigate to and start at
+enable_logging: True # Uses tensorflow summary writer to log results
+device: "/cpu:0" # Specify the device for logger
 
 #Arguments needed by this scenario
 load_reward: 1
