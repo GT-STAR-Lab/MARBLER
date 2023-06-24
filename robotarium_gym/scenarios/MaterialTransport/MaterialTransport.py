@@ -133,6 +133,7 @@ class MaterialTransport(BaseEnv):
                             break
         else:
             #print("Ending due to", return_message)
+            info['message'] = return_message
             reward = -6
             terminated = True
         

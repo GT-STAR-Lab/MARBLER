@@ -83,9 +83,10 @@ class ArcticTransport(BaseEnv):
 
     def step(self, actions_):
         self.episode_steps += 1
+        info = {}
 
         #Robotarium actions and updating agent_poses all happen here
-        message = self.env.step(actions_)
+        message, dist = self.env.step(actions_)
 
         obs = self.get_observations()
         if message == '':
@@ -107,8 +108,10 @@ class ArcticTransport(BaseEnv):
                 print(self.episode_steps)
             else:
                 print((self.args.max_episode_steps+1), message)
+                info['message'] = message
         
-        return obs, [reward]*self.num_robots, [terminated]*self.num_robots, {}
+        info['dist_travelled'] = dist
+        return obs, [reward]*self.num_robots, [terminated]*self.num_robots, info
 
     def get_observations(self):
         observations = []

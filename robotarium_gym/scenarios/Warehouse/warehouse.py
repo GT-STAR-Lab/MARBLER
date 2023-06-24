@@ -112,6 +112,7 @@ class Warehouse(BaseEnv):
             terminated = self.episode_steps > self.args.max_episode_steps #For this environment, episode only ends after timing out
         else:
             print("Ending due to", message)
+            info['message'] = message
             rewards = [-5]*self.num_robots
             terminated = True
         

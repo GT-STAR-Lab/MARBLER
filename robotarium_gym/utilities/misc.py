@@ -108,10 +108,9 @@ def load_env_and_model(args, module_dir):
         if not os.path.exists(log_path):
             os.makedirs(log_path)
         
-        current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + args.model_config_file[:-5]
         log_path = os.path.join(log_path, current_time)
         model_config.log_path = log_path
-
 
     return env, model, model_config
 
@@ -175,7 +174,11 @@ def run_env(config, module_dir, save_dir=None):
                                         episodeDistTravelled[agent], i+1)
                     if "remaining" in info.keys():
                         tf.summary.scalar("remaining", info['remaining'], i+1)
-            
+                    if "message" in info.keys():
+                        tf.summary.text("message", info['message'], i+1)
+                    tf.summary.scalar("Average Distance", np.mean(episodeDistTravelled, axis=0), i+1)
+                    tf.summary.scalar("Sum Distance", np.sum(episodeDistTravelled, axis=0), i+1)
+
             totalReward.append(episodeReward)
             totalSteps.append(episodeSteps)
             totalDists[i,:] = episodeDistTravelled
@@ -187,4 +190,4 @@ def run_env(config, module_dir, save_dir=None):
         print(f'\nReward: {totalReward}, Mean: {np.mean(totalReward)}, Standard Deviation: {np.std(totalReward)}')
         print(f'Steps: {totalSteps}, Mean: {np.mean(totalSteps)}, Standard Deviation: {np.std(totalSteps)}')
         print(f'Distance Travelled: {totalDists}, Mean: {np.mean(totalDists, axis=0)}, Standard Deviation: {np.std(totalDists)}')
-        
+            

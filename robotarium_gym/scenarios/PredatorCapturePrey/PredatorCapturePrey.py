@@ -154,6 +154,7 @@ class PredatorCapturePrey(BaseEnv):
         obs     = self.get_observations(updated_state)
         if return_message != '':
             #print("Ending due to",return_message)
+            info['message'] = return_message
             terminated =  True
             rewards = -5
         else:    

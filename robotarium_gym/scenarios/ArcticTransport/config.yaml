@@ -1,11 +1,11 @@
 #Arguments needed by main.py
 scenario: ArcticTransport #name of the folder inside scenarios
 
-model_config_file: mappo_full.json
-model_file: mappo_full.th
+model_config_file: qmix_ns.json
+model_file: qmix_ns.th
 
-actor_file: rnn_agent
-actor_class: RNNAgent
+actor_file: rnn_ns_agent
+actor_class: RNNNSAgent
 
 env_file: ArcticTransport
 env_class: ArcticTransport #This needs to have all of the functionalities of a gym to work
@@ -23,6 +23,8 @@ update_frequency: 36
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
 barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
 penalize_violations: True #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
+enable_logging: True # Uses tensorflow summary writer to log results
+device: "/cpu:0" # Specify the device for logger
 
 #Arguments needed by this scenario
 LEFT: -1.40
