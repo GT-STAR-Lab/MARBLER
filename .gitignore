@@ -6,3 +6,4 @@ results/
 .idea/
 **/.ipynb_checkpoints/
 robotarium_gym.egg-info/
+logs/
