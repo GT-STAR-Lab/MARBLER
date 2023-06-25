@@ -31,3 +31,5 @@ max_episode_steps: 50
 update_frequency: 29
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
 penalize_violations: True
+enable_logging: True # Uses tensorflow summary writer to log results
+device: "/cpu:0" # Specify the device for logger

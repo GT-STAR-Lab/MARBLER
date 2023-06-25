@@ -43,6 +43,7 @@ def convert_to_robotarium_poses(locations):
 class objectview(object):
     def __init__(self, d):
         self.__dict__ = d
+        self.__json__ = json.dumps(d, indent=4)
 
 def generate_initial_locations(num_locs, width, height, thresh, start_dist=.3, spawn_left = True):
     '''
@@ -123,6 +124,10 @@ def run_env(config, module_dir, save_dir=None):
     if config.enable_logging:
         with tf.device(config.device):
             summarywriter = tf.summary.create_file_writer(model_config.log_path)
+        
+        with summarywriter.as_default():
+            tf.summary.text("Environment Config", config.__json__, step = 0)
+            tf.summary.text("Model Config", model_config.__json__, step = 0)
 
     totalReward = []
     totalSteps = []
