@@ -162,7 +162,7 @@ class simple(BaseEnv):
         
         # Steps into the environment and applies the action 
         # to get an updated state.
-        return_msg, dist = self.env.step(actions_)
+        return_msg, dist, frames = self.env.step(actions_)
         updated_state = self._generate_state_space()
         obs     = self.get_observations(updated_state)
 
@@ -175,6 +175,9 @@ class simple(BaseEnv):
             self.terminated = True
             info['remaining'] = return_msg
                 
+        if self.args.save_gif:
+            info['frames'] = frames
+
         info['dist_travelled'] = dist
         return obs, rewards, [self.terminated]*self.num_agent, info
 

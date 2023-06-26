@@ -5,6 +5,7 @@ import importlib
 import json
 import torch
 from rps.utilities.misc import *
+import imageio
 
 # imports needed for logging
 import tensorflow as tf
@@ -113,6 +114,20 @@ def load_env_and_model(args, module_dir):
         log_path = os.path.join(log_path, current_time)
         model_config.log_path = log_path
 
+    if args.save_gif:
+        current_folder = os.getcwd()
+        gif_path = os.path.join(current_folder, 'gifs')
+        if not os.path.exists(gif_path):
+            os.makedirs(gif_path)
+
+        gif_path = os.path.join(gif_path, args.scenario)
+        if not os.path.exists(gif_path):
+            os.makedirs(gif_path)
+
+        current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + args.model_config_file[:-5]
+        gif_path = os.path.join(gif_path, current_time)
+        model_config.gif_path = gif_path
+
     return env, model, model_config
 
 
@@ -132,6 +147,10 @@ def run_env(config, module_dir, save_dir=None):
     totalReward = []
     totalSteps = []
     totalDists = np.zeros((config.episodes, n_agents))
+
+    if config.save_gif:
+        frames = []
+
     try:
         for i in range(config.episodes):
             episodeReward = 0
@@ -155,6 +174,9 @@ def run_env(config, module_dir, save_dir=None):
                 obs, reward, done, info = env.step(actions)
                 
                 episodeDistTravelled += info['dist_travelled']
+
+                if info is not None and 'frames' in info.keys():
+                    frames.extend(info['frames'])
 
                 if model_config.shared_reward:
                     episodeReward += reward[0]
@@ -187,6 +209,10 @@ def run_env(config, module_dir, save_dir=None):
             totalReward.append(episodeReward)
             totalSteps.append(episodeSteps)
             totalDists[i,:] = episodeDistTravelled
+
+            if config.show_figure_frequency != -1 and config.save_gif:
+                path_gif = os.path.join(model_config.gif_path+'_episode_'+str(i+1)+'.gif')
+                imageio.mimsave(path_gif, frames, duration = 25)
 
             obs = np.array(env.reset())
     except Exception as error:

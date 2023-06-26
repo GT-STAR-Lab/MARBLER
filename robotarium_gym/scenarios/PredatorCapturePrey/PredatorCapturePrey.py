@@ -145,7 +145,7 @@ class PredatorCapturePrey(BaseEnv):
         self.episode_steps += 1
 
         # call the environment step function and get the updated state
-        return_message, dist = self.env.step(actions_)
+        return_message, dist, frames = self.env.step(actions_)
         
         self._update_tracking_and_locations(actions_)
         updated_state = self._generate_state_space()
@@ -169,6 +169,9 @@ class PredatorCapturePrey(BaseEnv):
         info['dist_travelled'] = dist
         if terminated:
             print(f"Remaining prey: {updated_state['num_prey']} {return_message}")   
+        
+        if self.args.save_gif:
+            info['frames'] = frames
         
         return obs, [rewards]*self.num_robots, [terminated]*self.num_robots, info
 

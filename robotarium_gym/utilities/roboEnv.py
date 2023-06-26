@@ -42,6 +42,7 @@ class roboEnv:
         goals_ = self.agents._generate_step_goal_positions(actions_)
         message = ''
         dist_travelled = np.zeros((self.agents.num_robots))
+        frames = []
 
         # Considering one step to be equivalent to update_frequency iterations
         for iterations in range(self.args.update_frequency):
@@ -62,6 +63,12 @@ class roboEnv:
             if self.visualizer.show_figure:
                 self.visualizer.update_markers(self.robotarium, self.agents)
 
+                if self.args.save_gif:
+                    fig = self.robotarium.figure
+                    fig.canvas.draw()
+                    frame = np.array(fig.canvas.renderer.buffer_rgba())
+                    frames.append(frame)
+
             self.robotarium.step()
 
             #If checking for violations (boundary and collision) then
@@ -78,9 +85,9 @@ class roboEnv:
                 self.errors = copy.deepcopy(self.robotarium._errors)
                 if message != '':
                     dist_travelled += np.linalg.norm(self.agents.agent_poses[:2, :] - self.previous_pose[:2, :], axis=0)
-                    return message, dist_travelled
+                    return message, dist_travelled, frames
         
-        return "", dist_travelled
+        return "", dist_travelled, frames
     
     def _create_robotarium(self):
         '''

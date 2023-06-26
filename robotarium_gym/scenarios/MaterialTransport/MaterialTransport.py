@@ -115,7 +115,7 @@ class MaterialTransport(BaseEnv):
         info = {}
 
         #Robotarium actions and updating agent_poses all happen here
-        return_message, dist = self.env.step(actions_)
+        return_message, dist, frames = self.env.step(actions_)
         for i in range(len(self.messages)):
             self.messages[i] = actions_[i] % 4
 
@@ -142,6 +142,9 @@ class MaterialTransport(BaseEnv):
             print(f'Remaining: {self.zone1_load + self.zone2_load + sum(a.load for a in self.agents)} {return_message}')
             info['remaining'] = self.zone1_load + self.zone2_load + sum(a.load for a in self.agents)        
  
+        if self.args.save_gif:
+            info['frames'] = frames
+
         return obs, [reward] * self.num_robots, [terminated]*self.num_robots, info
     
     def get_observations(self):

@@ -10,13 +10,13 @@ actor_class: RNNNSAgent
 env_file: ArcticTransport
 env_class: ArcticTransport #This needs to have all of the functionalities of a gym to work
 n_actions: 5 #The number of actions available for the agent
-episodes: 30 #Number of episodes to run for
+episodes: 3 #Number of episodes to run for
 n_agents: 4
 shared_reward: True
 
 seed: -1 #sets the seed. Set to -1 to use a random seed.
 
-show_figure_frequency: -1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
+show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False
 max_episode_steps: 60
 update_frequency: 36
@@ -25,6 +25,7 @@ barrier_certificate: safe #Can be safe or default for strong or weak barrier cer
 penalize_violations: True #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
 enable_logging: True # Uses tensorflow summary writer to log results
 device: "/cpu:0" # Specify the device for logger
+save_gif: True # Save the gif; Note: Make sure to set show_figure_frequency
 
 #Arguments needed by this scenario
 LEFT: -1.40
