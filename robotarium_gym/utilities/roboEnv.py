@@ -63,11 +63,13 @@ class roboEnv:
             if self.visualizer.show_figure:
                 self.visualizer.update_markers(self.robotarium, self.agents)
 
-                if self.args.save_gif:
+                if self.args.save_gif and self.counter % self.args.gif_frequency == 0:
                     fig = self.robotarium.figure
                     fig.canvas.draw()
                     frame = np.array(fig.canvas.renderer.buffer_rgba())
                     frames.append(frame)
+                
+                self.counter += 1
 
             self.robotarium.step()
 
@@ -109,6 +111,7 @@ class roboEnv:
             self.visualizer.initialize_markers(self.robotarium, self.agents)
         
         self.previous_pose = None
+        self.counter = 0
 
     def __del__(self):
         self.robotarium.call_at_scripts_end()

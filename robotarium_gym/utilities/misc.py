@@ -212,7 +212,7 @@ def run_env(config, module_dir, save_dir=None):
 
             if config.show_figure_frequency != -1 and config.save_gif:
                 path_gif = os.path.join(model_config.gif_path+'_episode_'+str(i+1)+'.gif')
-                imageio.mimsave(path_gif, frames, duration = 25)
+                imageio.mimsave(path_gif, frames, duration = 100,loop=0)
 
             obs = np.array(env.reset())
     except Exception as error:
