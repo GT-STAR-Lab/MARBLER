@@ -63,7 +63,7 @@ def main(args):
             data = data.replace('PredatorCapturePrey', args.scenario)
         if "config.npy" in f:
             data=data.replace('robotarium: False', 'robotarium: True')
-            data=re.sub('show_figure_frequency: *', 'show_figure_frequency: 1#', data)
+            data=re.sub(r'show_figure_frequency: .*', 'show_figure_frequency: 1', data)
             data = data.replace('save_gif: True', 'save_gif: False')
         for p in possible_imports:
             data = data.replace(p, p.split(".")[-1])
