@@ -10,7 +10,6 @@ def main():
         module_dir = ""
     parser = argparse.ArgumentParser()
     parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
-    parser.add_argument('--save_dir', type=str, default=None, help='Directory to save the images. Show fig must be true. Set to None not to save')
     args = parser.parse_args()
 
     if module_dir == "":
@@ -21,7 +20,7 @@ def main():
         config = yaml.safe_load(f)
     config = objectview(config)
 
-    run_env(config, module_dir, args.save_dir)
+    run_env(config, module_dir)
 
 if __name__ == '__main__':
     main()

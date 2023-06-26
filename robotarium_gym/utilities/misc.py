@@ -131,7 +131,7 @@ def load_env_and_model(args, module_dir):
     return env, model, model_config
 
 
-def run_env(config, module_dir, save_dir=None):
+def run_env(config, module_dir):
     env, model, model_config = load_env_and_model(config, module_dir)
     obs = np.array(env.reset())
     n_agents = len(obs)
@@ -158,8 +158,6 @@ def run_env(config, module_dir, save_dir=None):
             episodeDistTravelled = np.zeros((n_agents))
             hs = np.array([np.zeros((model_config.hidden_dim, )) for i in range(n_agents)])
             for j in range(config.max_episode_steps+1):      
-                if env.env.visualizer.show_figure and save_dir: 
-                    plt.savefig(f'{save_dir}/episode{i}step{j}.png')
                 if model_config.obs_agent_id: #Appends the agent id if obs_agent_id is true. TODO: support obs_last_action too
                     obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
 
