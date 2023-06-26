@@ -45,3 +45,4 @@ robotarium: False #Should be False during training to speed up robots, needs to 
 enable_logging: True # Uses tensorflow summary writer to log results
 device: "/cpu:0" # Specify the device for logger
 save_gif: True # Save the gif; Note: Make sure to set show_figure_frequency
+gif_frequency: 29 # Frequency at which frames need to be saved for gif creation
