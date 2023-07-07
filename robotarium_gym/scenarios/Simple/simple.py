@@ -158,10 +158,11 @@ class simple(BaseEnv):
         Returns observation, reward, done, info (empty dictionary for now)
         '''
         self.episode_steps += 1
+        info = {}
         
         # Steps into the environment and applies the action 
         # to get an updated state.
-        return_msg = self.env.step(actions_)
+        return_msg, dist, frames = self.env.step(actions_)
         updated_state = self._generate_state_space()
         obs     = self.get_observations(updated_state)
 
@@ -172,8 +173,13 @@ class simple(BaseEnv):
             print("Ending due to", return_msg)
             rewards = [-5]*self.num_robots
             self.terminated = True
+            info['remaining'] = return_msg
                 
-        return obs, rewards, [self.terminated]*self.num_agent, {} 
+        if self.args.save_gif:
+            info['frames'] = frames
+
+        info['dist_travelled'] = dist
+        return obs, rewards, [self.terminated]*self.num_agent, info
 
     def get_action_space(self):
         return self.action_space

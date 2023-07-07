@@ -104,7 +104,7 @@ class Warehouse(BaseEnv):
         info = {}
 
         #Robotarium actions and updating agent_poses all happen here
-        message, dist = self.env.step(actions_) 
+        message, dist, frames = self.env.step(actions_) 
 
         obs = self.get_observations()
         if message == '':
@@ -117,6 +117,8 @@ class Warehouse(BaseEnv):
             terminated = True
         
         info['dist_travelled'] = dist
+        if self.args.save_gif:
+            info['frames'] = frames
         return obs, rewards, [terminated]*self.num_robots, info
     
     def get_observations(self):

@@ -86,7 +86,7 @@ class ArcticTransport(BaseEnv):
         info = {}
 
         #Robotarium actions and updating agent_poses all happen here
-        message, dist = self.env.step(actions_)
+        message, dist, frames = self.env.step(actions_)
 
         obs = self.get_observations()
         if message == '':
@@ -111,6 +111,9 @@ class ArcticTransport(BaseEnv):
                 info['message'] = message
         
         info['dist_travelled'] = dist
+        if self.args.save_gif:
+            info['frames'] = frames
+
         return obs, [reward]*self.num_robots, [terminated]*self.num_robots, info
 
     def get_observations(self):

@@ -5,6 +5,7 @@ import importlib
 import json
 import torch
 from rps.utilities.misc import *
+import imageio
 
 # imports needed for logging
 import tensorflow as tf
@@ -43,6 +44,7 @@ def convert_to_robotarium_poses(locations):
 class objectview(object):
     def __init__(self, d):
         self.__dict__ = d
+        self.__json__ = json.dumps(d, indent=4)
 
 def generate_initial_locations(num_locs, width, height, thresh, start_dist=.3, spawn_left = True):
     '''
@@ -112,10 +114,24 @@ def load_env_and_model(args, module_dir):
         log_path = os.path.join(log_path, current_time)
         model_config.log_path = log_path
 
+    if args.save_gif:
+        current_folder = os.getcwd()
+        gif_path = os.path.join(current_folder, 'gifs')
+        if not os.path.exists(gif_path):
+            os.makedirs(gif_path)
+
+        gif_path = os.path.join(gif_path, args.scenario)
+        if not os.path.exists(gif_path):
+            os.makedirs(gif_path)
+
+        current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + args.model_config_file[:-5]
+        gif_path = os.path.join(gif_path, current_time)
+        model_config.gif_path = gif_path
+
     return env, model, model_config
 
 
-def run_env(config, module_dir, save_dir=None):
+def run_env(config, module_dir):
     env, model, model_config = load_env_and_model(config, module_dir)
     obs = np.array(env.reset())
     n_agents = len(obs)
@@ -123,10 +139,18 @@ def run_env(config, module_dir, save_dir=None):
     if config.enable_logging:
         with tf.device(config.device):
             summarywriter = tf.summary.create_file_writer(model_config.log_path)
+        
+        with summarywriter.as_default():
+            tf.summary.text("Environment Config", config.__json__, step = 0)
+            tf.summary.text("Model Config", model_config.__json__, step = 0)
 
     totalReward = []
     totalSteps = []
     totalDists = np.zeros((config.episodes, n_agents))
+
+    if config.save_gif:
+        frames = []
+
     try:
         for i in range(config.episodes):
             episodeReward = 0
@@ -134,8 +158,6 @@ def run_env(config, module_dir, save_dir=None):
             episodeDistTravelled = np.zeros((n_agents))
             hs = np.array([np.zeros((model_config.hidden_dim, )) for i in range(n_agents)])
             for j in range(config.max_episode_steps+1):      
-                if env.env.visualizer.show_figure and save_dir: 
-                    plt.savefig(f'{save_dir}/episode{i}step{j}.png')
                 if model_config.obs_agent_id: #Appends the agent id if obs_agent_id is true. TODO: support obs_last_action too
                     obs = np.concatenate([obs,np.eye(n_agents)], axis=1)
 
@@ -150,6 +172,9 @@ def run_env(config, module_dir, save_dir=None):
                 obs, reward, done, info = env.step(actions)
                 
                 episodeDistTravelled += info['dist_travelled']
+
+                if info is not None and 'frames' in info.keys():
+                    frames.extend(info['frames'])
 
                 if model_config.shared_reward:
                     episodeReward += reward[0]
@@ -182,6 +207,10 @@ def run_env(config, module_dir, save_dir=None):
             totalReward.append(episodeReward)
             totalSteps.append(episodeSteps)
             totalDists[i,:] = episodeDistTravelled
+
+            if config.show_figure_frequency != -1 and config.save_gif:
+                path_gif = os.path.join(model_config.gif_path+'_episode_'+str(i+1)+'.gif')
+                imageio.mimsave(path_gif, frames, duration = 100,loop=0)
 
             obs = np.array(env.reset())
     except Exception as error:

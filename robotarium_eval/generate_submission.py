@@ -2,6 +2,7 @@ import os
 import time
 import argparse
 import shutil
+import re
 import robotarium_gym.main
 import robotarium_gym.utilities.roboEnv
 
@@ -60,10 +61,17 @@ def main(args):
             data = file.read()
         if "main.py" in f:
             data = data.replace('PredatorCapturePrey', args.scenario)
+        if "config.npy" in f:
+            data=data.replace('robotarium: False', 'robotarium: True')
+            data=re.sub(r'show_figure_frequency: .*', 'show_figure_frequency: 1', data)
+            data = data.replace('save_gif: True', 'save_gif: False')
+            data = data.replace('enable_logging: True', 'enable_logging: False')
         for p in possible_imports:
             data = data.replace(p, p.split(".")[-1])
         for k in file_conversions:
             data = data.replace(k, file_conversions[k])
+        data = data.replace('import imageio', '#import imageio')
+        data = data.replace('import tensorflow as tf', '#import tensorflow as tf') #DELETEME if robotarium installs tensorflow
         with open(f, 'w') as file:
             file.write(data)
     print('Files written to', args.out_dir)
