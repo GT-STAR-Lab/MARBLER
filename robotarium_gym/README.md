@@ -31,7 +31,8 @@ Must include the following methods:
 * `update_markers`: Updates the background of the Robotarium after each step
 And the following class variables:
 * `show_figure`: boolean, whether or not to display anything
-Note: Currently the visualizations may appear different in different environments
+
+Note: Currently the visualizations may appear different in different python environments
 
 #### Config
 All scenarios must have a `config.yaml` in their folder <br>
