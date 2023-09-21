@@ -32,3 +32,5 @@ If you use this in your work please cite:
 >Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Shashwat Nigam, & Harish Ravichandar. (2023). MARBLER: An Open Platform for Standarized Evaluation of Multi-Robot Reinforcement Learning Algorithms.
 * The Robotarium: 
 >S. Wilson, P. Glotfelter, L. Wang, S. Mayya, G. Notomista, M. Mote, and M. Egerstedt. The robotarium: Globally impactful opportunities, challenges, and lessons learned in remote-access, distributed control of multirobot systems. IEEE Control Systems Magazine, 40(1):26–44, 2020.
+* Additionally, if you use the default agents in this repo, also cite EPyMARL:
+>Papoudakis, Georgios, et al. "Benchmarking multi-agent deep reinforcement learning algorithms in cooperative tasks." arXiv preprint arXiv:2006.07869 (2020).
