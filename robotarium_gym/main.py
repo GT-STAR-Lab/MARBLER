@@ -5,9 +5,11 @@ import argparse
 
 
 def main():
+    #The next three lines are checking if the program is being run in the normal setup or on the Robotarium (after using generate_submission.py)
     module_dir = os.path.dirname(__file__)
     if module_dir.split("/")[-1] != "robotarium_gym":
         module_dir = ""
+        
     parser = argparse.ArgumentParser()
     parser.add_argument('--scenario', type=str, default='PredatorCapturePrey', help='scenario name')
     args = parser.parse_args()

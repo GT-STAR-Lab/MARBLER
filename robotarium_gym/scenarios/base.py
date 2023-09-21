@@ -30,6 +30,10 @@ class BaseEnv(object):
         raise NotImplementedError()
 
 class BaseVisualization():
+    '''
+    Template for what the scenario's Visualize class must contain
+    Additionally, it must also have show_figure as a class variable
+    '''
     #How the robotarium's background gets reset at the beginning of each episode
     def initialize_markers(self, robotarium, agents):
         raise NotImplementedError()

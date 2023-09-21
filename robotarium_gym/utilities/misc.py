@@ -66,7 +66,7 @@ def load_env_and_model(args, module_dir):
     ''' 
     Helper function to load a model from a specified scenario in args
     '''
-    if module_dir == "":
+    if module_dir == "": #All the weird checks with module_dir are for checking if running normally or for the Robotarium (after running generate_submission.py)
         model_config =args.model_config_file
     else:
         model_config = os.path.join(module_dir, "scenarios", args.scenario, "models", args.model_config_file)

@@ -14,6 +14,7 @@ class Visualize(BaseVisualization):
     def initialize_markers(self, robotarium, agents):
         agent_marker_size = determine_marker_size(robotarium, self.agent_marker_size_m)
 
+        #The graphics on the Robotarium is just a matplotlib plot so things that works for that will work here too
         self.goals = []
         w = self.args.goal_width
         self.goals.append(robotarium.axes.add_patch(patches.Rectangle([-1.5,-1], w,1, color=self.CM(1), zorder=-1)))
@@ -30,5 +31,6 @@ class Visualize(BaseVisualization):
     def update_markers(self, robotarium, agents):
         for i in range(agents.agent_poses.shape[1]):
             self.robot_markers[i].set_offsets(agents.agent_poses[:2,i].T)
-            # Next two lines updates the marker sizes if the figure window size is changed.
+
+            # Updates the marker sizes if the figure window size is changed.
             self.robot_markers[i].set_sizes([determine_marker_size(robotarium, self.agent_marker_size_m)])

@@ -29,7 +29,8 @@ Should inherit from `base.BaseVisualization` <br>
 Must include the following methods:
 * `initialize_markers`: Sets the background of the Robotarium at the start of an episode
 * `update_markers`: Updates the background of the Robotarium after each step
-And the following class variables:
+
+And the following Class Variables:
 * `show_figure`: boolean, whether or not to display anything
 
 Note: Currently the visualizations may appear different in different python environments
@@ -46,12 +47,12 @@ Once the scenario is created, to use it for training you must:
 
 ## File Structure
 ```
-├── main.py           # user calls this file, specify scenario -> python -m robotarium.main --scenario pcp. Primarily to debug scenarios before training with them
+├── main.py           # user calls this file, specify scenario -> python -m robotarium.main --scenario pcp. Primarily to debug scenarios and evaluate trained models
 ├── __init__.py #registers specific scenarios
 ├── wrapper.py #wraps each scenario as a Gym Environment
 ├── utilities    # user doesn't have to touch this folder. Mostly to handle Robotarium calls
 │   ├── controller.py
-│   ├── rnn_agent.py
+│   ├── rnn_agent.py #Agent model (rnn_agent.py as included by default is taken from epymarl)
 │   ├── roboEnv.py
 │   └── utilities.py
 └── scenarios
@@ -59,9 +60,9 @@ Once the scenario is created, to use it for training you must:
         ├── __init__.py
         ├── config.yaml  # Environment specific config file
         ├── models       # pretrained models for this scenario
-        │   ├── maddpg.mat
-        │   └── maddpg.tiff
-        ├── Warehouse.py  # 1. main file user codes up
+        │   ├── mappo.json # The models in this repo are the final models we evaluated in the paper
+        │   └── mappo.th
+        ├── Warehouse.py  # 1. main file user codes 
         ├── visualize.py  # 2. user defined visualization
 ```
 

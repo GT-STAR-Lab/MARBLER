@@ -40,9 +40,13 @@ class roboEnv:
         Take a step into the environment given the action
         '''
         goals_ = self.agents._generate_step_goal_positions(actions_)
-        message = ''
         dist_travelled = np.zeros((self.agents.num_robots))
         frames = []
+
+        #This should be renamed but this returns the reason the episode stopped
+        #'' means the episode ended successfully, 'boundary' means the episode ended due to boundary, 'collision' means there was a collision
+        message = '' 
+
 
         # Considering one step to be equivalent to update_frequency iterations
         for iterations in range(self.args.update_frequency):
@@ -94,7 +98,7 @@ class roboEnv:
     def _create_robotarium(self):
         '''
         Creates a new instance of the robotarium
-        Randomly initializes the prey in the right half and the agents in the left third of the Robotarium
+        Uses the scenario's visualizer object to generate the plots
         '''
         # Initialize agents and tracking variables
         if self.first_run:

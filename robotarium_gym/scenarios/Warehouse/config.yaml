@@ -12,9 +12,8 @@ n_actions: 5 #The number of actions available for the agent
 episodes: 10 #Number of episodes to run for
 shared_reward: False #Purely for evaluation information
 
+#Arguments neeeded for all scenarios
 seed: -1 #sets the seed. Set to -1 to use a random seed.
-
-#Arguments neeeded for most scenarios
 n_agents: 6 #Number of agents to run
 show_figure_frequency: 1 #Set to -1 to turn off figures. Needs to be 1 when submitting to Robotarium
 real_time: False #Set to true for debugging only
@@ -26,14 +25,16 @@ start_dist: .6 #Minimum distance the agents start from each other
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
 barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
 penalize_violations: True #If true, agents get a negative reward for collisions or boundary infractions and the episode stops
-LEFT: -1.40 #Minimum x coordinate the robots are allowed to navigate to and start at
-RIGHT: 1.40 #Maxiumum x coordinate the robots are allowed to navigate to and start at
-UP: -0.9 #Minimum y coordinate the robots are allowed to navigate to and start at
-DOWN: 0.9 #Maxiumum y coordinate the robots are allowed to navigate to and start at
 enable_logging: True # Uses tensorflow summary writer to log results
 device: "/cpu:0" # Specify the device for logger
 save_gif: True # Save the gif; Note: Make sure to set show_figure_frequency
 gif_frequency: 29 # Frequency at which frames need to be saved for gif creation
+
+#Arguments needed for robot initialization
+LEFT: -1.40 #Minimum x coordinate the robots are allowed to navigate to and start at
+RIGHT: 1.40 #Maxiumum x coordinate the robots are allowed to navigate to and start at
+UP: -0.9 #Minimum y coordinate the robots are allowed to navigate to and start at
+DOWN: 0.9 #Maxiumum y coordinate the robots are allowed to navigate to and start at
 
 #Arguments needed by this scenario
 load_reward: 1

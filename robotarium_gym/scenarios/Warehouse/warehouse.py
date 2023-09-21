@@ -53,7 +53,7 @@ class Warehouse(BaseEnv):
         #Agent agent's observation is [pos_x,pos_y,loaded] where loaded is a bool
         self.agent_obs_dim = 3 
         
-        #This isn't really needed but makes a bunch of stuff clearer
+        #This really isn't needed but makes some stuff clearer
         self.action_id2w = {0: 'left', 1: 'right', 2: 'up', 3:'down', 4:'no_action'}
 
         if self.args.seed != -1:
