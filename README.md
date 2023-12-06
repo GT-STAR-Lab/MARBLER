@@ -14,8 +14,11 @@ Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 * To upload the agents to the Robotarium, look at the README in robotarium_eval
 
 ## Training with EPyMARL
-1. Download and Install [EPyMARL](https://github.com/uoe-agents/epymarl)
-- In EPyMARL's `requirements.txt`, line 15 may need to be changed from `protobuf==3.6.1` to `protobuf`
+1. Download and Install [EPyMARL](https://github.com/uoe-agents/epymarl). On Ubuntu 22.04, to successfully install EPyMARL, I have to: 
+    - Change line 15 in `requirements.txt` from `protobuf==3.6.1` to `protobuf`
+    - Downgrade `wheel` to 0.38.4
+    - Downgrade `setuptools` to 65.5.0
+    - Install `einops` and `torchscatter`
 2. Train agents normally using our gym keys
 - For example: `python3 src/main.py --config=qmix --env-config=gymma with env_args.time_limit=1000 env_args.key="robotarium_gym:PredatorCapturePrey-v0"`
 - To train faster, ensure `robotarium` is False, `real_time` is False, and `show_figure_frequency` is large or -1 in the environment's `config.yaml`
