@@ -1,0 +1,1 @@
+See the [supplimentary material](https://shubhlohiya.github.io/MARBLER/assets/supplementary.pdf) for detailed breakdowns of each scenario.

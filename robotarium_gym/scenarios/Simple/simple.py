@@ -223,8 +223,4 @@ class simple(BaseEnv):
         
         self.state_space = state_space
         return rewards
-    
-    def render(self, mode='human'):
-        # Render your environment
-        pass
 

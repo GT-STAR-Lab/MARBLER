@@ -1,8 +1,8 @@
 #Arguments needed by main.py
 scenario: PredatorCapturePrey #name of the folder inside scenarios
 
-model_config_file: qmix.json
-model_file: qmix.th
+model_config_file: mappo.json
+model_file: mappo.th
 
 actor_file: rnn_agent
 actor_class: RNNAgent
@@ -23,7 +23,7 @@ UP: -0.9
 DOWN: .9
 ROBOT_INIT_RIGHT_THRESH : -0.5
 PREY_INIT_LEFT_THRESH : 0.5
-step_dist : 0.2 #This should probably be renamed. This is actually the amount of distance the robots move per time step...
+step_dist : 0.2 #The amount of distance the robots move per time step
 start_dist: 0.3 #Minimum distance the agents start from each other
 barrier_certificate: safe #Can be safe or default for strong or weak barrier certificates
 time_penalty: -0.05
@@ -42,7 +42,7 @@ max_episode_steps: 80
 update_frequency: 29
 num_prey: 6
 robotarium: False #Should be False during training to speed up robots, needs to be true when submitting
-enable_logging: True # Uses tensorflow summary writer to log results
+enable_logging: False # Uses tensorflow summary writer to log results
 device: "/cpu:0" # Specify the device for logger
-save_gif: True # Save the gif; Note: Make sure to set show_figure_frequency
+save_gif: False # Save the gif; Note: Make sure to set show_figure_frequency
 gif_frequency: 29 # Frequency at which frames need to be saved for gif creation
