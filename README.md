@@ -32,7 +32,7 @@ Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
 ## Citing
 If you use this in your work please cite:
 * Our work:
->Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Shashwat Nigam, & Harish Ravichandar. (2023). MARBLER: An Open Platform for Standarized Evaluation of Multi-Robot Reinforcement Learning Algorithms.
+>R. J. Torbati, S. Lohiya, S. Singh, M. S. Nigam and H. Ravichandar, "MARBLER: An Open Platform for Standardized Evaluation of Multi-Robot Reinforcement Learning Algorithms," 2023 International Symposium on Multi-Robot and Multi-Agent Systems (MRS), Boston, MA, USA, 2023, pp. 57-63, doi: 10.1109/MRS60187.2023.10416792.
 * The Robotarium: 
 >S. Wilson, P. Glotfelter, L. Wang, S. Mayya, G. Notomista, M. Mote, and M. Egerstedt. The robotarium: Globally impactful opportunities, challenges, and lessons learned in remote-access, distributed control of multirobot systems. IEEE Control Systems Magazine, 40(1):26–44, 2020.
 * Additionally, if you use the default agents in this repo, also cite EPyMARL:
