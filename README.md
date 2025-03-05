@@ -1,5 +1,8 @@
 # MARBLER: Multi-Agent RL Benchmark and Learning Environment for the Robotarium
-Team: Reza Torbati, Shubham Lohiya, Shivika Singh, Meher Nigam
+Official Implementation of MARBLER (Best Paper Award, MRS 2025)
+
+Website: https://shubhlohiya.github.io/MARBLER/
+Arxiv: https://arxiv.org/abs/2502.09889
 
 ## Installation Instructions
 1. Create new Conda Environment: `conda create -n MARBLER python=3.8 && conda activate MARBLER`. 
