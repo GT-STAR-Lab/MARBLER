@@ -1,5 +1,5 @@
 # MARBLER: Multi-Agent RL Benchmark and Learning Environment for the Robotarium
-Official Implementation of MARBLER (Best Paper Award, MRS 2025)
+Official Implementation of MARBLER (Best Paper Award, MRS 2023)
 
 Website: https://shubhlohiya.github.io/MARBLER/
 Arxiv: https://arxiv.org/abs/2502.09889
