@@ -2,7 +2,7 @@
 Official Implementation of MARBLER (Best Paper Award, MRS 2023)
 
 Website: https://shubhlohiya.github.io/MARBLER/
-Arxiv: https://arxiv.org/abs/2502.09889
+Arxiv: https://arxiv.org/abs/2307.03891
 
 ## Installation Instructions
 1. Create new Conda Environment: `conda create -n MARBLER python=3.8 && conda activate MARBLER`. 
